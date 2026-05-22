@@ -1,0 +1,49 @@
+name: bazel
+
+on:
+  pull_request:
+    paths:
+      - "bazel/**"
+      - "bazel-apk/**"
+      - ".github/workflows/bazel.yml"
+  push:
+    branches: [main]
+    paths:
+      - "bazel/**"
+      - "bazel-apk/**"
+      - ".github/workflows/bazel.yml"
+  workflow_dispatch:
+
+jobs:
+  bazel-resources:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bazel-contrib/setup-bazel@0.15.0
+        with:
+          bazelisk-cache: true
+          disk-cache: true
+          repository-cache: true
+
+      - name: Build resources discovery
+        working-directory: bazel
+        run: bazel build //:app_resources
+
+      - name: Inspect output
+        working-directory: bazel
+        run: cat bazel-bin/app_resources.json
+
+  bazel-build-apk:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bazel-contrib/setup-bazel@0.15.0
+        with:
+          bazelisk-cache: true
+          disk-cache: true
+          repository-cache: true
+
+      - name: Build Compose APK (opt-in, known-fragile — see bazel-apk/README.md)
+        working-directory: bazel-apk
+        run: bazel build //:bazel_sample_apk

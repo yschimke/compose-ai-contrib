@@ -15,7 +15,7 @@ composeai-daemon-core = { module = "ee.schimke.composeai:daemon-core", version.r
 composeai-data-render-connector = { module = "ee.schimke.composeai:data-render-connector", version.ref = "composeai" }
 composeai-data-render-core = { module = "ee.schimke.composeai:data-render-core", version.ref = "composeai" }
 junit = { module = "junit:junit", version.ref = "junit" }
-truth = { module = "com.google.common.truth:truth", version.ref = "truth" }
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
