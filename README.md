@@ -54,7 +54,12 @@ The version of `compose-ai-tools` under test is pinned in
 ## CI
 
 - [`.github/workflows/contract-tests.yml`](.github/workflows/contract-tests.yml)
-  builds the Amper fixture and runs the contract test on every PR.
+  builds the Amper Desktop fixture and runs the contract test on every PR.
+- [`.github/workflows/amper-android.yml`](.github/workflows/amper-android.yml)
+  builds the Amper Android fixture.
+- [`.github/workflows/bazel.yml`](.github/workflows/bazel.yml) builds the
+  Bazel resources-discovery target and (opt-in, `continue-on-error`)
+  the Compose APK target.
 
 ## Versioning
 
