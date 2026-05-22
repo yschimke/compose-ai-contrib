@@ -13,6 +13,7 @@ dependencyResolutionManagement {
   repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
   repositories {
     mavenCentral()
+    google()
     maven("https://central.sonatype.com/repository/maven-snapshots/") {
       name = "ossSnapshots"
       content { includeGroup("ee.schimke.composeai") }
