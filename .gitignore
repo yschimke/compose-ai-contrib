@@ -1,0 +1,15 @@
+.gradle/
+build/
+!gradle-wrapper.jar
+!**/src/**/build/
+
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+.DS_Store
+Thumbs.db
+
+local.properties
