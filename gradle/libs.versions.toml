@@ -1,0 +1,22 @@
+[versions]
+composeai = "0.11.0"
+kotlin = "2.3.21"
+junit = "4.13.2"
+truth = "1.4.5"
+
+[libraries]
+composeai-preview-discovery = { module = "ee.schimke.composeai:preview-discovery", version.ref = "composeai" }
+composeai-daemon-launch-builder = { module = "ee.schimke.composeai:daemon-launch-builder", version.ref = "composeai" }
+composeai-render-cli = { module = "ee.schimke.composeai:render-cli", version.ref = "composeai" }
+composeai-render-session-api = { module = "ee.schimke.composeai:render-session-api", version.ref = "composeai" }
+composeai-render-session-subprocess = { module = "ee.schimke.composeai:render-session-subprocess", version.ref = "composeai" }
+composeai-daemon-desktop = { module = "ee.schimke.composeai:daemon-desktop", version.ref = "composeai" }
+composeai-daemon-core = { module = "ee.schimke.composeai:daemon-core", version.ref = "composeai" }
+composeai-data-render-connector = { module = "ee.schimke.composeai:data-render-connector", version.ref = "composeai" }
+composeai-data-render-core = { module = "ee.schimke.composeai:data-render-core", version.ref = "composeai" }
+junit = { module = "junit:junit", version.ref = "junit" }
+truth = { module = "com.google.common.truth:truth", version.ref = "truth" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
