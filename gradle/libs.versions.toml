@@ -1,5 +1,5 @@
 [versions]
-composeai = "0.11.1"
+composeai = "0.11.2"
 kotlin = "2.3.21"
 junit = "4.13.2"
 truth = "1.4.5"
