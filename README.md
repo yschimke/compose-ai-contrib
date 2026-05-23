@@ -24,6 +24,12 @@ off.
 Each directory is self-contained — see its README for build
 instructions.
 
+## Standalone binaries
+
+| Module | Description |
+| --- | --- |
+| [`compose-preview-scripting/`](compose-preview-scripting/) | `compose-preview-scripting <path.composepreview.kts>` — Kotlin scripting host that renders previews via `gradle-preview-driver` and evaluates a user script against the result set. Lifted from upstream's `examples/scripting/` reference (yschimke/compose-ai-tools PR #1375). Won't build until `preview-data-api` + `gradle-preview-driver` ship in an upstream release and the `composeai` pin is bumped. |
+
 ## Documentation
 
 - [`docs/amper.md`](docs/amper.md) — Amper integration walkthrough.

@@ -14,6 +14,13 @@ dependencyResolutionManagement {
   repositories {
     mavenCentral()
     google()
+    // Gradle Tooling API artifacts (`org.gradle:gradle-tooling-api:*`) — pulled in transitively by
+    // `:compose-preview-scripting`'s `gradle-preview-driver` dependency. Lives on Gradle's libs
+    // releases repo, not Maven Central.
+    maven("https://repo.gradle.org/gradle/libs-releases") {
+      name = "gradleLibsReleases"
+      content { includeGroup("org.gradle") }
+    }
     maven("https://central.sonatype.com/repository/maven-snapshots/") {
       name = "ossSnapshots"
       content { includeGroup("ee.schimke.composeai") }
@@ -26,3 +33,10 @@ rootProject.name = "compose-ai-contrib"
 include(":contract-tests:amper-cmp-desktop")
 project(":contract-tests:amper-cmp-desktop").projectDir =
   file("contract-tests/amper-cmp-desktop")
+
+// Standalone `compose-preview-scripting` binary. Lifted from upstream's
+// `examples/scripting/` reference (yschimke/compose-ai-tools PR #1375) as the
+// published home for the Kotlin scripting host. Consumes only published
+// artifacts (`ee.schimke.composeai:preview-data-api` + `:gradle-preview-driver`)
+// — see `compose-preview-scripting/README.md` for the version-pin caveat.
+include(":compose-preview-scripting")
