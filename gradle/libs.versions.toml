@@ -14,6 +14,18 @@ composeai-daemon-desktop = { module = "ee.schimke.composeai:daemon-desktop", ver
 composeai-daemon-core = { module = "ee.schimke.composeai:daemon-core", version.ref = "composeai" }
 composeai-data-render-connector = { module = "ee.schimke.composeai:data-render-connector", version.ref = "composeai" }
 composeai-data-render-core = { module = "ee.schimke.composeai:data-render-core", version.ref = "composeai" }
+# Wire-format DTOs (`PreviewResult`, `PreviewManifest`, `ExtensionPayload`, the v1 a11y mirror)
+# and the Gradle Tooling-API render pipeline as a library. Introduced upstream by PR #1375;
+# consumed here by `:compose-preview-scripting`. Won't resolve until that PR lands and the
+# `composeai` version above is bumped to the release that includes them.
+composeai-preview-data-api = { module = "ee.schimke.composeai:preview-data-api", version.ref = "composeai" }
+composeai-gradle-preview-driver = { module = "ee.schimke.composeai:gradle-preview-driver", version.ref = "composeai" }
+# Kotlin scripting host — compiles + evaluates `*.composepreview.kts` files inside
+# `:compose-preview-scripting`. Pulls `kotlin-compiler-embeddable` transitively (~50 MB);
+# kept off the main CLI's classpath upstream, lives only in this standalone binary.
+kotlin-scripting-common = { module = "org.jetbrains.kotlin:kotlin-scripting-common", version.ref = "kotlin" }
+kotlin-scripting-jvm = { module = "org.jetbrains.kotlin:kotlin-scripting-jvm", version.ref = "kotlin" }
+kotlin-scripting-jvm-host = { module = "org.jetbrains.kotlin:kotlin-scripting-jvm-host", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 

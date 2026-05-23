@@ -26,3 +26,10 @@ rootProject.name = "compose-ai-contrib"
 include(":contract-tests:amper-cmp-desktop")
 project(":contract-tests:amper-cmp-desktop").projectDir =
   file("contract-tests/amper-cmp-desktop")
+
+// Standalone `compose-preview-scripting` binary. Lifted from upstream's
+// `examples/scripting/` reference (yschimke/compose-ai-tools PR #1375) as the
+// published home for the Kotlin scripting host. Consumes only published
+// artifacts (`ee.schimke.composeai:preview-data-api` + `:gradle-preview-driver`)
+// — see `compose-preview-scripting/README.md` for the version-pin caveat.
+include(":compose-preview-scripting")
