@@ -1,8 +1,15 @@
 [versions]
-composeai = "0.11.2"
+composeai = "0.11.3"
 kotlin = "2.3.21"
 junit = "4.13.2"
 truth = "1.4.5"
+# Skiko's native runtime artifacts ship per-platform (linux-x64, macos-arm64, …) and
+# carry the `libskiko-<os>-<arch>.so` Compose Desktop's `ImageComposeScene` loads.
+# Pulled into the contract-test's `rendererRuntime` configuration with an OS-detected
+# classifier — keep in lockstep with the version compose-multiplatform 1.10.x pulls in
+# transitively (the daemon-desktop dep tree, `:contract-tests:amper-cmp-desktop:dependencies
+# --configuration rendererRuntime | grep skiko:`).
+skiko = "0.9.37.4"
 
 [libraries]
 composeai-preview-discovery = { module = "ee.schimke.composeai:preview-discovery", version.ref = "composeai" }
