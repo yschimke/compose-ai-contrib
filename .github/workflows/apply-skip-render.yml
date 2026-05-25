@@ -1,0 +1,66 @@
+name: apply skip-render smoke
+
+# Smoke-test that the upstream compose-ai-tools `apply` composite action
+# is consumable with `cli-version: 'none'` + `skip-render: 'true'` + an
+# empty pre-staged `_previews.json` / `_resources.json`. This is the
+# contrib-side end of yschimke/compose-ai-tools#1476, pinned to the
+# merge commit until a tagged release lands.
+#
+# What this proves:
+#   1. The pinned ref is consumable (composite action loads).
+#   2. `cli-version: 'none'` skips both install steps.
+#   3. `skip-render: 'true'` makes compose.sh / resources.sh read the
+#      pre-staged envelopes instead of invoking `compose-preview show`.
+#   4. The empty-entries skip path short-circuits cleanly — no pushes,
+#      no PR comments, exit 0.
+#
+# What this does NOT prove (yet):
+#   - Wire-format parity for non-empty envelopes. The contrib build
+#     systems can't produce rendered PNGs without driving the daemon
+#     end-to-end, which is a separate work item.
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/apply-skip-render.yml"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/apply-skip-render.yml"
+  workflow_dispatch:
+
+permissions:
+  # The apply action only pushes / comments when staging dirs exist —
+  # the empty-envelope path never creates them, so these are strictly
+  # belt-and-braces in case the upstream behavior shifts.
+  contents: write
+  pull-requests: write
+
+jobs:
+  empty-envelope-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stage empty envelopes
+        # Both shapes match `compose-preview show --json` / `show-resources
+        # --json` for a workspace with no previews; the apply action's
+        # `load_preview_results` / `load_resource_results` parse them as
+        # zero entries and the pipeline scripts short-circuit at the
+        # "no entries, skipping" branch.
+        run: |
+          echo '{"previews":[]}' > _previews.json
+          echo '{"resources":[]}' > _resources.json
+
+      - name: Apply (skip-render, no CLI)
+        # Pinned to the #1476 merge commit. Bump to a tag once upstream
+        # cuts a release that includes the skip-render feature.
+        uses: yschimke/compose-ai-tools/.github/actions/apply@631e26944264ea1c52fb6a16f40ac8eea964c16c
+        with:
+          cli-version: 'none'
+          skip-render: 'true'
+          only: 'compose,resources'
+          # Force `comment` mode regardless of trigger so the test exercises
+          # the load-bearing pipeline branch (baseline mode is the rarer
+          # event-on-main path and would attempt a push).
+          mode: 'comment'
