@@ -8,7 +8,7 @@ plugins {
   alias(libs.plugins.kotlin.jvm)
   id("org.jetbrains.compose") version "1.10.3"
   id("org.jetbrains.kotlin.plugin.compose") version "2.3.21"
-  id("ee.schimke.composeai.preview") version "0.11.4"
+  id("ee.schimke.composeai.preview") version "0.11.6"
 }
 
 kotlin {

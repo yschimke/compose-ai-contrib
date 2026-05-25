@@ -44,15 +44,7 @@ include(":compose-preview-scripting")
 
 // Tiny Compose Desktop fixture used to demo `compose-preview-scripting` against a real
 // `@Preview`. Applies the published `ee.schimke.composeai.preview` Gradle plugin so the
-// scripting binary can discover + render against it. See
-// `compose-preview-scripting/demo/README.md` for the walkthrough.
+// scripting binary can discover + render against it. As of composeai 0.11.6 the plugin pulls
+// `ee.schimke.composeai:renderer-desktop` from Maven Central by default, so no local
+// renderer-wiring is needed here. See `compose-preview-scripting/demo/README.md`.
 include(":compose-preview-scripting:demo")
-
-// Backing renderer for the demo. The published `ee.schimke.composeai.preview` plugin looks up
-// a Gradle project at exactly `:renderer-desktop` to populate its `composePreviewRenderer`
-// configuration; when it's missing the plugin falls back to a stub that writes blank PNGs.
-// This minimal module ships the `DesktopRendererMainKt` entry point the plugin shells out to,
-// using only published Compose Multiplatform artifacts.
-include(":renderer-desktop")
-project(":renderer-desktop").projectDir =
-  file("compose-preview-scripting/renderer-desktop")
