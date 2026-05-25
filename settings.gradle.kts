@@ -2,6 +2,7 @@ pluginManagement {
   repositories {
     gradlePluginPortal()
     mavenCentral()
+    google()
   }
 }
 
@@ -40,3 +41,9 @@ project(":contract-tests:amper-cmp-desktop").projectDir =
 // artifacts (`ee.schimke.composeai:preview-data-api` + `:gradle-preview-driver`)
 // — see `compose-preview-scripting/README.md` for the version-pin caveat.
 include(":compose-preview-scripting")
+
+// Tiny Compose Desktop fixture used to demo `compose-preview-scripting` against a real
+// `@Preview`. Applies the published `ee.schimke.composeai.preview` Gradle plugin so the
+// scripting binary can discover + render against it. See
+// `compose-preview-scripting/demo/README.md` for the walkthrough.
+include(":compose-preview-scripting:demo")
