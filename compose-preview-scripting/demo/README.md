@@ -6,6 +6,22 @@ binary against a normal `@Preview` set. Three previews
 [`src/main/kotlin/demo/Previews.kt`](src/main/kotlin/demo/Previews.kt);
 three example `.composepreview.kts` scripts in [`scripts/`](scripts/).
 
+## Renderer wiring
+
+The published `ee.schimke.composeai.preview` plugin looks up a Gradle project at
+exactly `:renderer-desktop` to populate its `composePreviewRenderer`
+configuration. When that project is missing it falls back to a stub that writes
+blank PNGs — every preview ends up byte-identical, which is silently wrong.
+
+This repo supplies the renderer at
+[`compose-preview-scripting/renderer-desktop/`](../renderer-desktop/) — a small
+module that wraps `androidx.compose.ui.ImageComposeScene` and exposes
+`ee.schimke.composeai.renderer.DesktopRendererMainKt`, the entry point the
+plugin's `composePreviewRender` task shells out to. Single-frame only;
+`@PreviewParameter` / `@PreviewWrapper` / `@ScrollingPreview` / pseudolocale /
+display filters are out of scope here — they need internal modules upstream
+keeps unpublished.
+
 ## Run
 
 ```bash
