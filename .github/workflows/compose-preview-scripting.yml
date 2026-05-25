@@ -1,0 +1,66 @@
+name: compose-preview-scripting demo
+
+on:
+  pull_request:
+    paths:
+      - "compose-preview-scripting/**"
+      - "gradle/libs.versions.toml"
+      - "settings.gradle.kts"
+      - ".github/workflows/compose-preview-scripting.yml"
+  push:
+    branches: [main]
+    paths:
+      - "compose-preview-scripting/**"
+      - "gradle/libs.versions.toml"
+      - "settings.gradle.kts"
+      - ".github/workflows/compose-preview-scripting.yml"
+  workflow_dispatch:
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build scripting binary and render demo previews
+        run: |
+          ./gradlew --no-daemon \
+            :compose-preview-scripting:installDist \
+            :compose-preview-scripting:demo:composePreviewRenderAll
+
+      # Regression guard for the issue this branch originally found: if the
+      # gradle plugin can't locate a desktop renderer it falls back to a stub
+      # that writes byte-identical blank PNGs across all previews. The two
+      # colored Box previews differ only in their colour, so if their PNGs
+      # collide, the renderer is back to the stub path.
+      - name: Assert renders are not blank (stub-renderer guard)
+        working-directory: compose-preview-scripting/demo/build/compose-previews/renders
+        run: |
+          red=$(sha256sum RedBoxPreview_Red_Box.png | awk '{print $1}')
+          blue=$(sha256sum BlueBoxPreview_Blue_Box.png | awk '{print $1}')
+          echo "Red:  $red"
+          echo "Blue: $blue"
+          if [ "$red" = "$blue" ]; then
+            echo "::error::Red and Blue box renders are byte-identical — the renderer is the stub."
+            exit 1
+          fi
+
+      - name: Run example .composepreview.kts scripts
+        working-directory: compose-preview-scripting/demo
+        run: |
+          BIN=../build/install/compose-preview-scripting/bin/compose-preview-scripting
+          "$BIN" scripts/list.composepreview.kts
+          "$BIN" scripts/inspect.composepreview.kts
+          "$BIN" scripts/audit-boxes.composepreview.kts
+
+      - name: Upload rendered PNGs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-renders
+          path: compose-preview-scripting/demo/build/compose-previews/renders/*.png
+          if-no-files-found: warn
