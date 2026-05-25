@@ -1,0 +1,6 @@
+# Reserved for toolchain targets the resources-only sample doesn't need.
+#
+# The `discover_resources` rule runs `bash _discover.sh` directly via
+# `ctx.actions.run` — no compiler, no JDK, no toolchain wiring required
+# until the render half lands (compose-ai-tools#1037). Kept as a stub so
+# the `toolchains` cell declared in `.buckconfig` resolves cleanly.

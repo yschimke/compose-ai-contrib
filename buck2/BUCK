@@ -1,0 +1,24 @@
+load("@root//:compose_preview.bzl", "discover_resources")
+
+# Expose the placeholder discover script as a buildable source so the
+# rule's `_discover` default label resolves. Goes away with the script
+# once `compose-preview discover-resources` lands (compose-ai-tools#1253).
+export_file(
+    name = "_discover.sh",
+    src = "_discover.sh",
+)
+
+discover_resources(
+    name = "app_resources",
+    srcs = glob([
+        "app/res/drawable/*.xml",
+        "app/res/drawable-*/*.xml",
+        "app/res/mipmap-*/*.xml",
+        # values/ is included so the rule exercises the
+        # skip-classification path — these files have a `<resources>`
+        # root and are dropped by the discover action.
+        "app/res/values/*.xml",
+    ]),
+    module = "//samples/buck2:app",
+    variant = "main",
+)

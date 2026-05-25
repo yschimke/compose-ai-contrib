@@ -1,0 +1,51 @@
+name: buck2
+
+on:
+  pull_request:
+    paths:
+      - "buck2/**"
+      - ".github/workflows/buck2.yml"
+  push:
+    branches: [main]
+    paths:
+      - "buck2/**"
+      - ".github/workflows/buck2.yml"
+  workflow_dispatch:
+
+jobs:
+  buck2-resources:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Buck2
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd
+          curl -fsSL -o /tmp/buck2.zst \
+            https://github.com/facebook/buck2/releases/download/latest/buck2-x86_64-unknown-linux-gnu.zst
+          zstd -d /tmp/buck2.zst -o /tmp/buck2
+          chmod +x /tmp/buck2
+          sudo mv /tmp/buck2 /usr/local/bin/buck2
+          buck2 --version
+
+      - name: Build resources discovery
+        working-directory: buck2
+        run: buck2 build //:app_resources --show-simple-output
+
+      - name: Inspect output
+        working-directory: buck2
+        run: cat "$(buck2 build //:app_resources --show-simple-output)"
+
+      - name: Verify wire-format parity with Bazel sample
+        working-directory: buck2
+        # The discover script and the res/ tree are mirrored from
+        # ../bazel/; running both scripts with the same module label
+        # must produce byte-identical JSON. Guards against drift.
+        run: |
+          set -euo pipefail
+          srcs=$(find app/res -name '*.xml' | LC_ALL=C sort)
+          bash _discover.sh /tmp/buck2.json '//samples/x:app' main $srcs
+          ( cd ../bazel && bash _discover.sh /tmp/bazel.json '//samples/x:app' main $(find app/res -name '*.xml' | LC_ALL=C sort) )
+          diff /tmp/buck2.json /tmp/bazel.json
