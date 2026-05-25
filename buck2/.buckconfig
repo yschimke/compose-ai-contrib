@@ -1,0 +1,27 @@
+# Minimal Buck2 cell setup for the compose-preview resources sample.
+#
+# Single cell (`root`) — everything in this directory. The prelude
+# cell is required by Buck2 even when no prelude rules are loaded;
+# `[external_cells] prelude = bundled` keeps Buck2's own prelude out
+# of the repo so consumers don't have to vendor or submodule it.
+
+[cells]
+root = .
+prelude = prelude
+toolchains = toolchains
+none = none
+
+[cell_aliases]
+config = prelude
+fbcode = none
+fbsource = none
+buck = none
+
+[external_cells]
+prelude = bundled
+
+[parser]
+target_platform_detector_spec = target:root//...->prelude//platforms:default
+
+[build]
+execution_platforms = prelude//platforms:default

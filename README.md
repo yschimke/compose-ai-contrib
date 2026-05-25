@@ -20,6 +20,7 @@ off.
 | [`amper-cmp-desktop/`](amper-cmp-desktop/) | Amper 0.10 | Compose Desktop module driving a real `RenderSession` end-to-end |
 | [`bazel/`](bazel/) | Bazel (bzlmod) | Resources discovery rule producing `resources.json` |
 | [`bazel-apk/`](bazel-apk/) | Bazel (bzlmod) | Compose APK via `rules_kotlin` + `rules_android` (opt-in, known-fragile) |
+| [`buck2/`](buck2/) | Buck2 (bundled prelude) | Resources discovery rule producing `resources.json` — byte-identical to the Bazel sample |
 
 Each directory is self-contained — see its README for build
 instructions.
@@ -66,6 +67,9 @@ The version of `compose-ai-tools` under test is pinned in
 - [`.github/workflows/bazel.yml`](.github/workflows/bazel.yml) builds the
   Bazel resources-discovery target and (opt-in, `continue-on-error`)
   the Compose APK target.
+- [`.github/workflows/buck2.yml`](.github/workflows/buck2.yml) builds
+  the Buck2 resources-discovery target and verifies byte-for-byte
+  parity with the Bazel sample's output.
 
 ## Versioning
 
