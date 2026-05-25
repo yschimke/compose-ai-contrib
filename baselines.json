@@ -1,0 +1,9 @@
+{
+  ":amper-cmp-desktop/GreetingKt.Greeting": {
+    "captureLabel": "",
+    "functionName": "Greeting",
+    "renderBasename": "GreetingKt.Greeting.png",
+    "sha256": "11e83b1e435a10fa7fbeb263a45089b585ea213d2116014d905833380c3cd066",
+    "sourceFile": "src/Greeting.kt"
+  }
+}
