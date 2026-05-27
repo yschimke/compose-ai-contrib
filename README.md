@@ -31,6 +31,34 @@ instructions.
 | --- | --- |
 | [`compose-preview-scripting/`](compose-preview-scripting/) | `compose-preview-scripting <path.composepreview.kts>` — Kotlin scripting host that renders previews via `gradle-preview-driver` and evaluates a user script against the result set. Lifted from upstream's `examples/scripting/` reference (yschimke/compose-ai-tools PR #1375). Won't build until `preview-data-api` + `gradle-preview-driver` ship in an upstream release and the `composeai` pin is bumped. |
 
+## Agent skills
+
+The `compose-preview` and `compose-preview-review` skill bundles —
+agent playbooks that render `@Preview` composables to PNG and diff
+rendered previews across a UI PR's base and head — live in
+[`yschimke/skills`](https://github.com/yschimke/skills). They pair with
+the fixtures in this repo: the Amper Android and CMP Desktop modules
+double as ready-made targets for an agent following the skill.
+
+Install the CLI + skill bundles on a host machine in one shot:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/yschimke/skills/main/scripts/install.sh | bash
+```
+
+Or attach them through a host's plugin/skill flow:
+
+- **Claude Code:** `/plugin marketplace add yschimke/skills`
+- **Skills CLI:** `npx skills add yschimke/skills`
+
+Skill references:
+
+- [`compose-preview`](https://github.com/yschimke/skills/tree/main/skills/compose-preview)
+  — render Compose `@Preview` to PNG outside Android Studio (Android via
+  Robolectric, CMP Desktop via Skia).
+- [`compose-preview-review`](https://github.com/yschimke/skills/tree/main/skills/compose-preview-review)
+  — render base/head and diff for UI PR review.
+
 ## Documentation
 
 - [`docs/amper.md`](docs/amper.md) — Amper integration walkthrough.
