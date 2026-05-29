@@ -48,11 +48,10 @@ Each `RenderedPreview` exposes the published `PreviewResult` fields (`id`,
 
 This module depends on `ee.schimke.composeai:preview-data-api` and
 `ee.schimke.composeai:gradle-preview-driver` — both introduced by
-[PR #1375](https://github.com/yschimke/compose-ai-tools/pull/1375). Until that
-PR merges and a release is cut, the version pinned in
-[`gradle/libs.versions.toml`](../gradle/libs.versions.toml) (`composeai`) won't
-resolve those artifacts and the module will fail at dependency resolution.
-Bump the pin once the release lands.
+[PR #1375](https://github.com/yschimke/compose-ai-tools/pull/1375) and published
+since `composeai` 0.11.15. The version pinned in
+[`gradle/libs.versions.toml`](../gradle/libs.versions.toml) (`composeai`) resolves
+them from Maven Central; bump that pin in lockstep with upstream releases.
 
 ## Wire-format note
 

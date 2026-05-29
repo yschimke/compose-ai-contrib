@@ -1,5 +1,5 @@
 [versions]
-composeai = "0.11.6"
+composeai = "0.11.15"
 kotlin = "2.3.21"
 junit = "4.13.2"
 truth = "1.4.5"
@@ -16,8 +16,7 @@ composeai-data-render-connector = { module = "ee.schimke.composeai:data-render-c
 composeai-data-render-core = { module = "ee.schimke.composeai:data-render-core", version.ref = "composeai" }
 # Wire-format DTOs (`PreviewResult`, `PreviewManifest`, `ExtensionPayload`, the v1 a11y mirror)
 # and the Gradle Tooling-API render pipeline as a library. Introduced upstream by PR #1375;
-# consumed here by `:compose-preview-scripting`. Won't resolve until that PR lands and the
-# `composeai` version above is bumped to the release that includes them.
+# consumed here by `:compose-preview-scripting`. Published to Maven Central since composeai 0.11.15.
 composeai-preview-data-api = { module = "ee.schimke.composeai:preview-data-api", version.ref = "composeai" }
 composeai-gradle-preview-driver = { module = "ee.schimke.composeai:gradle-preview-driver", version.ref = "composeai" }
 # Kotlin scripting host — compiles + evaluates `*.composepreview.kts` files inside

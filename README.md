@@ -29,7 +29,7 @@ instructions.
 
 | Module | Description |
 | --- | --- |
-| [`compose-preview-scripting/`](compose-preview-scripting/) | `compose-preview-scripting <path.composepreview.kts>` — Kotlin scripting host that renders previews via `gradle-preview-driver` and evaluates a user script against the result set. Lifted from upstream's `examples/scripting/` reference (yschimke/compose-ai-tools PR #1375). Won't build until `preview-data-api` + `gradle-preview-driver` ship in an upstream release and the `composeai` pin is bumped. |
+| [`compose-preview-scripting/`](compose-preview-scripting/) | `compose-preview-scripting <path.composepreview.kts>` — Kotlin scripting host that renders previews via `gradle-preview-driver` and evaluates a user script against the result set. Lifted from upstream's `examples/scripting/` reference (yschimke/compose-ai-tools PR #1375). Builds against `preview-data-api` + `gradle-preview-driver`, published to Maven Central since `composeai` 0.11.15. |
 
 ## Documentation
 

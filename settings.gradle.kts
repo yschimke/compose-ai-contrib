@@ -44,7 +44,7 @@ include(":compose-preview-scripting")
 
 // Tiny Compose Desktop fixture used to demo `compose-preview-scripting` against a real
 // `@Preview`. Applies the published `ee.schimke.composeai.preview` Gradle plugin so the
-// scripting binary can discover + render against it. As of composeai 0.11.6 the plugin pulls
+// scripting binary can discover + render against it. As of composeai 0.11.15 the plugin pulls
 // `ee.schimke.composeai:renderer-desktop` from Maven Central by default, so no local
 // renderer-wiring is needed here. See `compose-preview-scripting/demo/README.md`.
 include(":compose-preview-scripting:demo")
