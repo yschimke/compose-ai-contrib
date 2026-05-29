@@ -1,0 +1,23 @@
+{
+  ":compose-preview-scripting:demo/demo.PreviewsKt.BlueBoxPreview_Blue Box": {
+    "captureLabel": "",
+    "functionName": "BlueBoxPreview",
+    "renderBasename": "BlueBoxPreview_Blue_Box.png",
+    "sha256": "ca2ab328714fe993a693be1eaf55d4619aade6256ad091d1ecdc3897be37024e",
+    "sourceFile": "src/main/kotlin/demo/Previews.kt"
+  },
+  ":compose-preview-scripting:demo/demo.PreviewsKt.GreetingPreview_Greeting": {
+    "captureLabel": "",
+    "functionName": "GreetingPreview",
+    "renderBasename": "GreetingPreview_Greeting.png",
+    "sha256": "fb7f7c7eabcc10ba997be4df40858acaf49d2763e8ec7ed2c7e1e9de25b3c6f2",
+    "sourceFile": "src/main/kotlin/demo/Previews.kt"
+  },
+  ":compose-preview-scripting:demo/demo.PreviewsKt.RedBoxPreview_Red Box": {
+    "captureLabel": "",
+    "functionName": "RedBoxPreview",
+    "renderBasename": "RedBoxPreview_Red_Box.png",
+    "sha256": "468972a422fe93b50ec1f43eaaeba16376d52d9738c6c4d2203e6b36ea1543fc",
+    "sourceFile": "src/main/kotlin/demo/Previews.kt"
+  }
+}
