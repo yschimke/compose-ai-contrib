@@ -1,0 +1,63 @@
+name: buck2 apply (resources)
+
+# Publishes the Buck2 resources-discovery output to the compose-preview
+# branch so resource changes appear in PR comments and the main baseline.
+#
+# Installs Buck2, builds //:app_resources, resolves the output path via
+# --show-simple-output, stages it as _resources.json at workspace root,
+# and hands it to the upstream apply action's skip-render path with
+# only: 'resources'.
+
+on:
+  pull_request:
+    paths:
+      - "buck2/**"
+      - ".github/workflows/buck2-apply.yml"
+  push:
+    branches: [main]
+    paths:
+      - "buck2/**"
+      - ".github/workflows/buck2-apply.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: buck2-apply-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  buck2-apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Buck2
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd
+          curl -fsSL -o /tmp/buck2.zst \
+            https://github.com/facebook/buck2/releases/download/latest/buck2-x86_64-unknown-linux-gnu.zst
+          zstd -d /tmp/buck2.zst -o /tmp/buck2
+          chmod +x /tmp/buck2
+          sudo mv /tmp/buck2 /usr/local/bin/buck2
+          buck2 --version
+
+      - name: Build resources discovery
+        working-directory: buck2
+        run: buck2 build //:app_resources --show-simple-output
+
+      - name: Stage _resources.json
+        working-directory: buck2
+        run: cp "$(buck2 build //:app_resources --show-simple-output)" ../_resources.json
+
+      - name: Apply (skip-render, no CLI)
+        uses: yschimke/compose-ai-tools/.github/actions/apply@631e26944264ea1c52fb6a16f40ac8eea964c16c
+        with:
+          cli-version: 'none'
+          skip-render: 'true'
+          only: 'resources'
+          comment-on-empty-diff: 'true'

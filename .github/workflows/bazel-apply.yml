@@ -1,0 +1,55 @@
+name: bazel apply (resources)
+
+# Publishes the Bazel resources-discovery output to the compose-preview
+# branch so resource changes appear in PR comments and the main baseline.
+#
+# Builds //:app_resources, stages the output as _resources.json at workspace
+# root, and hands it to the upstream apply action's skip-render path with
+# only: 'resources'. The bazel-apk target is not included — it is opt-in and
+# known-fragile (see bazel-apk/README.md) and does not produce resources.
+
+on:
+  pull_request:
+    paths:
+      - "bazel/**"
+      - ".github/workflows/bazel-apply.yml"
+  push:
+    branches: [main]
+    paths:
+      - "bazel/**"
+      - ".github/workflows/bazel-apply.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: bazel-apply-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bazel-apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bazel-contrib/setup-bazel@0.15.0
+        with:
+          bazelisk-cache: true
+          disk-cache: true
+          repository-cache: true
+
+      - name: Build resources discovery
+        working-directory: bazel
+        run: bazel build //:app_resources
+
+      - name: Stage _resources.json
+        run: cp bazel/bazel-bin/app_resources.json _resources.json
+
+      - name: Apply (skip-render, no CLI)
+        uses: yschimke/compose-ai-tools/.github/actions/apply@631e26944264ea1c52fb6a16f40ac8eea964c16c
+        with:
+          cli-version: 'none'
+          skip-render: 'true'
+          only: 'resources'
+          comment-on-empty-diff: 'true'

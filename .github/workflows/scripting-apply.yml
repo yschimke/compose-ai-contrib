@@ -1,0 +1,70 @@
+name: scripting apply (end-to-end)
+
+# Full-experience preview publish for the compose-preview-scripting demo.
+# Builds the Gradle scripting binary, renders the demo's @Preview functions
+# via the composeai.preview Gradle plugin, converts the plugin's discovery
+# manifest + rendered PNGs into a wire-compatible _previews.json envelope,
+# and hands it to the upstream apply action's skip-render path.
+#
+# On pull_request: pushes renders to compose-preview/pr and posts a sticky
+# PR comment showing changed previews.
+# On push to main: pushes to compose-preview/main baseline branch.
+
+on:
+  pull_request:
+    paths:
+      - "compose-preview-scripting/**"
+      - "gradle/**"
+      - "settings.gradle.kts"
+      - ".github/workflows/scripting-apply.yml"
+      - ".github/scripts/make-previews-envelope.py"
+  push:
+    branches: [main]
+    paths:
+      - "compose-preview-scripting/**"
+      - "gradle/**"
+      - "settings.gradle.kts"
+      - ".github/workflows/scripting-apply.yml"
+      - ".github/scripts/make-previews-envelope.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: scripting-apply-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scripting-apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build scripting binary and render demo previews
+        run: |
+          ./gradlew --no-daemon \
+            :compose-preview-scripting:installDist \
+            :compose-preview-scripting:demo:composePreviewRenderAll
+
+      - name: Produce _previews.json
+        # Converts the Gradle plugin's discovery manifest (previews.json) plus
+        # the rendered PNGs into the compose-previews/v1 envelope the apply
+        # action's skip-render path expects — adds absolute pngPath + sha256.
+        run: |
+          python3 .github/scripts/make-previews-envelope.py \
+            compose-preview-scripting/demo/build/compose-previews \
+            ':compose-preview-scripting:demo'
+
+      - name: Apply (skip-render, no CLI)
+        uses: yschimke/compose-ai-tools/.github/actions/apply@631e26944264ea1c52fb6a16f40ac8eea964c16c
+        with:
+          cli-version: 'none'
+          skip-render: 'true'
+          only: 'compose'
+          comment-on-empty-diff: 'true'
