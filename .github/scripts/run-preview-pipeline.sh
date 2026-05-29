@@ -72,20 +72,39 @@ fi
 echo "run-preview-pipeline: pipeline=$PIPELINE mode=$MODE baseline=$BASELINE_BRANCH pr_head=$PR_HEAD_BRANCH"
 
 # Download pipeline scripts from pinned SHA -----------------------------------
+# Directory layout in upstream compose-ai-tools:
+#   .github/actions/
+#     lib/
+#       compare-previews.py   ← shared across actions; pipelines reach it via
+#                               $ACTION_PATH/../lib/compare-previews.py
+#     apply/
+#       lib/
+#         push-branch.sh
+#         post-comment.sh
+#       pipelines/
+#         compose.sh
+#         resources.sh
 PINNED_REF="631e26944264ea1c52fb6a16f40ac8eea964c16c"
-SCRIPT_BASE="https://raw.githubusercontent.com/yschimke/compose-ai-tools/$PINNED_REF/.github/actions/apply"
-export ACTION_PATH
-ACTION_PATH="$(mktemp -d)"
+ACTIONS_BASE="https://raw.githubusercontent.com/yschimke/compose-ai-tools/$PINNED_REF/.github/actions"
 
-mkdir -p "$ACTION_PATH/lib" "$ACTION_PATH/pipelines"
-for f in \
-    "lib/compare-previews.py" \
-    "lib/push-branch.sh" \
-    "lib/post-comment.sh" \
-    "pipelines/compose.sh" \
-    "pipelines/resources.sh"; do
-  curl -fsSL "$SCRIPT_BASE/$f" -o "$ACTION_PATH/$f"
-done
+# ACTION_PATH must point to the apply/ subdir so that $ACTION_PATH/../lib/
+# resolves to the shared lib/ directory containing compare-previews.py.
+TMPROOT="$(mktemp -d)"
+export ACTION_PATH="$TMPROOT/apply"
+
+mkdir -p "$ACTION_PATH/lib" "$ACTION_PATH/pipelines" "$TMPROOT/lib"
+
+# Shared lib (parent of apply/): compare-previews.py lives here
+curl -fsSL "$ACTIONS_BASE/lib/compare-previews.py" -o "$TMPROOT/lib/compare-previews.py"
+
+# apply/lib: push-branch.sh and post-comment.sh
+curl -fsSL "$ACTIONS_BASE/apply/lib/push-branch.sh"  -o "$ACTION_PATH/lib/push-branch.sh"
+curl -fsSL "$ACTIONS_BASE/apply/lib/post-comment.sh" -o "$ACTION_PATH/lib/post-comment.sh"
+
+# apply/pipelines
+curl -fsSL "$ACTIONS_BASE/apply/pipelines/compose.sh"   -o "$ACTION_PATH/pipelines/compose.sh"
+curl -fsSL "$ACTIONS_BASE/apply/pipelines/resources.sh" -o "$ACTION_PATH/pipelines/resources.sh"
+
 chmod +x \
   "$ACTION_PATH/lib/push-branch.sh" \
   "$ACTION_PATH/pipelines/compose.sh" \
