@@ -1,14 +1,10 @@
 name: scripting apply (end-to-end)
 
-# Full-experience preview publish for the compose-preview-scripting demo.
 # Builds the Gradle scripting binary, renders the demo's @Preview functions
 # via the composeai.preview Gradle plugin, converts the plugin's discovery
 # manifest + rendered PNGs into a wire-compatible _previews.json envelope,
-# and hands it to the upstream apply action's skip-render path.
-#
-# On pull_request: pushes renders to compose-preview/pr and posts a sticky
-# PR comment showing changed previews.
-# On push to main: pushes to compose-preview/main baseline branch.
+# and publishes to compose-preview/scripting/main (baseline) or
+# compose-preview/scripting/pr (PRs).
 
 on:
   pull_request:
@@ -18,6 +14,7 @@ on:
       - "settings.gradle.kts"
       - ".github/workflows/scripting-apply.yml"
       - ".github/scripts/make-previews-envelope.py"
+      - ".github/scripts/run-preview-pipeline.sh"
   push:
     branches: [main]
     paths:
@@ -26,6 +23,7 @@ on:
       - "settings.gradle.kts"
       - ".github/workflows/scripting-apply.yml"
       - ".github/scripts/make-previews-envelope.py"
+      - ".github/scripts/run-preview-pipeline.sh"
   workflow_dispatch:
 
 permissions:
@@ -54,17 +52,23 @@ jobs:
 
       - name: Produce _previews.json
         # Converts the Gradle plugin's discovery manifest (previews.json) plus
-        # the rendered PNGs into the compose-previews/v1 envelope the apply
-        # action's skip-render path expects — adds absolute pngPath + sha256.
+        # the rendered PNGs into the compose-previews/v1 envelope the pipeline
+        # expects — adds absolute pngPath + sha256 per capture.
         run: |
           python3 .github/scripts/make-previews-envelope.py \
             compose-preview-scripting/demo/build/compose-previews \
             ':compose-preview-scripting:demo'
 
-      - name: Apply (skip-render, no CLI)
-        uses: yschimke/compose-ai-tools/.github/actions/apply@631e26944264ea1c52fb6a16f40ac8eea964c16c
-        with:
-          cli-version: 'none'
-          skip-render: 'true'
-          only: 'compose'
-          comment-on-empty-diff: 'true'
+      - name: Publish to compose-preview/scripting/{main,pr}
+        env:
+          PIPELINE: compose
+          BASELINE_BRANCH: compose-preview/scripting/main
+          PR_HEAD_BRANCH: compose-preview/scripting/pr
+          COMMENT_MARKER: "<!-- preview-diff-scripting -->"
+          REPO: ${{ github.repository }}
+          GITHUB_TOKEN_INLINE: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SKIP_RENDER: 'true'
+          COMMENT_ON_EMPTY_DIFF: 'true'
+        run: bash .github/scripts/run-preview-pipeline.sh

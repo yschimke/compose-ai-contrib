@@ -1,19 +1,14 @@
 name: amper apply (end-to-end)
 
-# Full-experience test of the upstream `apply` action's `skip-render` path
-# against a real non-Gradle build system. Builds the Amper Desktop fixture,
-# spawns the daemon via the published `compose-ai-tools` artifacts, renders
-# Greeting.png, emits a wire-compatible `_previews.json`, and hands the
-# envelope to `apply@631e269` (#1476 merge commit, until a tagged release
-# ships).
+# Builds the Amper Desktop fixture, renders Greeting.png via the published
+# compose-ai-tools daemon, and publishes to the per-build-system branch
+# compose-preview/amper/main (baseline) or compose-preview/amper/pr (PRs).
 #
-# Side effects on `pull_request`: pushes to `compose-preview/pr` and posts
-# a sticky PR comment with the rendered preview. On `push` to main: pushes
-# to `compose-preview/main` baseline branch.
-#
-# Why this is structured as a single sequential job: the apply action needs
-# `_previews.json` already at workspace root when it runs, so the produce
-# step and the apply step share state and must live in the same job.
+# Delegates branch push + PR comment to .github/scripts/run-preview-pipeline.sh,
+# which downloads the upstream pipeline scripts at the pinned SHA and runs them
+# with per-system branch names. Until yschimke/compose-ai-tools gains
+# `baseline-branch`/`pr-branch` inputs on the apply action, this is the
+# workaround.
 
 on:
   pull_request:
@@ -21,20 +16,20 @@ on:
       - "amper-cmp-desktop/**"
       - "contract-tests/amper-cmp-desktop/**"
       - ".github/workflows/amper-apply.yml"
+      - ".github/scripts/run-preview-pipeline.sh"
   push:
     branches: [main]
     paths:
       - "amper-cmp-desktop/**"
       - "contract-tests/amper-cmp-desktop/**"
       - ".github/workflows/amper-apply.yml"
+      - ".github/scripts/run-preview-pipeline.sh"
   workflow_dispatch:
 
 permissions:
   contents: write
   pull-requests: write
 
-# Serialize per-branch — two concurrent runs on the same PR would race on
-# the `compose-preview/pr` branch push.
 concurrency:
   group: amper-apply-${{ github.ref }}
   cancel-in-progress: true
@@ -52,9 +47,6 @@ jobs:
       - name: Amper build (produces kotlin-output/ for the producer)
         working-directory: amper-cmp-desktop
         env:
-          # Mirrors `.github/workflows/contract-tests.yml`'s Amper invocation
-          # — Amper 0.10 needs the dynamic agent loading + the system
-          # cacerts trust store to fetch its toolchain over HTTPS.
           AMPER_JAVA_OPTIONS: >-
             -ea -XX:+EnableDynamicAgentLoading
             -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
@@ -62,20 +54,18 @@ jobs:
         run: ./amper build
 
       - name: Produce _previews.json via the daemon
-        # Writes `$GITHUB_WORKSPACE/_previews.json` (see `run` task config
-        # in `contract-tests/amper-cmp-desktop/build.gradle.kts`). Fails
-        # loud on render error — no self-skip, unlike the test variant.
         run: ./gradlew :contract-tests:amper-cmp-desktop:run --stacktrace
 
-      - name: Apply (skip-render, no CLI)
-        uses: yschimke/compose-ai-tools/.github/actions/apply@631e26944264ea1c52fb6a16f40ac8eea964c16c
-        with:
-          cli-version: 'none'
-          skip-render: 'true'
-          only: 'compose'
-          # `mode: 'auto'` is the right default here — push-to-main hits
-          # baseline mode (creates `compose-preview/main`), PRs hit comment
-          # mode (push `compose-preview/pr` + sticky comment). The smoke
-          # workflow forces `mode: 'comment'` because it ships an empty
-          # envelope and never wants to seed a baseline; this one does.
-          comment-on-empty-diff: 'true'
+      - name: Publish to compose-preview/amper/{main,pr}
+        env:
+          PIPELINE: compose
+          BASELINE_BRANCH: compose-preview/amper/main
+          PR_HEAD_BRANCH: compose-preview/amper/pr
+          COMMENT_MARKER: "<!-- preview-diff-amper -->"
+          REPO: ${{ github.repository }}
+          GITHUB_TOKEN_INLINE: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SKIP_RENDER: 'true'
+          COMMENT_ON_EMPTY_DIFF: 'true'
+        run: bash .github/scripts/run-preview-pipeline.sh

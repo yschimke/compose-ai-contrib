@@ -1,23 +1,21 @@
 name: buck2 apply (resources)
 
-# Publishes the Buck2 resources-discovery output to the compose-preview
-# branch so resource changes appear in PR comments and the main baseline.
-#
-# Installs Buck2, builds //:app_resources, resolves the output path via
-# --show-simple-output, stages it as _resources.json at workspace root,
-# and hands it to the upstream apply action's skip-render path with
-# only: 'resources'.
+# Installs Buck2, builds the resources-discovery target, stages the output as
+# _resources.json, and publishes to compose-preview/buck2/main (baseline) or
+# compose-preview/buck2/pr (PRs).
 
 on:
   pull_request:
     paths:
       - "buck2/**"
       - ".github/workflows/buck2-apply.yml"
+      - ".github/scripts/run-preview-pipeline.sh"
   push:
     branches: [main]
     paths:
       - "buck2/**"
       - ".github/workflows/buck2-apply.yml"
+      - ".github/scripts/run-preview-pipeline.sh"
   workflow_dispatch:
 
 permissions:
@@ -54,10 +52,16 @@ jobs:
         working-directory: buck2
         run: cp "$(buck2 build //:app_resources --show-simple-output)" ../_resources.json
 
-      - name: Apply (skip-render, no CLI)
-        uses: yschimke/compose-ai-tools/.github/actions/apply@631e26944264ea1c52fb6a16f40ac8eea964c16c
-        with:
-          cli-version: 'none'
-          skip-render: 'true'
-          only: 'resources'
-          comment-on-empty-diff: 'true'
+      - name: Publish to compose-preview/buck2/{main,pr}
+        env:
+          PIPELINE: resources
+          BASELINE_BRANCH: compose-preview/buck2/main
+          PR_HEAD_BRANCH: compose-preview/buck2/pr
+          COMMENT_MARKER: "<!-- preview-diff-buck2 -->"
+          REPO: ${{ github.repository }}
+          GITHUB_TOKEN_INLINE: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SKIP_RENDER: 'true'
+          COMMENT_ON_EMPTY_DIFF: 'true'
+        run: bash .github/scripts/run-preview-pipeline.sh

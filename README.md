@@ -84,10 +84,10 @@ Each build system that can produce renders or resource manifests has a matching
 
 | Workflow | Publishes | Branch path |
 | --- | --- | --- |
-| [`amper-apply.yml`](.github/workflows/amper-apply.yml) | `@Preview` renders from Amper Desktop fixture | `compose-preview/{main,pr}` |
-| [`scripting-apply.yml`](.github/workflows/scripting-apply.yml) | `@Preview` renders from compose-preview-scripting demo | `compose-preview/{main,pr}` |
-| [`bazel-apply.yml`](.github/workflows/bazel-apply.yml) | `app_resources.json` from Bazel resources-discovery | `compose-preview/{main,pr}` |
-| [`buck2-apply.yml`](.github/workflows/buck2-apply.yml) | `app_resources.json` from Buck2 resources-discovery | `compose-preview/{main,pr}` |
+| [`amper-apply.yml`](.github/workflows/amper-apply.yml) | `@Preview` renders from Amper Desktop fixture | `compose-preview/amper/{main,pr}` |
+| [`scripting-apply.yml`](.github/workflows/scripting-apply.yml) | `@Preview` renders from compose-preview-scripting demo | `compose-preview/scripting/{main,pr}` |
+| [`bazel-apply.yml`](.github/workflows/bazel-apply.yml) | `app_resources.json` from Bazel resources-discovery | `compose-preview/bazel/{main,pr}` |
+| [`buck2-apply.yml`](.github/workflows/buck2-apply.yml) | `app_resources.json` from Buck2 resources-discovery | `compose-preview/buck2/{main,pr}` |
 
 `amper-android` is excluded — Android preview rendering requires the Gradle
 plugin + Robolectric, neither of which is available in a pure Amper module.
