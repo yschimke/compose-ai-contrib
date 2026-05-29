@@ -1,0 +1,59 @@
+name: bazel apply (resources)
+
+# Builds the Bazel resources-discovery target, stages the output as
+# _resources.json, and publishes to compose-preview/bazel/main (baseline)
+# or compose-preview/bazel/pr (PRs).
+
+on:
+  pull_request:
+    paths:
+      - "bazel/**"
+      - ".github/workflows/bazel-apply.yml"
+      - ".github/scripts/run-preview-pipeline.sh"
+  push:
+    branches: [main]
+    paths:
+      - "bazel/**"
+      - ".github/workflows/bazel-apply.yml"
+      - ".github/scripts/run-preview-pipeline.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: bazel-apply-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bazel-apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bazel-contrib/setup-bazel@0.15.0
+        with:
+          bazelisk-cache: true
+          disk-cache: true
+          repository-cache: true
+
+      - name: Build resources discovery
+        working-directory: bazel
+        run: bazel build //:app_resources
+
+      - name: Stage _resources.json
+        run: cp bazel/bazel-bin/app_resources.json _resources.json
+
+      - name: Publish to compose-preview/bazel/{main,pr}
+        env:
+          PIPELINE: resources
+          BASELINE_BRANCH: compose-preview/bazel/main
+          PR_HEAD_BRANCH: compose-preview/bazel/pr
+          COMMENT_MARKER: "<!-- preview-diff-bazel -->"
+          REPO: ${{ github.repository }}
+          GITHUB_TOKEN_INLINE: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SKIP_RENDER: 'true'
+          COMMENT_ON_EMPTY_DIFF: 'true'
+        run: bash .github/scripts/run-preview-pipeline.sh

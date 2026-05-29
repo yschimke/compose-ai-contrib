@@ -60,8 +60,10 @@ The version of `compose-ai-tools` under test is pinned in
 
 ## CI
 
+### Build / test workflows
+
 - [`.github/workflows/contract-tests.yml`](.github/workflows/contract-tests.yml)
-  builds the Amper Desktop fixture and runs the contract test on every PR.
+  builds the Amper Desktop fixture and runs the contract test.
 - [`.github/workflows/amper-android.yml`](.github/workflows/amper-android.yml)
   builds the Amper Android fixture.
 - [`.github/workflows/bazel.yml`](.github/workflows/bazel.yml) builds the
@@ -70,6 +72,25 @@ The version of `compose-ai-tools` under test is pinned in
 - [`.github/workflows/buck2.yml`](.github/workflows/buck2.yml) builds
   the Buck2 resources-discovery target and verifies byte-for-byte
   parity with the Bazel sample's output.
+- [`.github/workflows/compose-preview-scripting.yml`](.github/workflows/compose-preview-scripting.yml)
+  builds the scripting binary, renders the demo previews, and runs example scripts.
+
+### Preview / resource publish workflows
+
+Each build system that can produce renders or resource manifests has a matching
+`*-apply.yml` workflow that runs on PRs touching that project and on pushes to
+`main`. On PRs it posts a sticky comment with changed renders/resources; on
+`main` it updates the `compose-preview/main` baseline branch.
+
+| Workflow | Publishes | Branch path |
+| --- | --- | --- |
+| [`amper-apply.yml`](.github/workflows/amper-apply.yml) | `@Preview` renders from Amper Desktop fixture | `compose-preview/amper/{main,pr}` |
+| [`scripting-apply.yml`](.github/workflows/scripting-apply.yml) | `@Preview` renders from compose-preview-scripting demo | `compose-preview/scripting/{main,pr}` |
+| [`bazel-apply.yml`](.github/workflows/bazel-apply.yml) | `app_resources.json` from Bazel resources-discovery | `compose-preview/bazel/{main,pr}` |
+| [`buck2-apply.yml`](.github/workflows/buck2-apply.yml) | `app_resources.json` from Buck2 resources-discovery | `compose-preview/buck2/{main,pr}` |
+
+`amper-android` is excluded — Android preview rendering requires the Gradle
+plugin + Robolectric, neither of which is available in a pure Amper module.
 
 ## Versioning
 
