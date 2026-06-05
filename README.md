@@ -30,11 +30,16 @@ instructions.
 | Module | Description |
 | --- | --- |
 | [`compose-preview-scripting/`](compose-preview-scripting/) | `compose-preview-scripting <path.composepreview.kts>` — Kotlin scripting host that renders previews via `gradle-preview-driver` and evaluates a user script against the result set. Lifted from upstream's `examples/scripting/` reference (yschimke/compose-ai-tools PR #1375). Builds against `preview-data-api` + `gradle-preview-driver`, published to Maven Central since `composeai` 0.11.15. |
+| [`bundle-producer/`](bundle-producer/) | Build-system-agnostic portable-bundle producer — the ClassGraph reachability closure, the PNG+ZIP polyglot writer, and Maven-coordinate / `maven_install.json` recovery the Amper and Bazel drivers use to emit a schema-v4 `bundle.json` the upstream `:bundle-viewer` can open. See [`docs/portable-bundles.md`](docs/portable-bundles.md). |
 
 ## Documentation
 
 - [`docs/amper.md`](docs/amper.md) — Amper integration walkthrough.
 - [`docs/bazel.md`](docs/bazel.md) — Bazel integration walkthrough.
+- [`docs/portable-bundles.md`](docs/portable-bundles.md) — portable preview
+  bundles: what the Amper and Bazel producers emit (`coordinates` / `embedded` /
+  `mixed`), and the contrib-side confirmation of the
+  [tools-repo design](https://github.com/yschimke/compose-ai-tools/blob/main/docs/portable-bundles.md).
 
 ## Repo Gradle build
 

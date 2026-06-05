@@ -1,5 +1,6 @@
 package ee.schimke.composeai.contrib
 
+import ee.schimke.composeai.contrib.bundle.PreviewInfo
 import ee.schimke.composeai.daemon.protocol.RenderTier
 import ee.schimke.composeai.daemonlaunch.DaemonLaunchBuilder
 import ee.schimke.composeai.render.session.RenderSessionConfig
@@ -132,6 +133,78 @@ object PreviewProducer {
       "PreviewProducer: wrote ${outFile.absolutePath} " +
         "(${png.length()} byte PNG, sha256=${sha.take(12)}…)"
     )
+
+    emitBundle(png)
+  }
+
+  /**
+   * Packs a portable preview bundle alongside the `_previews.json` envelope — the Amper producer's
+   * answer to the portable-bundle ask. The default pack is `resolution = "coordinates"` (Maven
+   * coordinates + sha256 recovered from Amper's m2 cache); set `contrib.bundleEmbed=true` for an
+   * additional offline `embedded` pack carrying the reachable jars under `libs/`.
+   */
+  private fun emitBundle(png: File) {
+    val moduleClasses =
+      File(System.getProperty("contrib.amperFixtureDir"))
+        .let { File(it, "build/artifacts/CompiledJvmArtifact/amper-cmp-desktopjvm/kotlin-output") }
+    val previews =
+      listOf(
+        PreviewInfo(
+          id = PREVIEW_ID,
+          className = CLASS_NAME,
+          functionName = FUNCTION_NAME,
+          sourceFile = SOURCE_FILE,
+        )
+      )
+    val renderPngs = mapOf(PREVIEW_ID to png)
+    val m2Roots = AmperBundleEmitter.defaultM2CacheRoots()
+
+    val coordinatesOut =
+      File(System.getProperty("contrib.bundleOutputFile", "_preview-bundle.png"))
+    coordinatesOut.absoluteFile.parentFile?.mkdirs()
+    val coordResult =
+      AmperBundleEmitter.emit(
+        previews = previews,
+        amperKotlinOutput = moduleClasses,
+        m2CacheRoots = m2Roots,
+        renderPngs = renderPngs,
+        modulePath = MODULE_PATH,
+        variant = VARIANT,
+        out = coordinatesOut,
+        embed = false,
+      )
+    System.err.println(
+      "PreviewProducer: wrote ${coordinatesOut.absolutePath} " +
+        "(${coordinatesOut.length()} bytes, resolution=${coordResult.resolution}, " +
+        "${coordResult.mavenEntries} coord / ${coordResult.embeddedEntries} embedded deps, " +
+        "module classes ${coordResult.moduleClassesKept}/${coordResult.moduleClassesTotal})"
+    )
+
+    if (System.getProperty("contrib.bundleEmbed").toBoolean()) {
+      val embeddedOut =
+        File(
+          System.getProperty(
+            "contrib.bundleEmbeddedOutputFile",
+            coordinatesOut.absolutePath.removeSuffix(".png") + "-embedded.png",
+          )
+        )
+      val embedResult =
+        AmperBundleEmitter.emit(
+          previews = previews,
+          amperKotlinOutput = moduleClasses,
+          m2CacheRoots = m2Roots,
+          renderPngs = renderPngs,
+          modulePath = MODULE_PATH,
+          variant = VARIANT,
+          out = embeddedOut,
+          embed = true,
+        )
+      System.err.println(
+        "PreviewProducer: wrote ${embeddedOut.absolutePath} " +
+          "(${embeddedOut.length()} bytes, resolution=${embedResult.resolution}, " +
+          "${embedResult.embeddedEntries} embedded deps)"
+      )
+    }
   }
 
   /** Spawns the daemon, fires one `renderNow`, waits for `renderFinished`, returns `pngPath`. */

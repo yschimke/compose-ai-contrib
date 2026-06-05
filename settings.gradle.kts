@@ -31,6 +31,14 @@ dependencyResolutionManagement {
 
 rootProject.name = "compose-ai-contrib"
 
+// Shared portable-bundle producer: the ClassGraph reachability closure walk, the
+// PNG+ZIP polyglot writer, and the Maven-coordinate / `maven_install.json`
+// recovery the Amper and Bazel drivers use to emit `bundle.json` (schema v3/v4)
+// that the upstream `:bundle-viewer` can open. Pure JVM, no Gradle/AGP/Amper/Bazel
+// dependency — it just takes class dirs/jars + a coordinate map. See
+// `docs/portable-bundles.md`.
+include(":bundle-producer")
+
 include(":contract-tests:amper-cmp-desktop")
 project(":contract-tests:amper-cmp-desktop").projectDir =
   file("contract-tests/amper-cmp-desktop")
