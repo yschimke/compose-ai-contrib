@@ -5,6 +5,7 @@ on:
     paths:
       - "amper-cmp-desktop/**"
       - "contract-tests/**"
+      - "bundle-producer/**"
       - "gradle/**"
       - "settings.gradle.kts"
       - "build.gradle.kts"
@@ -16,6 +17,7 @@ on:
     paths:
       - "amper-cmp-desktop/**"
       - "contract-tests/**"
+      - "bundle-producer/**"
       - "gradle/**"
       - "settings.gradle.kts"
       - "build.gradle.kts"
@@ -25,6 +27,21 @@ on:
   workflow_dispatch:
 
 jobs:
+  bundle-producer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Bundle-producer unit tests (closure walk + coordinate recovery)
+        run: ./gradlew :bundle-producer:test --stacktrace
+
+      - name: Build the runnable producer jar
+        run: ./gradlew :bundle-producer:uberJar --stacktrace
+
   amper-cmp-desktop:
     runs-on: ubuntu-latest
     steps:
@@ -45,3 +62,36 @@ jobs:
 
       - name: Contract test
         run: ./gradlew :contract-tests:amper-cmp-desktop:test --stacktrace
+
+      - name: Produce portable bundles (coordinates + embedded)
+        run: ./gradlew :contract-tests:amper-cmp-desktop:run -Dcontrib.bundleEmbed=true --stacktrace
+
+      - name: Verify the bundles are PNG+ZIP polyglots
+        run: |
+          set -euo pipefail
+          # `unzip -l` on a PNG+ZIP polyglot warns "N extra bytes at beginning"
+          # (the leading PNG cover) and exits 1 — a warning, not an error — which
+          # `set -e` would treat as fatal, so tolerate it (`|| true`) and let the
+          # content greps below be the real check. Capturing into a variable + here-
+          # string grep also avoids the pipefail-SIGPIPE that `| grep -q` would hit.
+          for f in _preview-bundle.png _preview-bundle-embedded.png; do
+            echo "== $f =="
+            test -f "$f"
+            ftype="$(file -b "$f")"; echo "$ftype"
+            case "$ftype" in *"PNG image data"*) ;; *) echo "not a PNG: $f"; exit 1 ;; esac
+            listing="$(unzip -l "$f" 2>&1 || true)"; echo "$listing"
+            grep -q 'bundle.json' <<<"$listing"
+            grep -q 'classes/app.jar' <<<"$listing"
+          done
+          echo "== embedded pack must carry libs/*.jar =="
+          embedded_listing="$(unzip -l _preview-bundle-embedded.png 2>&1 || true)"
+          grep -q 'libs/.*\.jar' <<<"$embedded_listing"
+
+      - name: Upload bundles
+        uses: actions/upload-artifact@v4
+        with:
+          name: amper-preview-bundles
+          path: |
+            _preview-bundle.png
+            _preview-bundle-embedded.png
+          if-no-files-found: warn

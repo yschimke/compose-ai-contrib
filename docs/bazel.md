@@ -202,9 +202,21 @@ java -cp $(<the classpath from your rules_jvm_external manifest>) \
   expect to upgrade deps before the renderer can load classes
   compiled against it.
 
+## Portable bundles
+
+The [`bundle_preview`](../bazel-apk/compose_preview.bzl) rule packs a **portable
+preview bundle** from a Bazel library's outputs: a `bundle.json` with
+`producer = "bazel"` and a real `classpath[]`. With a pinned `maven_install.json`
+(`bazel run @maven//:pin`) every reachable dep is recorded as a resolvable Maven
+coordinate + `sha256` (`resolution = "coordinates"`); vendored/unpinned jars are
+carried in `libs/` (`embedded`). Rendering isn't invocable under Bazel today, so
+the bundle carries a stub cover plus the real classpath. See
+[`docs/portable-bundles.md`](portable-bundles.md).
+
 ## See also
 
 - The Bazel resources sample: [`bazel/`](../bazel/)
 - The Bazel Compose APK sample: [`bazel-apk/`](../bazel-apk/)
+- Portable preview bundles: [`docs/portable-bundles.md`](portable-bundles.md)
 - Contract spec (`daemon-launch.json` schema, classpath layering,
   sysprops): [`yschimke/compose-ai-tools/docs/NON_GRADLE_INTEGRATION.md`](https://github.com/yschimke/compose-ai-tools/blob/main/docs/NON_GRADLE_INTEGRATION.md)

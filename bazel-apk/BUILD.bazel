@@ -1,6 +1,7 @@
 load("@rules_kotlin//kotlin:android.bzl", "kt_android_library")
 load("@rules_kotlin//kotlin:core.bzl", "kt_compiler_plugin")
 load("@rules_android//rules:rules.bzl", "android_binary")
+load(":compose_preview.bzl", "bundle_preview")
 
 kt_compiler_plugin(
     name = "compose_compiler_plugin",
@@ -31,4 +32,34 @@ android_binary(
     custom_package = "com.example.bazelsample",
     manifest = "app/src/main/AndroidManifest.xml",
     deps = [":bazel_sample_lib"],
+)
+
+# The shared portable-bundle producer, built by the repo's Gradle as a single
+# runnable jar and copied next to this BUILD file:
+#
+#   ./gradlew :bundle-producer:uberJar
+#   cp ../bundle-producer/build/libs/bundle-producer-all.jar bazel-apk/
+#
+# Git-ignored (see .gitignore) — it's a build artifact, not source.
+exports_files(["bundle-producer-all.jar"])
+
+# Packs a portable `compose-preview` bundle from the Bazel outputs. `manual` so it
+# stays off the `bazel build //...` path (it needs the producer jar present, and —
+# for `resolution = "coordinates"` — a pinned `maven_install.json`); build it
+# explicitly with `bazel build //:preview_bundle`. See `compose_preview.bzl` and
+# `../docs/portable-bundles.md`.
+#
+# To get resolvable Maven coordinates + sha256 instead of embedded jars, pin the
+# Maven graph first (`bazel run @maven//:pin`, which writes `maven_install.json`)
+# and uncomment the `maven_install` attribute below.
+bundle_preview(
+    name = "preview_bundle",
+    module = ":bazel_sample_lib",
+    deps = [":bazel_sample_lib"],
+    module_path = "//app:bazel_sample_lib",
+    previews = [
+        "GreetingKt.Greeting=com.example.bazelsample.GreetingKt#Greeting@app/src/main/kotlin/com/example/bazelsample/Greeting.kt",
+    ],
+    # maven_install = "maven_install.json",  # uncomment after `bazel run @maven//:pin`
+    tags = ["manual"],
 )

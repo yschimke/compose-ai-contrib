@@ -154,9 +154,19 @@ Harmless on a stock runner; necessary in TLS-inspecting environments.
   + Robolectric on the classpath — heavier; not covered here. Start
   with Compose Desktop.
 
+## Portable bundles
+
+After rendering, the Amper producer also packs a **portable preview bundle** — a
+`bundle.json` with `producer = "amper"` and a real `classpath[]` of Maven
+coordinates recovered from Amper's m2 cache (default `coordinates` mode, with a
+`sha256` per dep), or jars carried in `libs/` (`embedded` mode for offline
+hand-off). See [`docs/portable-bundles.md`](portable-bundles.md) for what's
+emitted and how to verify it.
+
 ## See also
 
 - The Amper Compose Desktop fixture: [`amper-cmp-desktop/`](../amper-cmp-desktop/)
 - The Amper Android fixture: [`amper-android/`](../amper-android/)
+- Portable preview bundles: [`docs/portable-bundles.md`](portable-bundles.md)
 - Contract spec (`daemon-launch.json` schema, classpath layering,
   sysprops): [`yschimke/compose-ai-tools/docs/NON_GRADLE_INTEGRATION.md`](https://github.com/yschimke/compose-ai-tools/blob/main/docs/NON_GRADLE_INTEGRATION.md)

@@ -3,6 +3,14 @@ composeai = "0.11.15"
 kotlin = "2.3.21"
 junit = "4.13.2"
 truth = "1.4.5"
+# ClassGraph drives the bundle producer's reachability closure walk — the same
+# library upstream's `BundlePreviewTask.closureWalk` uses, so the contrib
+# producers prune to reachable deps byte-for-byte the same way. No Gradle dep.
+classgraph = "4.8.179"
+# Wire-format JSON for the bundle manifest (`bundle.json`). Must encode the
+# `ClasspathEntry` sealed hierarchy with the `kind` discriminator exactly as the
+# upstream `:bundle-viewer` reader expects.
+kotlinxSerialization = "1.9.0"
 
 [libraries]
 composeai-preview-discovery = { module = "ee.schimke.composeai:preview-discovery", version.ref = "composeai" }
@@ -25,6 +33,8 @@ composeai-gradle-preview-driver = { module = "ee.schimke.composeai:gradle-previe
 kotlin-scripting-common = { module = "org.jetbrains.kotlin:kotlin-scripting-common", version.ref = "kotlin" }
 kotlin-scripting-jvm = { module = "org.jetbrains.kotlin:kotlin-scripting-jvm", version.ref = "kotlin" }
 kotlin-scripting-jvm-host = { module = "org.jetbrains.kotlin:kotlin-scripting-jvm-host", version.ref = "kotlin" }
+classgraph = { module = "io.github.classgraph:classgraph", version.ref = "classgraph" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 junit = { module = "junit:junit", version.ref = "junit" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 

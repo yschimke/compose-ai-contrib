@@ -15,6 +15,12 @@ dependencies {
   implementation(libs.composeai.render.session.subprocess)
   implementation(libs.composeai.render.session.api)
 
+  // Portable-bundle producer: after rendering, `PreviewProducer` packs a
+  // schema-v4 `bundle.png` (coordinates from Amper's m2 cache + sha256, or
+  // embedded) the upstream `:bundle-viewer` can open. See
+  // `docs/portable-bundles.md`.
+  implementation(project(":bundle-producer"))
+
   rendererRuntime(libs.composeai.daemon.desktop)
   rendererRuntime(libs.composeai.daemon.core)
   rendererRuntime(libs.composeai.data.render.connector)
@@ -53,6 +59,18 @@ tasks.named<JavaExec>("run") {
     "contrib.previewsOutputFile",
     rootProject.layout.projectDirectory.file("_previews.json").asFile.absolutePath,
   )
+  // Portable bundle output (`docs/portable-bundles.md`). The coordinates pack is
+  // always written; pass `-Dcontrib.bundleEmbed=true` for the offline embedded
+  // pack alongside it.
+  systemProperty(
+    "contrib.bundleOutputFile",
+    rootProject.layout.projectDirectory.file("_preview-bundle.png").asFile.absolutePath,
+  )
+  System.getProperty("contrib.bundleEmbed")?.let { systemProperty("contrib.bundleEmbed", it) }
+  System.getProperty("contrib.amperM2Cache")?.let { systemProperty("contrib.amperM2Cache", it) }
+  // Opt-in: SHA-1-check any coordinate-less embedded jar against Maven Central and warn if it's
+  // actually published (a recovery miss). See `docs/portable-bundles.md`.
+  System.getProperty("contrib.verifyEmbedded")?.let { systemProperty("contrib.verifyEmbedded", it) }
 }
 
 kotlin {
