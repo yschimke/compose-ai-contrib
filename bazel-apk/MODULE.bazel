@@ -1,4 +1,4 @@
-# Bazel sample — Android Compose APK target (opt-in, known-fragile).
+# Bazel sample — Android Compose APK target.
 #
 # Pulls rules_kotlin / rules_android / rules_jvm_external to compile a
 # tiny `@Composable @Preview` + `@NotificationPreview` into a real APK.
@@ -7,12 +7,10 @@
 # i.e. the post-K2 plugin model rather than the standalone
 # `androidx.compose.compiler:compiler` jar.
 #
-# Kept in a sibling directory to `samples/bazel/` (resources-only) so the
-# Android SDK / Maven toolchain wiring here doesn't leak into the
-# resources job's module evaluation. The APK target is not on the
-# default CI path — see `.github/workflows/bazel.yml` for the opt-in
-# `bazel-build-apk` job (still `continue-on-error: true` while we shake
-# out the Android SDK toolchain registration under rules_android 0.7.x).
+# Builds green on Bazel 9 via the `bazel-build-apk` job in
+# `.github/workflows/bazel.yml`. Kept in a sibling directory to `bazel/`
+# (resources-only) so the Android SDK / Maven toolchain wiring here doesn't leak
+# into the resources job's module evaluation.
 
 module(
     name = "compose_ai_tools_bazel_apk_sample",

@@ -65,6 +65,19 @@ class CoordinatesTest {
   }
 
   @Test
+  fun `matches a rules_jvm_external processed_ prefixed runtime jar`() {
+    val sha = "c".repeat(64)
+    val json =
+      """{ "artifacts": { "androidx.collection:collection-jvm": { "shasums": { "jar": "$sha" }, "version": "1.4.0" } } }"""
+    val index = Coordinates.parseMavenInstall(json)
+
+    // rules_jvm_external materializes the runtime jar as `processed_<basename>`.
+    assertThat(index.coordinateFor(File("/x/processed_collection-jvm-1.4.0.jar")))
+      .isEqualTo("androidx.collection:collection-jvm:1.4.0:jar")
+    assertThat(index.sha256For(File("/x/processed_collection-jvm-1.4.0.jar"))).isEqualTo(sha)
+  }
+
+  @Test
   fun `drops a non-hex sha but still recovers the coordinate`() {
     val json =
       """

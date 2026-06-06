@@ -54,9 +54,24 @@ mirroring its `bundle.json` field names and the `kind` discriminator exactly.
   (`AmperBundleEmitter` + `PreviewProducer`): after rendering, it packs
   `_preview-bundle.png` (and, with `-Dcontrib.bundleEmbed=true`,
   `_preview-bundle-embedded.png`).
-- **Bazel** — the [`bundle_preview`](../bazel-apk/compose_preview.bzl) Starlark
-  rule drives the producer's runnable `bundle-producer-all.jar` over a Bazel
-  library's outputs.
+- **Bazel** — the `bundle_preview` Starlark rule drives the producer's runnable
+  `bundle-producer-all.jar` over a Bazel library's outputs. It's used in two
+  samples: [`bazel-desktop/`](../bazel-desktop/) — a Compose **Desktop**
+  `kt_jvm_library` that builds cleanly and whose bundle CI publishes — and
+  [`bazel-apk/`](../bazel-apk/) — the Android target, currently blocked on the
+  `rules_android`/Bazel-9 toolchain ([#14](https://github.com/yschimke/compose-ai-contrib/issues/14)).
+
+## Downloadable artifacts in CI
+
+Each producer's bundle is uploaded as a CI artifact so you can grab and open it:
+
+| Build system | Workflow | Artifact | Contents |
+| --- | --- | --- | --- |
+| Amper | `contract-tests.yml` | `amper-preview-bundles` | `_preview-bundle.png` (coordinates, rendered cover) + `_preview-bundle-embedded.png` (offline) |
+| Bazel (desktop) | `bazel.yml` | `bazel-desktop-bundle` | `preview_bundle.png` (coordinates + sha256, stub cover) |
+
+Download from the run's **Artifacts** section, then `unzip -l <bundle>.png` /
+open it in `compose-preview bundle open` or the `:bundle-viewer`.
 
 ## The three questions — confirmed
 
@@ -170,23 +185,25 @@ unzip -l _preview-bundle-embedded.png     # => additionally libs/*.jar  (no netw
 - **embedded** bundle: `resolution = "embedded"`, `unzip -l` shows `libs/*.jar`;
   opens on a box with **no Gradle/Maven and no network**.
 
-### Bazel (coordinates from `maven_install.json`, else embedded)
+### Bazel (coordinates from `maven_install.json`)
+
+The [`bazel-desktop/`](../bazel-desktop/) sample builds and publishes its bundle
+in CI (`bazel-desktop-bundle` artifact). To build it locally:
 
 ```bash
 ./gradlew :bundle-producer:uberJar
-cp bundle-producer/build/libs/bundle-producer-all.jar bazel-apk/
-cd bazel-apk
-# optional, for resolution=coordinates: pin the Maven graph, then uncomment
-# `maven_install = "maven_install.json"` in BUILD.bazel
-bazel run @maven//:pin
+cp bundle-producer/build/libs/bundle-producer-all.jar bazel-desktop/
+cd bazel-desktop
 bazel build //:preview_bundle
-unzip -l bazel-bin/preview_bundle.png     # bundle.json (producer=bazel) + classpath[]
+unzip -l bazel-bin/preview_bundle.png     # bundle.json (producer=bazel, coordinates) + classpath[]
 ```
 
-The coordinate-recovery and embed logic are covered by the `:bundle-producer`
-unit tests (`CoordinatesTest`, `BundleWriterTest`, `BundleProducerCliTest`), so
-the producer path is exercised in CI even though the full Bazel build stays
-opt-in / known-fragile (see [`bazel-apk/README.md`](../bazel-apk/README.md)).
+The pinned `maven_install.json` makes resolution deterministic; regenerate it
+with `REPIN=1 bazel run @maven//:pin` after changing `artifacts`. The
+coordinate-recovery and embed logic are also covered by the `:bundle-producer`
+unit tests (`CoordinatesTest`, `BundleWriterTest`, `BundleProducerCliTest`). The
+Android [`bazel-apk/`](../bazel-apk/) sample carries the same `bundle_preview`
+rule for when an Android render path lands.
 
 ## Out of scope (done upstream)
 
