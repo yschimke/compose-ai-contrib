@@ -185,7 +185,11 @@ object BundleWriter {
         val reachable = bfsReachable(scan, seed)
         val perElement = HashMap<String, IntArray>() // [reachable, total]
         for (ci in scan.allClasses) {
-          val file = ci.classpathElementFile?.absolutePath ?: continue
+          // Key by canonical path: ClassGraph reports the symlink-resolved real
+          // file, but a dependency jar may be passed via a symlink (e.g. Bazel's
+          // bazel-out/ tree). Canonicalizing both sides (here and in
+          // buildDepDecisions) makes the per-jar reachability counts line up.
+          val file = ci.classpathElementFile?.let(::canonicalPath) ?: continue
           val counts = perElement.getOrPut(file) { IntArray(2) }
           counts[1]++
           if (ci.name in reachable) counts[0]++
@@ -280,7 +284,7 @@ object BundleWriter {
     jars: List<DependencyInput>,
     perElement: Map<String, PerElementCount>,
   ): List<DependencyDecision> = jars.map { dep ->
-    val totals = perElement[dep.jar.absolutePath]
+    val totals = perElement[canonicalPath(dep.jar)]
     val reachable = totals?.reachable ?: 0
     DependencyDecision(
       sourcePath = dep.jar.absolutePath,
@@ -435,6 +439,10 @@ object BundleWriter {
   }
 
   // --- Helpers -------------------------------------------------------------------------------------
+
+  /** Symlink-resolved absolute path, falling back to the plain absolute path. */
+  private fun canonicalPath(file: File): String =
+    runCatching { file.canonicalPath }.getOrElse { file.absolutePath }
 
   /** Visit each entry of [jar]; `bytes()` lazily reads the current entry's bytes. */
   private inline fun forEachJarEntry(jar: File, action: (name: String, bytes: () -> ByteArray) -> Unit) {

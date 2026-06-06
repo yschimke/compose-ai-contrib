@@ -1,0 +1,10 @@
+# The shared bundle producer, built by `./gradlew :bundle-producer:uberJar` and
+# copied here for the `bundle_preview` rule. A build artifact, not source.
+bundle-producer-all.jar
+
+# Bundle outputs.
+*.png
+
+# Bazel local build artifacts.
+/bazel-*
+MODULE.bazel.lock

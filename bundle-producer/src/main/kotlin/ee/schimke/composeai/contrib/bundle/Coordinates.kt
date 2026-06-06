@@ -64,10 +64,15 @@ object Coordinates {
     private val byFileName: Map<String, Pinned>,
   ) {
     /** `group:artifact:version:type` for a runtime jar matched by basename, or null. */
-    fun coordinateFor(jar: File): String? = byFileName[jar.name]?.coordinate
+    fun coordinateFor(jar: File): String? = lookup(jar)?.coordinate
 
     /** Pinned hex `sha256` for a runtime jar matched by basename, or null. */
-    fun sha256For(jar: File): String? = byFileName[jar.name]?.sha256
+    fun sha256For(jar: File): String? = lookup(jar)?.sha256
+
+    // rules_jvm_external materializes runtime jars as `processed_<artifact>-<version>.<type>.jar`;
+    // the pin records the plain `<artifact>-<version>.<type>` basename, so try the stripped name too.
+    private fun lookup(jar: File): Pinned? =
+      byFileName[jar.name] ?: byFileName[jar.name.removePrefix("processed_")]
 
     val size: Int get() = byFileName.size
   }

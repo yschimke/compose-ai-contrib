@@ -1,0 +1,50 @@
+load("@rules_kotlin//kotlin:core.bzl", "kt_compiler_plugin")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+load(":compose_preview.bzl", "bundle_preview")
+
+# Compose compiler plugin (the Kotlin-bundled one, post-K2 plugin model).
+kt_compiler_plugin(
+    name = "compose_compiler_plugin",
+    id = "androidx.compose.compiler.plugins.kotlin",
+    target_embedded_compiler = True,
+    deps = ["@maven//:org_jetbrains_kotlin_kotlin_compose_compiler_plugin_embeddable"],
+)
+
+# The consumer module: a plain JVM library compiling the Compose-Desktop
+# `@Preview`. No rules_android — this is the whole point of the desktop sample.
+kt_jvm_library(
+    name = "app",
+    srcs = glob(["app/src/main/kotlin/**/*.kt"]),
+    plugins = [":compose_compiler_plugin"],
+    deps = [
+        "@maven//:org_jetbrains_compose_runtime_runtime_desktop",
+        "@maven//:org_jetbrains_compose_foundation_foundation_desktop",
+        "@maven//:org_jetbrains_compose_material3_material3_desktop",
+        "@maven//:org_jetbrains_compose_ui_ui_desktop",
+        "@maven//:org_jetbrains_compose_ui_ui_tooling_preview_desktop",
+    ],
+)
+
+# The shared portable-bundle producer, built by the repo's Gradle as a single
+# runnable jar and copied next to this BUILD file:
+#
+#   ./gradlew :bundle-producer:uberJar
+#   cp ../bundle-producer/build/libs/bundle-producer-all.jar bazel-desktop/
+#
+# Git-ignored (see .gitignore) — it's a build artifact, not source.
+exports_files(["bundle-producer-all.jar"])
+
+# Packs a portable `compose-preview` bundle (`preview_bundle.png`, a PNG+ZIP
+# polyglot) from the library's compiled output, recovering Maven coordinates +
+# sha256 from the pinned `maven_install.json` (`producer = "bazel"`,
+# `resolution = "coordinates"`). CI builds this and uploads it as an artifact.
+bundle_preview(
+    name = "preview_bundle",
+    module = ":app",
+    deps = [":app"],
+    module_path = "//app:app",
+    previews = [
+        "GreetingKt.Greeting=com.example.bazeldesktop.GreetingKt#Greeting@app/src/main/kotlin/com/example/bazeldesktop/Greeting.kt",
+    ],
+    maven_install = "maven_install.json",
+)

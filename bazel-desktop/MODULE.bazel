@@ -1,0 +1,59 @@
+# Bazel sample — Compose **Desktop** preview bundle.
+#
+# Unlike the sibling `bazel-apk/` (Android) sample, this compiles a Compose
+# `@Preview` with a plain `kt_jvm_library` and **no `rules_android`** — so it
+# avoids the Android toolchain entirely (no AAPT2/dexer, no rules_android Go
+# tools) and builds a portable preview bundle that CI can publish as a
+# downloadable artifact. See `BUILD.bazel` and `../docs/portable-bundles.md`.
+
+module(
+    name = "compose_ai_tools_bazel_desktop_sample",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
+bazel_dep(name = "rules_jvm_external", version = "6.10")
+
+# 2.1.10 loads JavaPluginInfo explicitly (Bazel 9 dropped it as a .bzl global)
+# and bundles Kotlin 2.1.21, so the Compose compiler plugin below matches.
+bazel_dep(name = "rules_kotlin", version = "2.1.10")
+
+# Direct dep so `compose_preview.bzl` can `load` JavaInfo from it (Bazel 9 no
+# longer exposes it as an implicit .bzl global).
+bazel_dep(name = "rules_java", version = "9.3.0")
+
+# rules_kotlin pulls rules_android transitively (for kt_android_library); the
+# version it would otherwise select fails to initialize on Bazel 9 ("got element
+# of type NoneType, want Provider"). Pin 0.7.2, which loads cleanly on Bazel 9.
+# We never use an android rule here, so this only needs to *load* — none of
+# rules_android's AAPT2/dexer/Go tools end up in the desktop build graph.
+bazel_dep(name = "rules_android", version = "0.7.2")
+
+# Maven graph for Compose Desktop, pinned to a checked-in lock file so CI
+# replays a deterministic resolution. Regenerate with `bazel run @maven//:pin`.
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    name = "maven",
+    artifacts = [
+        # Kotlin compose compiler plugin — must match the Kotlin compiler
+        # rules_kotlin 2.1.10 bundles (2.1.21); it's versioned in lockstep with
+        # Kotlin and refuses to load against a different compiler version.
+        "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable:2.1.21",
+        # Compose Multiplatform desktop runtime (the same set the Amper desktop
+        # fixture pulls via `$compose.desktop.currentOs` + `$compose.material3`).
+        "org.jetbrains.compose.runtime:runtime-desktop:1.7.3",
+        "org.jetbrains.compose.foundation:foundation-desktop:1.7.3",
+        "org.jetbrains.compose.material3:material3-desktop:1.7.3",
+        "org.jetbrains.compose.ui:ui-desktop:1.7.3",
+        "org.jetbrains.compose.ui:ui-tooling-preview-desktop:1.7.3",
+    ],
+    repositories = [
+        "https://maven.google.com",
+        "https://repo1.maven.org/maven2",
+    ],
+    # Force declared versions so any conflicting transitive strict pins resolve
+    # to one version instead of failing resolution.
+    version_conflict_policy = "pinned",
+    lock_file = "//:maven_install.json",
+)
+use_repo(maven, "maven")

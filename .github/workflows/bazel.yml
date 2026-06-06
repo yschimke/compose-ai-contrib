@@ -5,12 +5,16 @@ on:
     paths:
       - "bazel/**"
       - "bazel-apk/**"
+      - "bazel-desktop/**"
+      - "bundle-producer/**"
       - ".github/workflows/bazel.yml"
   push:
     branches: [main]
     paths:
       - "bazel/**"
       - "bazel-apk/**"
+      - "bazel-desktop/**"
+      - "bundle-producer/**"
       - ".github/workflows/bazel.yml"
   workflow_dispatch:
 
@@ -32,6 +36,49 @@ jobs:
       - name: Inspect output
         working-directory: bazel
         run: cat bazel-bin/app_resources.json
+
+  bazel-desktop-bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: bazel-contrib/setup-bazel@0.15.0
+        with:
+          bazelisk-cache: true
+          disk-cache: true
+          repository-cache: true
+
+      - name: Build the shared bundle-producer jar
+        run: ./gradlew :bundle-producer:uberJar --stacktrace
+
+      - name: Stage the producer jar for the Bazel rule
+        run: cp bundle-producer/build/libs/bundle-producer-all.jar bazel-desktop/
+
+      - name: Build the Compose Desktop preview bundle
+        working-directory: bazel-desktop
+        run: bazel build //:preview_bundle
+
+      - name: Verify the bundle is a PNG+ZIP polyglot with a real classpath
+        working-directory: bazel-desktop
+        run: |
+          set -euo pipefail
+          # Copy out of the bazel-bin symlink tree to a plain file for upload.
+          cp -L bazel-bin/preview_bundle.png preview_bundle.png
+          ftype="$(file -b preview_bundle.png)"; echo "$ftype"
+          case "$ftype" in *"PNG image data"*) ;; *) echo "not a PNG"; exit 1 ;; esac
+          listing="$(unzip -l preview_bundle.png 2>&1 || true)"; echo "$listing"
+          grep -q 'bundle.json' <<<"$listing"
+          grep -q 'classes/app.jar' <<<"$listing"
+
+      - name: Upload Bazel desktop bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: bazel-desktop-bundle
+          path: bazel-desktop/preview_bundle.png
+          if-no-files-found: error
 
   bazel-build-apk:
     runs-on: ubuntu-latest
