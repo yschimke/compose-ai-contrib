@@ -4,3 +4,14 @@ build --show_progress_rate_limit=0.1
 # bzlmod is the only supported entrypoint; WORKSPACE compatibility off.
 common --enable_bzlmod
 common --noenable_workspace
+
+# Pin the Java toolchain to 17. Bazel 9 defaults to a remotejdk25 toolchain whose
+# `--release` level predates records, so building rules_android's own tools (e.g.
+# DexFileSplitter.java, which uses `private record …`) fails in Turbine with
+# "could not locate class file for java.lang.Record". These are exactly the four
+# flags rules_android 0.7.2 sets in its own .bazelrc (tested on Bazel 9.0.0rc3).
+# See issue #14.
+common --java_language_version=17
+common --java_runtime_version=17
+common --tool_java_language_version=17
+common --tool_java_runtime_version=17
