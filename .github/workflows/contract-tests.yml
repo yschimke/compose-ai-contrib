@@ -69,16 +69,21 @@ jobs:
       - name: Verify the bundles are PNG+ZIP polyglots
         run: |
           set -euo pipefail
+          # Capture command output into variables and grep via here-strings — piping
+          # straight into `grep -q` under `pipefail` makes the upstream command die
+          # with SIGPIPE when grep exits on first match, failing the step spuriously.
           for f in _preview-bundle.png _preview-bundle-embedded.png; do
             echo "== $f =="
-            file "$f"
-            file "$f" | grep -q 'PNG image data'
-            unzip -l "$f"
-            unzip -l "$f" | grep -q 'bundle.json'
-            unzip -l "$f" | grep -q 'classes/app.jar'
+            test -f "$f"
+            ftype="$(file -b "$f")"; echo "$ftype"
+            case "$ftype" in *"PNG image data"*) ;; *) echo "not a PNG: $f"; exit 1 ;; esac
+            listing="$(unzip -l "$f")"; echo "$listing"
+            grep -q 'bundle.json' <<<"$listing"
+            grep -q 'classes/app.jar' <<<"$listing"
           done
           echo "== embedded pack must carry libs/*.jar =="
-          unzip -l _preview-bundle-embedded.png | grep -q 'libs/.*\.jar'
+          embedded_listing="$(unzip -l _preview-bundle-embedded.png)"
+          grep -q 'libs/.*\.jar' <<<"$embedded_listing"
 
       - name: Upload bundles
         uses: actions/upload-artifact@v4
