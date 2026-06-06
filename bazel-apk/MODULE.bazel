@@ -78,5 +78,11 @@ maven.install(
         "https://repo1.maven.org/maven2",
     ],
     use_starlark_android_rules = True,
+    # material3:1.3.1 transitively requests Compose 1.6.0/1.7.0 while we pin
+    # 1.7.5, which rules_jvm_external rejects as a version conflict during
+    # analysis. "pinned" makes the explicitly-listed `artifacts` versions win
+    # over those transitive requests (Compose 1.7.5 + material3 1.3.1 is a
+    # known-compatible set).
+    version_conflict_policy = "pinned",
 )
 use_repo(maven, "maven")
