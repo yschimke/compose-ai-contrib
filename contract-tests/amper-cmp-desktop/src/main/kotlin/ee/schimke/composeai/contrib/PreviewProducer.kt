@@ -158,6 +158,7 @@ object PreviewProducer {
       )
     val renderPngs = mapOf(PREVIEW_ID to png)
     val m2Roots = AmperBundleEmitter.defaultM2CacheRoots()
+    val verifyEmbedded = System.getProperty("contrib.verifyEmbedded").toBoolean()
 
     val coordinatesOut =
       File(System.getProperty("contrib.bundleOutputFile", "_preview-bundle.png"))
@@ -172,6 +173,7 @@ object PreviewProducer {
         variant = VARIANT,
         out = coordinatesOut,
         embed = false,
+        verifyEmbedded = verifyEmbedded,
       )
     System.err.println(
       "PreviewProducer: wrote ${coordinatesOut.absolutePath} " +
@@ -198,6 +200,7 @@ object PreviewProducer {
           variant = VARIANT,
           out = embeddedOut,
           embed = true,
+          verifyEmbedded = false,
         )
       System.err.println(
         "PreviewProducer: wrote ${embeddedOut.absolutePath} " +

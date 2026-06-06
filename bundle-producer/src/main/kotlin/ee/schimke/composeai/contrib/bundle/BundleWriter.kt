@@ -62,6 +62,12 @@ object BundleWriter {
     val moduleClassesTotal: Int,
     val depsDropped: Int,
     val bakedPngs: Int,
+    /**
+     * Jars embedded **because no coordinate was recovered** (not the intentionally `--embed`'d
+     * coordinate jars). These are the ones worth checking against a registry — a published one here
+     * is a recovery miss, not a genuinely vendored jar. See [EmbeddedVerifier].
+     */
+    val embeddedWithoutCoordinate: List<File> = emptyList(),
   )
 
   private val json = Json {
@@ -151,6 +157,7 @@ object BundleWriter {
       moduleClassesTotal = moduleClassFqns.size,
       depsDropped = depDecisions.count { !it.kept },
       bakedPngs = previewPngs.size,
+      embeddedWithoutCoordinate = assembled.coordinatelessEmbedded,
     )
   }
 
@@ -290,6 +297,8 @@ object BundleWriter {
     val entries: List<ClasspathEntry>,
     val inlinedJars: Map<String, File>,
     val resolution: String,
+    /** Embedded jars that had no recovered coordinate (the registry-check suspects). */
+    val coordinatelessEmbedded: List<File>,
   )
 
   private fun assembleClasspath(
@@ -300,6 +309,7 @@ object BundleWriter {
     val byPath = jars.associateBy { it.jar.absolutePath }
     val entries = mutableListOf<ClasspathEntry>(ClasspathEntry.Module(path = "classes/app.jar"))
     val inlinedJars = LinkedHashMap<String, File>()
+    val coordinatelessEmbedded = mutableListOf<File>()
     val seenJarNames = mutableMapOf<String, Int>()
     var mavenReferenced = 0
     var mavenEmbedded = 0
@@ -336,7 +346,10 @@ object BundleWriter {
         else -> {
           val name = src?.name ?: File(dep.sourcePath).name
           val inlined = "libs/${dedupeJarName(name)}"
-          if (src != null) inlinedJars[inlined] = src
+          if (src != null) {
+            inlinedJars[inlined] = src
+            coordinatelessEmbedded += src
+          }
           entries += ClasspathEntry.Embedded(inlinedAs = inlined)
           mavenEmbedded++
         }
@@ -349,7 +362,12 @@ object BundleWriter {
         mavenEmbedded > 0 -> RESOLUTION_EMBEDDED
         else -> RESOLUTION_COORDINATES
       }
-    return AssembledClasspath(entries = entries, inlinedJars = inlinedJars, resolution = resolution)
+    return AssembledClasspath(
+      entries = entries,
+      inlinedJars = inlinedJars,
+      resolution = resolution,
+      coordinatelessEmbedded = coordinatelessEmbedded,
+    )
   }
 
   /**

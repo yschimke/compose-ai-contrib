@@ -68,6 +68,9 @@ tasks.named<JavaExec>("run") {
   )
   System.getProperty("contrib.bundleEmbed")?.let { systemProperty("contrib.bundleEmbed", it) }
   System.getProperty("contrib.amperM2Cache")?.let { systemProperty("contrib.amperM2Cache", it) }
+  // Opt-in: SHA-1-check any coordinate-less embedded jar against Maven Central and warn if it's
+  // actually published (a recovery miss). See `docs/portable-bundles.md`.
+  System.getProperty("contrib.verifyEmbedded")?.let { systemProperty("contrib.verifyEmbedded", it) }
 }
 
 kotlin {

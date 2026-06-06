@@ -117,6 +117,40 @@ metadata (m2 layout / `maven_install.json`) rather than from a resolver: the
 bundle open` / `:bundle-viewer`) is where the Tier-3 resolver runs at open time.
 For an offline hand-off, `embedded` mode sidesteps the resolver entirely.
 
+## Guarding against embedding a published jar
+
+Embedding is the fallback for a jar with **no recoverable coordinate** — it should
+not catch a dependency that actually lives in a Maven repo (that bloats the bundle
+and forfeits the detached-coordinate design). But "coordinate recovery failed" is
+not the same as "not in any repo": an Amper m2-layout quirk or a Bazel basename
+mismatch could embed a published artifact.
+
+`EmbeddedVerifier` closes that gap. Maven Central indexes artifacts by checksum,
+so every jar the producer is about to embed is looked up by its **SHA-1** through
+Central's `solrsearch` API; any that resolves to a `group:artifact:version` is
+flagged (it should be a coordinate, not embedded). It's best-effort — an
+unreachable registry leaves the jar embedded and reports it as "unverified",
+never failing the build by itself.
+
+This matters most for **Amper**: every jar in its m2 cache was resolved *from* a
+repo, so a flagged embed there is by construction a recovery miss, not a vendored
+jar. For **Bazel** it disambiguates a genuine `//third_party` vendored jar from a
+`maven_install.json` basename miss.
+
+```bash
+# Bazel (CLI): warn on, or fail on, embedded-but-published jars
+java -jar bundle-producer-all.jar … --verify-embedded            # warn
+java -jar bundle-producer-all.jar … --verify-embedded --fail-on-resolvable-embed  # exit 3
+
+# Amper:
+./gradlew :contract-tests:amper-cmp-desktop:run -Dcontrib.verifyEmbedded=true
+```
+
+The endpoint is overridable (`-Dcontrib.checksumSearchUrl=…`) for environments
+whose allowlist doesn't include `search.maven.org`. The verifier's logic is unit
+tested (`EmbeddedVerifierTest`) with a fake registry; the live Central lookup runs
+where the host is reachable.
+
 ## Producing & verifying
 
 ### Amper (coordinates + embedded)

@@ -2,6 +2,7 @@ package ee.schimke.composeai.contrib
 
 import ee.schimke.composeai.contrib.bundle.BundleWriter
 import ee.schimke.composeai.contrib.bundle.Coordinates
+import ee.schimke.composeai.contrib.bundle.EmbeddedVerifier
 import ee.schimke.composeai.contrib.bundle.PRODUCER_AMPER
 import ee.schimke.composeai.contrib.bundle.PreviewInfo
 import java.io.File
@@ -37,6 +38,7 @@ object AmperBundleEmitter {
     variant: String,
     out: File,
     embed: Boolean,
+    verifyEmbedded: Boolean = false,
   ): BundleWriter.Result {
     val existingRoots = m2CacheRoots.filter { it.isDirectory }
     val cacheJars = existingRoots.flatMap { collectJars(it) }
@@ -48,21 +50,41 @@ object AmperBundleEmitter {
         )
       }
 
-    return BundleWriter.write(
-      BundleWriter.BundleInputs(
-        previews = previews,
-        moduleSources = listOf(amperKotlinOutput),
-        dependencyJars = dependencyJars,
-        renderPngs = renderPngs,
-        modulePath = modulePath,
-        variant = variant,
-        backend = "desktop",
-        producer = PRODUCER_AMPER,
-        producedBy = "compose-ai-contrib amper producer",
-        embed = embed,
-      ),
-      out,
-    )
+    val result =
+      BundleWriter.write(
+        BundleWriter.BundleInputs(
+          previews = previews,
+          moduleSources = listOf(amperKotlinOutput),
+          dependencyJars = dependencyJars,
+          renderPngs = renderPngs,
+          modulePath = modulePath,
+          variant = variant,
+          backend = "desktop",
+          producer = PRODUCER_AMPER,
+          producedBy = "compose-ai-contrib amper producer",
+          embed = embed,
+        ),
+        out,
+      )
+
+    // Every jar in Amper's m2 cache was resolved *from* a repo, so a coordinate-recovery miss that
+    // forced an embed is, by construction, a published artifact — flag it loudly. Best-effort: an
+    // unreachable registry just leaves the jar embedded.
+    if (verifyEmbedded && result.embeddedWithoutCoordinate.isNotEmpty()) {
+      val findings =
+        EmbeddedVerifier.verify(
+          result.embeddedWithoutCoordinate,
+          EmbeddedVerifier.MavenCentralChecksumSearch(),
+        )
+      for (f in findings.filter { it.resolvable }) {
+        System.err.println(
+          "AmperBundleEmitter: WARNING — embedded ${f.jar.name} is published as ${f.publishedAs}; " +
+            "this is a coordinate-recovery miss, not a vendored jar."
+        )
+      }
+    }
+
+    return result
   }
 
   /** All `.jar` files under [root], skipping `-sources`/`-javadoc` sidecars. */

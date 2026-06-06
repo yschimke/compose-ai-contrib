@@ -32,6 +32,10 @@ import kotlinx.serialization.json.Json
  * --maven-repo <dir>                       recover coordinates by Maven layout (repeatable)
  * --coord <basename>=<g:a:v[:type]>        explicit coordinate override (repeatable)
  * --embed                                  carry every coordinate dep in libs/ (offline pack)
+ * --verify-embedded                        SHA-1 check each coordinate-less (embedded) jar against
+ *                                          Maven Central; warn if it's actually published
+ * --fail-on-resolvable-embed               with --verify-embedded, exit non-zero if any embedded jar
+ *                                          turns out to be published (a recovery miss, not vendored)
  * ```
  */
 object BundleProducerCli {
@@ -106,6 +110,50 @@ object BundleProducerCli {
         "  embedded deps:       ${result.embeddedEntries}\n" +
         "  deps dropped:        ${result.depsDropped} (no reachable classes)"
     )
+
+    if (opts.flag("--verify-embedded")) {
+      // Exactly the jars actually embedded *because coordinate recovery failed* — an intentionally
+      // embedded coordinate jar (--embed) is the operator's choice, not a recovery miss.
+      val resolvable =
+        verifyEmbedded(
+          result.embeddedWithoutCoordinate,
+          failOnResolvable = opts.flag("--fail-on-resolvable-embed"),
+        )
+      if (resolvable) exitProcess(3)
+    }
+  }
+
+  /**
+   * Warn for any [jars] we're embedding that Maven Central actually publishes (so they should be
+   * detached coordinates, not bundled bytes). Returns true if any was found published — the caller
+   * decides whether that's fatal. Best-effort: an unreachable registry yields "unverified", never an
+   * error.
+   */
+  private fun verifyEmbedded(jars: List<File>, failOnResolvable: Boolean): Boolean {
+    if (jars.isEmpty()) return false
+    val findings = EmbeddedVerifier.verify(jars, EmbeddedVerifier.MavenCentralChecksumSearch())
+    val resolvable = findings.filter { it.resolvable }
+    val unverified = findings.filter { !it.checked }
+    for (f in resolvable) {
+      System.err.println(
+        "BundleProducerCli: WARNING — embedded ${f.jar.name} is published as ${f.publishedAs}; " +
+          "record it as a Maven coordinate instead of embedding it."
+      )
+    }
+    if (unverified.isNotEmpty()) {
+      System.err.println(
+        "BundleProducerCli: could not verify ${unverified.size} embedded jar(s) against the registry " +
+          "(offline / endpoint unreachable) — left embedded."
+      )
+    }
+    if (resolvable.isNotEmpty() && failOnResolvable) {
+      System.err.println(
+        "BundleProducerCli: --fail-on-resolvable-embed — ${resolvable.size} embedded jar(s) are " +
+          "actually published; failing."
+      )
+      return true
+    }
+    return false
   }
 
   private val json = Json { ignoreUnknownKeys = true }
