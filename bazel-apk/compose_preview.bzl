@@ -32,6 +32,11 @@ resources discover script — rather than taking a hermetic JVM toolchain dep fo
 single driver invocation.
 """
 
+# Bazel 9 removed `JavaInfo` as an implicit `.bzl` global (it was autoloaded in
+# Bazel 8), so load it explicitly from rules_java. bazel-apk pins Bazel 9 (see
+# MODULE.bazel), where this is required.
+load("@rules_java//java:defs.bzl", "JavaInfo")
+
 def _bundle_preview_impl(ctx):
     out = ctx.actions.declare_file(ctx.attr.name + ".png")
     producer = ctx.file.producer_jar
