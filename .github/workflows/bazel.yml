@@ -82,7 +82,6 @@ jobs:
 
   bazel-build-apk:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: bazel-contrib/setup-bazel@0.15.0
@@ -91,6 +90,6 @@ jobs:
           disk-cache: true
           repository-cache: true
 
-      - name: Build Compose APK (opt-in, known-fragile — see bazel-apk/README.md)
+      - name: Build Compose APK
         working-directory: bazel-apk
         run: bazel build //:bazel_sample_apk

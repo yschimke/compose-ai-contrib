@@ -1,4 +1,4 @@
-# Bazel Compose APK sample (opt-in, known-fragile)
+# Bazel Compose APK sample
 
 A second Bazel sample, sibling to [`contrib/bazel/`](../bazel/). Builds a
 tiny Android APK with a `@Composable @Preview` and a
@@ -7,26 +7,22 @@ tiny Android APK with a `@Composable @Preview` and a
 
 ## Status
 
-**This target is known-fragile and intentionally not blocking CI.** It
-runs on Kotlin 2.x via `rules_kotlin` 2.x + the bundled
-`org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable` (the
-post-K2 plugin model), which side-steps the old
+**Builds green on Bazel 9** via the `bazel-build-apk` job in
+[`.github/workflows/bazel.yml`](../../.github/workflows/bazel.yml) (a real
+blocking check — no `continue-on-error`). It runs on Kotlin 2.x via
+`rules_kotlin` 2.x + the bundled
+`org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable` (the post-K2
+plugin model), which side-steps the old
 [bazelbuild/rules_kotlin#1388](https://github.com/bazelbuild/rules_kotlin/issues/1388)
-that blocked the standalone `androidx.compose.compiler:compiler` jar
-on K2. The remaining fragility is around `rules_android` 0.7.x's
-Android SDK toolchain registration on hosted CI — see the
-`bazel-build-apk` job logs when this is red.
+that blocked the standalone `androidx.compose.compiler:compiler` jar on K2.
 
-The CI job that builds the APK lives in
-[`.github/workflows/bazel.yml`](../../.github/workflows/bazel.yml) under
-`jobs.bazel-build-apk` with `continue-on-error: true`. Watch it; when
-it goes green organically (upstream fix, version bump, or a working
-fork lands) the `continue-on-error` flag is the next thing to drop.
-
-Until then, treat the target as scaffolding — proof that the layout
-compiles in principle, useful as a starting point when the toolchain
-unblocks, but not a guarantee that `bazel build //:bazel_sample_apk`
-succeeds on `main` today.
+Getting here on Bazel 9 took a specific toolchain alignment (see the
+`MODULE.bazel` comments and [#14](https://github.com/yschimke/compose-ai-contrib/issues/14)):
+`.bazelversion` pinned to 9.0.0, `rules_kotlin` 2.1.10 (loads `JavaPluginInfo`
+explicitly), an explicit `rules_java` dep, a pinned `maven_install.json` with the
+AndroidX strict-version conflicts forced, the Compose compiler plugin matched to
+the bundled Kotlin (2.1.21), and the Java toolchain pinned to 17 in `.bazelrc` so
+`rules_android`'s own `record`-using tools compile.
 
 ## Build
 

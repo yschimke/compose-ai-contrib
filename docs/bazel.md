@@ -9,16 +9,18 @@ Bazel rules for Compose live in third-party space (`rules_kotlin`'s
 through `rules_jvm_external` and a small set of `genrule`s that chain
 the three `java -jar` invocations.
 
-## Two fixtures shipped here
+## Fixtures shipped here
 
 - [`bazel/`](../bazel/) — resources-only sample. Demonstrates the
   `discover_resources` rule shape against an Android `res/` tree
   cribbed from `compose-ai-tools/samples/android/`. No SDK toolchain
   needed; runs on every Bazel CI runner.
+- [`bazel-desktop/`](../bazel-desktop/) — Compose **Desktop** `kt_jvm_library`
+  packed into a portable preview bundle (`bundle_preview`), published in CI as
+  the `bazel-desktop-bundle` artifact. No `rules_android`.
 - [`bazel-apk/`](../bazel-apk/) — Compose APK target via `rules_kotlin`
-  + `rules_android` + `rules_jvm_external`. Known-fragile while
-  [`bazelbuild/rules_kotlin#1388`](https://github.com/bazelbuild/rules_kotlin/issues/1388)
-  is open; treat as scaffolding for when the toolchain unblocks.
+  + `rules_android` + `rules_jvm_external`. Builds green on Bazel 9 (see
+  [`bazel-apk/README.md`](../bazel-apk/README.md) for the toolchain pinning).
 
 ## Building the Compose target
 
