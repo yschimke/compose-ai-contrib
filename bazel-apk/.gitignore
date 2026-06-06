@@ -5,3 +5,9 @@ bundle-producer-all.jar
 # Bundle outputs.
 *.png
 preview_bundle.png
+
+# Bazel local build artifacts: convenience symlinks + the bzlmod lockfile.
+# (The lockfile here can encode environment-specific registry resolution, so it
+# isn't committed; CI resolves against the default registry.)
+/bazel-*
+MODULE.bazel.lock

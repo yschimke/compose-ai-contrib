@@ -19,9 +19,29 @@ module(
     version = "0.0.0",
 )
 
-bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
 bazel_dep(name = "rules_jvm_external", version = "6.10")
-bazel_dep(name = "rules_kotlin", version = "2.1.3")
+
+# rules_kotlin 2.1.3 references `JavaPluginInfo` as an implicit .bzl global in
+# its own jvm.bzl, which Bazel 9 removed -> "name 'JavaPluginInfo' is not
+# defined". 2.1.10 loads it explicitly from rules_java, so it loads on Bazel 9.
+# It bundles Kotlin 2.1.21, so the Compose compiler plugin below is pinned to
+# match.
+bazel_dep(name = "rules_kotlin", version = "2.1.10")
+
+# Direct dep so `compose_preview.bzl` can `load` JavaInfo from it (Bazel 9 no
+# longer exposes JavaInfo as an implicit .bzl global). 9.3.0 matches what
+# rules_android already pulls transitively, so no version skew.
+bazel_dep(name = "rules_java", version = "9.3.0")
+
+# rules_android 0.7.2 pulls rules_java 9.3.0, whose `java_common_internal.bzl`
+# calls `ctx.fragments.java.use_header_compilation_direct_deps()` — a builtin
+# java-fragment method that does NOT exist in Bazel 8.x. Building this module on
+# Bazel 8.3.0 therefore failed analysis of `//:bazel_sample_apk`
+# ("'java' value has no field or method 'use_header_compilation_direct_deps'").
+# rules_android 0.7.2 is itself tested against Bazel 9.0.0rc3, so `.bazelversion`
+# here is pinned to 9.0.0. See issue #14. (`.bazelversion` is per-directory, so
+# the resources-only `bazel/` sample keeps using bazelisk's default.)
 bazel_dep(name = "rules_android", version = "0.7.2")
 
 # Android SDK — picks up $ANDROID_HOME from the environment. On the
@@ -34,11 +54,9 @@ android_sdk_repository_extension = use_extension(
 use_repo(android_sdk_repository_extension, "androidsdk")
 register_toolchains("@androidsdk//:all")
 
-# Maven artifact graph. No `lock_file =` until the APK target goes
-# green organically and a successful resolution can be captured for
-# repinning. Until then the build resolves Maven on every run; the
-# workflow is opt-in and `continue-on-error: true`, so the
-# non-hermetic cost is bounded.
+# Maven artifact graph, pinned to a checked-in `maven_install.json` lock file
+# (see `lock_file` below) so CI replays a deterministic resolution instead of
+# re-resolving the AndroidX/Compose graph on every build.
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.install(
     name = "maven",
@@ -51,12 +69,35 @@ maven.install(
         "androidx.compose.ui:ui:1.7.5",
         "androidx.compose.ui:ui-tooling-preview:1.7.5",
         "androidx.core:core-ktx:1.13.1",
-        "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable:2.1.0",
+        # Must match the Kotlin compiler rules_kotlin 2.1.10 bundles (2.1.21) —
+        # the Compose compiler plugin is versioned in lockstep with Kotlin and
+        # refuses to load against a different compiler version.
+        "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable:2.1.21",
+        # Transitive AndroidX deps that several POMs request at conflicting
+        # *strict* versions (e.g. lifecycle-runtime as both [2.4.1] and [2.8.3]),
+        # which the Coursier resolver refuses to reconcile on its own. Declaring
+        # them explicitly + version_conflict_policy="pinned" force-resolves each
+        # to a single version (the AndroidX set that ships with Compose 1.7.x).
+        "androidx.lifecycle:lifecycle-common:2.8.7",
+        "androidx.lifecycle:lifecycle-runtime:2.8.7",
+        "androidx.lifecycle:lifecycle-runtime-ktx:2.8.7",
+        "androidx.lifecycle:lifecycle-runtime-compose:2.8.7",
+        "androidx.lifecycle:lifecycle-livedata-core:2.8.7",
+        "androidx.lifecycle:lifecycle-viewmodel:2.8.7",
+        "androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7",
+        "androidx.collection:collection:1.4.0",
     ],
     repositories = [
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
     ],
     use_starlark_android_rules = True,
+    # Force the declared versions so Coursier reconciles AndroidX's conflicting
+    # strict version pins (see the lifecycle/collection note above) instead of
+    # failing with "Resolution error: Conflicting dependencies".
+    version_conflict_policy = "pinned",
+    # Checked-in lock file. Regenerate with `bazel run @maven//:pin` after
+    # editing `artifacts`.
+    lock_file = "//:maven_install.json",
 )
 use_repo(maven, "maven")
