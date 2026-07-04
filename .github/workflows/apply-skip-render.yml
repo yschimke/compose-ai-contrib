@@ -3,11 +3,12 @@ name: apply skip-render smoke
 # Smoke-test that the upstream compose-ai-tools `apply` composite action
 # is consumable with `cli-version: 'none'` + `skip-render: 'true'` + an
 # empty pre-staged `_previews.json` / `_resources.json`. This is the
-# contrib-side end of yschimke/compose-ai-tools#1476, pinned to the
-# merge commit until a tagged release lands.
+# contrib-side end of yschimke/compose-ai-tools#1476, which has since
+# shipped in a tagged release (the apply action's `skip-render` input is
+# present as of v0.16.15, the tag pinned below).
 #
 # What this proves:
-#   1. The pinned ref is consumable (composite action loads).
+#   1. The pinned tag is consumable (composite action loads).
 #   2. `cli-version: 'none'` skips both install steps.
 #   3. `skip-render: 'true'` makes compose.sh / resources.sh read the
 #      pre-staged envelopes instead of invoking `compose-preview show`.
@@ -18,13 +19,15 @@ name: apply skip-render smoke
 #   - Wire-format parity for non-empty envelopes. The contrib build
 #     systems can't produce rendered PNGs without driving the daemon
 #     end-to-end, which is a separate work item.
+#
+# Runs on PRs only (plus manual dispatch): the test forces `mode: comment`,
+# which needs a PR to comment on. A `push` to `main` has no PR number, so
+# the comment pipeline would 404 — this workflow is therefore not wired to
+# push. The real skip-render path is exercised on `main` by the *-apply
+# workflows.
 
 on:
   pull_request:
-    paths:
-      - ".github/workflows/apply-skip-render.yml"
-  push:
-    branches: [main]
     paths:
       - ".github/workflows/apply-skip-render.yml"
   workflow_dispatch:
@@ -53,9 +56,9 @@ jobs:
           echo '{"resources":[]}' > _resources.json
 
       - name: Apply (skip-render, no CLI)
-        # Pinned to the #1476 merge commit. Bump to a tag once upstream
-        # cuts a release that includes the skip-render feature.
-        uses: yschimke/compose-ai-tools/.github/actions/apply@631e26944264ea1c52fb6a16f40ac8eea964c16c
+        # Pinned to the v0.16.15 release tag (skip-render shipped in a
+        # tagged release; no longer riding the #1476 merge commit).
+        uses: yschimke/compose-ai-tools/.github/actions/apply@v0.16.15
         with:
           cli-version: 'none'
           skip-render: 'true'
