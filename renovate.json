@@ -1,0 +1,14 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["github>yschimke/renovate-config"],
+  "packageRules": [
+    {
+      "description": "compose-ai-tools is what this repo proves consumable: the ee.schimke.composeai:* artifacts (gradle/libs.versions.toml), the ee.schimke.composeai.preview plugin (scripting demo), and the apply composite action (apply-skip-render workflow) are all pinned in lockstep with a single upstream release. Group them so one Renovate PR bumps the whole set together and CI proves one coherent version — see the README 'Versioning' section.",
+      "groupName": "compose-ai-tools",
+      "matchPackageNames": [
+        "/^ee\\.schimke\\.composeai($|[.:])/",
+        "yschimke/compose-ai-tools"
+      ]
+    }
+  ]
+}
