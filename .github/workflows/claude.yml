@@ -1,0 +1,95 @@
+name: Claude
+
+# Mention-triggered agent sessions: comment `@claude <request>` on any issue,
+# PR, or review thread and a Claude Code session runs on this runner with the
+# full thread as context. Follow-up `@claude` replies re-read the whole
+# conversation plus the branch already pushed, so a thread behaves like one
+# resumable session. Only users with write access can trigger it.
+#
+# One-time setup: install the Claude GitHub App (https://github.com/apps/claude)
+# and add a CLAUDE_CODE_OAUTH_TOKEN secret (from `claude setup-token`; runs
+# bill the Claude subscription's included usage — swap the input to
+# `anthropic_api_key` for metered API billing). Design notes live in the
+# canonical copy:
+# https://github.com/yschimke/compose-ai-tools/blob/main/docs/AGENT_INVOCATION.md
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+  issues:
+    types: [opened, assigned, labeled]
+
+jobs:
+  claude:
+    name: Claude agent session
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude'))) ||
+      (github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'claude')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    # Queue (don't cancel) concurrent mentions on the same thread so two runs
+    # never race pushes to the same working branch.
+    concurrency:
+      group: claude-${{ github.event.issue.number || github.event.pull_request.number }}
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      # Exchanged by the action for a short-lived Claude GitHub App token.
+      id-token: write
+      # Lets Claude read CI results on the PR it is working on.
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so Claude can diff against main.
+          fetch-depth: 0
+
+      # JDK 21 runs Gradle; the JVM modules provision their own 17 toolchain
+      # via the foojay resolver. Enough for the contract-test / bundle-producer
+      # / compose-preview-scripting Gradle modules — the heavier Amper and
+      # Bazel fixtures have their own CI and aren't wired in here.
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: true
+
+      - uses: anthropics/claude-code-action@v1.0.163
+        with:
+          # Bills the Claude subscription's included usage (shared with
+          # interactive Claude Code sessions) rather than per-token API spend.
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Applying the `claude` label to an issue starts a work session on it.
+          label_trigger: claude
+          # Request the CI-read scope on the Claude App token the action
+          # mints for itself — the job-level `actions: read` grant above only
+          # covers the workflow token.
+          additional_permissions: |
+            actions: read
+          # The "No AI agents" gate (no-ai-coauthors.yml) hard-rejects claude/
+          # branch names.
+          branch_prefix: agent/
+          # ...and rejects agent Co-authored-by trailers in commits/PR text,
+          # so never let the CLI append one.
+          settings: |
+            {
+              "includeCoAuthoredBy": false,
+              "attribution": { "commit": "", "pr": "" }
+            }
+          claude_args: >-
+            --max-turns 100
+            --allowedTools "Bash(./gradlew:*),Bash(gradle:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(javap:*)"
+            --append-system-prompt "This repo (compose-ai-contrib) proves the published ee.schimke.composeai:* artifacts are consumable from non-Gradle builds (JetBrains Amper, Bazel, Buck2) and pins the previews.json / daemon-launch.json wire formats downstream integrations key off. Read the README and docs/ (amper.md, bazel.md, portable-bundles.md) for conventions before changing anything. The upstream version is a single knob pinned in lockstep across three spots — the composeai entry in gradle/libs.versions.toml, the ee.schimke.composeai.preview plugin literal in compose-preview-scripting/demo/build.gradle.kts, and the apply action tag in .github/workflows/apply-skip-render.yml — bump them together and let CI (contract-tests, bazel, buck2, compose-preview-scripting) prove the new version. Verify Gradle-side changes with ./gradlew (e.g. :bundle-producer:test, or compiling :contract-tests:amper-cmp-desktop and :compose-preview-scripting); note the Amper/Bazel/Buck2 fixtures build in their own CI and may not be runnable in this session. Use conventional commit subjects (feat:, fix:, ci:, docs:, chore:, test:). Human authorship only: never add Co-authored-by trailers or any agent attribution to commits, PR titles, or PR bodies, and use agent/ branch names (never claude/)."
