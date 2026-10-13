@@ -56,3 +56,5 @@ include(":compose-preview-scripting")
 // `ee.schimke.composeai:renderer-desktop` from Maven Central by default, so no local
 // renderer-wiring is needed here. See `compose-preview-scripting/demo/README.md`.
 include(":compose-preview-scripting:demo")
+
+include(":contract-tests:bazel-cmp-desktop")

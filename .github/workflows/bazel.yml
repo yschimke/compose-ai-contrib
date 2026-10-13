@@ -7,6 +7,12 @@ on:
       - "bazel-apk/**"
       - "bazel-desktop/**"
       - "bundle-producer/**"
+      - "contract-tests/bazel-cmp-desktop/**"
+      - "gradle/**"
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
+      - "gradlew*"
+      - ".github/scripts/check-bazel-bundle.py"
       - ".github/workflows/bazel.yml"
   push:
     branches: [main]
@@ -15,6 +21,12 @@ on:
       - "bazel-apk/**"
       - "bazel-desktop/**"
       - "bundle-producer/**"
+      - "contract-tests/bazel-cmp-desktop/**"
+      - "gradle/**"
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
+      - "gradlew*"
+      - ".github/scripts/check-bazel-bundle.py"
       - ".github/workflows/bazel.yml"
   workflow_dispatch:
 
@@ -59,25 +71,21 @@ jobs:
 
       - name: Build the Compose Desktop preview bundle
         working-directory: bazel-desktop
-        run: bazel build //:preview_bundle
+        run: bazel build //:preview_bundle //:runtime_classpath
 
-      - name: Verify the bundle is a PNG+ZIP polyglot with a real classpath
-        working-directory: bazel-desktop
+      - name: Verify the bundle contract
+        run: python3 .github/scripts/check-bazel-bundle.py bazel-desktop/bazel-bin/preview_bundle.png
+
+      - name: Render the Bazel-built CMP UI through the published daemon
         run: |
-          set -euo pipefail
-          # Copy out of the bazel-bin symlink tree to a plain file for upload.
-          cp -L bazel-bin/preview_bundle.png preview_bundle.png
-          ftype="$(file -b preview_bundle.png)"; echo "$ftype"
-          case "$ftype" in *"PNG image data"*) ;; *) echo "not a PNG"; exit 1 ;; esac
-          listing="$(unzip -l preview_bundle.png 2>&1 || true)"; echo "$listing"
-          grep -q 'bundle.json' <<<"$listing"
-          grep -q 'classes/app.jar' <<<"$listing"
+          execution_root="$(cd bazel-desktop && bazel info execution_root)"
+          ./gradlew :contract-tests:bazel-cmp-desktop:test -PbazelExecutionRoot="$execution_root" --stacktrace
 
       - name: Upload Bazel desktop bundle
         uses: actions/upload-artifact@v4.6.2
         with:
           name: bazel-desktop-bundle
-          path: bazel-desktop/preview_bundle.png
+          path: bazel-desktop/bazel-bin/preview_bundle.png
           if-no-files-found: error
 
   bazel-build-apk:
@@ -90,6 +98,36 @@ jobs:
           disk-cache: true
           repository-cache: true
 
+      - uses: android-actions/setup-android@v4
+      - name: Install the pinned Android SDK
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
       - name: Build Compose APK
         working-directory: bazel-apk
         run: bazel build //:bazel_sample_apk
+
+  upstream-compose-example:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.4.0
+        with:
+          repository: bazel-contrib/rules_kotlin
+          # v2.4.20: immutable reference to the maintained real Compose APK.
+          ref: 02f96a1144527e46724f17381a11cd2cd8b36980
+      - uses: bazel-contrib/setup-bazel@0.19.0
+        with:
+          bazelisk-cache: true
+          disk-cache: true
+          repository-cache: true
+      - name: Build the upstream Jetpack Compose APK
+        working-directory: examples/jetpack_compose
+        run: bazel test //app:force_build_apks_test
+      - name: Verify a dexed APK was produced
+        working-directory: examples/jetpack_compose
+        run: |
+          python3 - <<'PYTHON'
+          import zipfile
+          with zipfile.ZipFile("bazel-bin/app/compose_example_app.apk") as apk:
+              assert "AndroidManifest.xml" in apk.namelist()
+              assert any(n.startswith("classes") and n.endswith(".dex") for n in apk.namelist())
+          PYTHON
