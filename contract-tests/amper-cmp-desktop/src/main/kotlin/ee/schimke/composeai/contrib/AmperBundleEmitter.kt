@@ -108,6 +108,14 @@ object AmperBundleEmitter {
   fun defaultM2CacheRoots(): List<File> {
     System.getProperty("contrib.amperM2Cache")?.let { return it.split(File.pathSeparator).map(::File) }
     val home = System.getProperty("user.home") ?: return emptyList()
-    return listOf(File(home, ".cache/JetBrains/Amper/.m2.cache"))
+    val sharedCache = System.getenv("KOTLIN_SHARED_CACHE_DIR") ?: System.getenv("AMPER_SHARED_CACHE_DIR")
+    if (!sharedCache.isNullOrBlank()) return listOf(File(sharedCache, ".m2.cache"))
+    val os = System.getProperty("os.name", "").lowercase()
+    val root = when {
+      os.contains("mac") -> File(home, "Library/Caches/JetBrains/Kotlin")
+      os.contains("win") -> File(System.getenv("LOCALAPPDATA") ?: home, "JetBrains/Kotlin")
+      else -> File(System.getenv("XDG_CACHE_HOME") ?: "$home/.cache", "JetBrains/Kotlin")
+    }
+    return listOf(File(root, ".m2.cache"), File(home, ".cache/JetBrains/Amper/.m2.cache"))
   }
 }
