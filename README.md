@@ -16,8 +16,9 @@ off.
 
 | Directory | Build system | Demonstrates |
 | --- | --- | --- |
-| [`amper-android/`](amper-android/) | Amper 0.10 | Android APK with `@Composable @Preview` and `@NotificationPreview`, no Gradle |
-| [`amper-cmp-desktop/`](amper-cmp-desktop/) | Amper 0.10 | Compose Desktop module driving a real `RenderSession` end-to-end |
+| [`amper-android/`](amper-android/) | Kotlin Toolchain 0.13 (formerly Amper) | Android APK with `@Composable @Preview` and `@NotificationPreview`, no Gradle |
+| [`amper-cmp-desktop/`](amper-cmp-desktop/) | Kotlin Toolchain 0.13 (formerly Amper) | Compose Desktop module driving a real `RenderSession` end-to-end |
+| [`amper-compose-example/`](amper-compose-example/) | Kotlin Toolchain 0.13 | JetBrains Compose Desktop example discovered and rendered through the published APIs |
 | [`bazel/`](bazel/) | Bazel (bzlmod) | Resources discovery rule producing `resources.json` |
 | [`bazel-desktop/`](bazel-desktop/) | Bazel (bzlmod) | Compose **Desktop** `kt_jvm_library` packed into a portable preview bundle (`bundle_preview`); bundle published in CI, live CMP render contract |
 | [`bazel-apk/`](bazel-apk/) | Bazel (bzlmod) | Compose APK via `rules_kotlin` + `rules_android` on Bazel 9 |
@@ -35,6 +36,7 @@ instructions.
 
 ## Documentation
 
+- [`docs/integration-survey.md`](docs/integration-survey.md) — current applicability and Compose project examples.
 - [`docs/amper.md`](docs/amper.md) — Amper integration walkthrough.
 - [`docs/bazel.md`](docs/bazel.md) — Bazel integration walkthrough.
 - [`docs/portable-bundles.md`](docs/portable-bundles.md) — portable preview
@@ -54,15 +56,16 @@ artifacts work for a non-Gradle consumer.
 
 ```bash
 # build the Amper fixture (produces kotlin-output/)
-cd amper-cmp-desktop && ./amper build && cd ..
+cd amper-cmp-desktop && ./kotlin build && cd ..
+cd amper-compose-example && ./kotlin build && cd ..
 
 # run the contract test
-./gradlew :contract-tests:amper-cmp-desktop:test
+./gradlew :contract-tests:amper-cmp-desktop:test -Pcontrib.requireAmperOutputs=true
 ```
 
 The version of `compose-ai-tools` under test is pinned in
 [`gradle/libs.versions.toml`](gradle/libs.versions.toml) under
-`composeai`. Bump in lockstep with upstream releases.
+the tools, sessions, daemon BOM, contracts BOM, and driver pins. They publish independently.
 
 ## CI
 
@@ -100,11 +103,7 @@ plugin + Robolectric, neither of which is available in a pure Amper module.
 
 ## Versioning
 
-This repo doesn't publish artifacts; it consumes them. The single
-`composeai` version in `gradle/libs.versions.toml` is the only knob —
-when [`yschimke/compose-ai-tools`](https://github.com/yschimke/compose-ai-tools)
-cuts a release, bump that line and let CI prove the new version still
-works for non-Gradle consumers.
+This repo doesn't publish artifacts; it consumes them. `gradle/libs.versions.toml` pins the tools/plugin, session libraries, driver, daemon BOM, and contracts BOM separately. The BOMs align their module families; do not assign one tools version to every Maven artifact. CI proves the selected released versions work together.
 
 ## License
 

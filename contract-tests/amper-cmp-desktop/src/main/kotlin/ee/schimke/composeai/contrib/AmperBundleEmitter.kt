@@ -11,7 +11,7 @@ import java.io.File
  * Packs a portable preview bundle for the Amper Compose-Desktop fixture, answering the issue's Q1/Q2
  * for the Amper producer: it emits a real `bundle.json` with a `classpath[]` (not PNGs only), and it
  * recovers resolvable Maven coordinates for each reachable runtime jar from **Amper's m2 cache** —
- * a standard Maven-layout tree (`~/.cache/JetBrains/Amper/.m2.cache/<group>/<artifact>/<version>/…`)
+ * a standard Maven-layout tree (`~/.cache/JetBrains/Kotlin/.m2.cache/<group>/<artifact>/<version>/…`)
  * — so the default pack is `resolution = "coordinates"` with a `sha256` per dep. A jar with no
  * recoverable coordinate (or [embed] = true) is carried in `libs/` instead.
  *
@@ -101,13 +101,21 @@ object AmperBundleEmitter {
 
   /**
    * Default Amper m2-cache roots, honouring an override system property
-   * (`contrib.amperM2Cache`, path-separated). Just Amper's own cache by default — the closure walk
+   * (`contrib.amperM2Cache`, path-separated). Kotlin Toolchain's current cache plus the legacy Amper cache by default — the closure walk
    * only keeps *reachable* jars, so a stray sibling repo would only cost scan time, but keeping the
    * root tight keeps the ClassGraph scan fast and the recovered coordinates unambiguous.
    */
   fun defaultM2CacheRoots(): List<File> {
     System.getProperty("contrib.amperM2Cache")?.let { return it.split(File.pathSeparator).map(::File) }
     val home = System.getProperty("user.home") ?: return emptyList()
-    return listOf(File(home, ".cache/JetBrains/Amper/.m2.cache"))
+    val sharedCache = System.getenv("KOTLIN_SHARED_CACHE_DIR") ?: System.getenv("AMPER_SHARED_CACHE_DIR")
+    if (!sharedCache.isNullOrBlank()) return listOf(File(sharedCache, ".m2.cache"))
+    val os = System.getProperty("os.name", "").lowercase()
+    val root = when {
+      os.contains("mac") -> File(home, "Library/Caches/JetBrains/Kotlin")
+      os.contains("win") -> File(System.getenv("LOCALAPPDATA") ?: home, "JetBrains/Kotlin")
+      else -> File(System.getenv("XDG_CACHE_HOME") ?: "$home/.cache", "JetBrains/Kotlin")
+    }
+    return listOf(File(root, ".m2.cache"), File(home, ".cache/JetBrains/Amper/.m2.cache"))
   }
 }

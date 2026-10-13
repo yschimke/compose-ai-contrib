@@ -24,7 +24,7 @@ application {
 // classpath assembly, no published artifact. Mirrors how `docs/bazel.md` drives
 // the upstream `java -jar` CLIs. Built with `./gradlew :bundle-producer:uberJar`
 // → `build/libs/bundle-producer-all.jar`.
-val uberJar by tasks.registering(Jar::class) {
+val uberJar = tasks.register<Jar>("uberJar") {
   archiveClassifier.set("all")
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   manifest { attributes["Main-Class"] = "ee.schimke.composeai.contrib.bundle.BundleProducerCli" }
