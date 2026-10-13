@@ -53,6 +53,10 @@ jobs:
             -Djavax.net.ssl.trustStorePassword=changeit
         run: ./kotlin build
 
+      - name: Capture Amper's resolved JVM runtime classpath
+        working-directory: amper-cmp-desktop
+        run: ./kotlin run --no-compose-hot-reload --main-class RuntimeClasspathKt -- build/runtime-classpath.txt
+
       - name: Produce _previews.json via the daemon
         run: ./gradlew :contract-tests:amper-cmp-desktop:run --stacktrace
 

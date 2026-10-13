@@ -46,7 +46,15 @@ default is `jvm.release: 21`.
 | --- | --- |
 | Compiled classes | `build/artifacts/CompiledJvmArtifact/<module>jvm/kotlin-output/` |
 | Module jar | `build/tasks/_<module>_jarJvm/<module>-jvm.jar` |
-| Resolved runtime jars | `~/.cache/JetBrains/Kotlin/.m2.cache/<group>/<artifact>/<version>/` |
+| Resolved runtime classpath | `build/runtime-classpath.txt` (exported by running the fixture's `RuntimeClasspathKt` entrypoint) |
+| Cached runtime jars | `~/.cache/JetBrains/Kotlin/.m2.cache/<group>/<artifact>/<version>/` |
+
+For a local portable-bundle run, export the exact runtime classpath after building
+the `amper-cmp-desktop` fixture:
+
+```sh
+./kotlin run --no-compose-hot-reload --main-class RuntimeClasspathKt -- build/runtime-classpath.txt
+```
 
 ## Three-step rendering pipeline
 

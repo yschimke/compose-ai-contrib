@@ -161,6 +161,7 @@ object PreviewProducer {
         )
       )
     val renderPngs = mapOf(PREVIEW_ID to png)
+    val runtimeClasspathFile = File(System.getProperty("contrib.amperFixtureDir"), "build/runtime-classpath.txt")
     val m2Roots = AmperBundleEmitter.defaultM2CacheRoots()
     val verifyEmbedded = System.getProperty("contrib.verifyEmbedded").toBoolean()
 
@@ -171,6 +172,7 @@ object PreviewProducer {
       AmperBundleEmitter.emit(
         previews = previews,
         amperKotlinOutput = moduleClasses,
+        runtimeClasspathFile = runtimeClasspathFile,
         m2CacheRoots = m2Roots,
         renderPngs = renderPngs,
         modulePath = MODULE_PATH,
@@ -198,6 +200,7 @@ object PreviewProducer {
         AmperBundleEmitter.emit(
           previews = previews,
           amperKotlinOutput = moduleClasses,
+          runtimeClasspathFile = runtimeClasspathFile,
           m2CacheRoots = m2Roots,
           renderPngs = renderPngs,
           modulePath = MODULE_PATH,
