@@ -1,0 +1,11 @@
+product: jvm/app
+
+dependencies:
+  - $compose.desktop.currentOs
+
+settings:
+  compose:
+    enabled: true
+    version: 1.11.1
+  jvm:
+    release: 17

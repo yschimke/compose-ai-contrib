@@ -4,13 +4,16 @@ plugins {
   application
 }
 
-val rendererRuntime by configurations.creating
+val rendererRuntime = configurations.create("rendererRuntime")
 
 dependencies {
+  implementation(platform(libs.composeai.daemon.bom))
+  implementation(platform(libs.composeai.contracts.bom))
   // Producer (`PreviewProducer.main`) needs these at runtime too, not just
   // the test. Moved from `testImplementation` to `implementation` so the
   // `application` plugin's `run` task picks them up; the test still gets
   // them via the main-classpath flow-through.
+  implementation(libs.composeai.preview.discovery)
   implementation(libs.composeai.daemon.launch.builder)
   implementation(libs.composeai.render.session.subprocess)
   implementation(libs.composeai.render.session.api)
@@ -21,6 +24,8 @@ dependencies {
   // `docs/portable-bundles.md`.
   implementation(project(":bundle-producer"))
 
+  rendererRuntime(platform(libs.composeai.daemon.bom))
+  rendererRuntime(platform(libs.composeai.contracts.bom))
   rendererRuntime(libs.composeai.daemon.desktop)
   rendererRuntime(libs.composeai.daemon.core)
   rendererRuntime(libs.composeai.data.render.connector)
@@ -38,6 +43,11 @@ application {
 }
 
 tasks.test {
+  inputs.files(
+    rootProject.fileTree("amper-cmp-desktop/build/artifacts") { include("**/*.class") },
+    rootProject.fileTree("amper-compose-example/build/artifacts") { include("**/*.class") },
+  ).withPropertyName("amperClasses")
+  systemProperty("contrib.requireAmperOutputs", providers.gradleProperty("contrib.requireAmperOutputs").getOrElse("false"))
   systemProperty("contrib.rendererClasspath", rendererRuntime.asPath)
   systemProperty(
     "contrib.amperFixtureDir",

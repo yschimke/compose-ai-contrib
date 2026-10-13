@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "amper-cmp-desktop/**"
+      - "amper-compose-example/**"
       - "contract-tests/**"
       - "bundle-producer/**"
       - "gradle/**"
@@ -16,6 +17,7 @@ on:
     branches: [main]
     paths:
       - "amper-cmp-desktop/**"
+      - "amper-compose-example/**"
       - "contract-tests/**"
       - "bundle-producer/**"
       - "gradle/**"
@@ -30,8 +32,8 @@ jobs:
   bundle-producer:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.4.0
-      - uses: actions/setup-java@v4.9.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: temurin
           java-version: 17.0.20+8
@@ -45,8 +47,8 @@ jobs:
   amper-cmp-desktop:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.4.0
-      - uses: actions/setup-java@v4.9.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: temurin
           java-version: 17.0.20+8
@@ -54,14 +56,18 @@ jobs:
       - name: Amper build (produces kotlin-output/ for the contract test)
         working-directory: amper-cmp-desktop
         env:
-          AMPER_JAVA_OPTIONS: >-
+          KOTLIN_CLI_JAVA_OPTIONS: >-
             -ea -XX:+EnableDynamicAgentLoading
             -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
             -Djavax.net.ssl.trustStorePassword=changeit
-        run: ./amper build
+        run: ./kotlin build
+
+      - name: Build the upstream Compose Desktop example
+        working-directory: amper-compose-example
+        run: ./kotlin build
 
       - name: Contract test
-        run: ./gradlew :contract-tests:amper-cmp-desktop:test --stacktrace
+        run: ./gradlew :contract-tests:amper-cmp-desktop:test -Pcontrib.requireAmperOutputs=true --stacktrace
 
       - name: Produce portable bundles (coordinates + embedded)
         run: ./gradlew :contract-tests:amper-cmp-desktop:run -Dcontrib.bundleEmbed=true --stacktrace
@@ -88,7 +94,7 @@ jobs:
           grep -q 'libs/.*\.jar' <<<"$embedded_listing"
 
       - name: Upload bundles
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: amper-preview-bundles
           path: |

@@ -23,6 +23,8 @@ application {
 }
 
 dependencies {
+  implementation(platform(libs.composeai.daemon.bom))
+  implementation(platform(libs.composeai.contracts.bom))
   // Published wire-format DTOs — `PreviewResult`, `ExtensionPayload`, the v1 a11y mirror types.
   // After upstream's wire-format bump to v2 the a11y mirror disappears and contrib switches to
   // `:data-a11y-core`'s typed entries directly; until then the mirror is the contract.

@@ -1,15 +1,15 @@
 package ee.schimke.composeai.scripting
 
-import ee.schimke.composeai.cli.A11Y_PAYLOAD_SCHEMA_V1
-import ee.schimke.composeai.cli.AccessibilityEntry
-import ee.schimke.composeai.cli.AccessibilityReport
-import ee.schimke.composeai.cli.DriverOptions
-import ee.schimke.composeai.cli.ExtensionPayload
-import ee.schimke.composeai.cli.GradlePreviewDriver
-import ee.schimke.composeai.cli.PreviewManifest
-import ee.schimke.composeai.cli.PreviewModule
-import ee.schimke.composeai.cli.PreviewResult
-import ee.schimke.composeai.cli.RenderRequest
+import ee.schimke.composeai.previewdata.A11Y_PAYLOAD_SCHEMA_V1
+import ee.schimke.composeai.previewdata.AccessibilityEntry
+import ee.schimke.composeai.previewdata.AccessibilityReport
+import ee.schimke.composeai.previewdriver.DriverOptions
+import ee.schimke.composeai.previewdata.ExtensionPayload
+import ee.schimke.composeai.previewdriver.GradlePreviewDriver
+import ee.schimke.composeai.previewdata.PreviewManifest
+import ee.schimke.composeai.previewdata.PreviewModule
+import ee.schimke.composeai.previewdata.PreviewResult
+import ee.schimke.composeai.previewdriver.RenderRequest
 import java.io.File
 import kotlin.system.exitProcess
 import kotlinx.serialization.json.Json

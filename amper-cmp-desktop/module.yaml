@@ -5,6 +5,8 @@ dependencies:
   - $compose.material3
 
 settings:
-  compose: enabled
+  compose:
+    enabled: true
+    version: 1.11.1
   jvm:
     release: 17
