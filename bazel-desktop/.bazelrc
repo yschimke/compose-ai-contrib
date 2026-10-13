@@ -4,3 +4,9 @@ build --show_progress_rate_limit=0.1
 # bzlmod is the only supported entrypoint; WORKSPACE compatibility off.
 common --enable_bzlmod
 common --noenable_workspace
+
+# Compile and run build tools with the same declared JDK as the APK fixture.
+common --java_language_version=17
+common --java_runtime_version=remotejdk_17
+common --tool_java_language_version=17
+common --tool_java_runtime_version=remotejdk_17

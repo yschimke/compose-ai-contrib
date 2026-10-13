@@ -1,0 +1,34 @@
+plugins {
+  alias(libs.plugins.kotlin.jvm)
+}
+
+val rendererRuntime = configurations.create("rendererRuntime")
+
+dependencies {
+  testImplementation(platform(libs.composeai.daemon.bom))
+  testImplementation(platform(libs.composeai.contracts.bom))
+  rendererRuntime(platform(libs.composeai.daemon.bom))
+  rendererRuntime(platform(libs.composeai.contracts.bom))
+  testImplementation(libs.composeai.daemon.launch.builder)
+  testImplementation(libs.composeai.render.session.subprocess)
+  testImplementation(libs.composeai.render.session.api)
+  testImplementation(libs.junit)
+  testImplementation(libs.truth)
+  rendererRuntime(libs.composeai.daemon.desktop)
+  rendererRuntime(libs.composeai.daemon.core)
+  rendererRuntime(libs.composeai.data.render.connector)
+  rendererRuntime(libs.composeai.data.render.core)
+}
+
+tasks.test {
+  // Bazel bytecode is produced outside Gradle: every explicit invocation must render it.
+  outputs.upToDateWhen { false }
+  // Missing Bazel outputs are a failure.
+  systemProperty("contrib.rendererClasspath", rendererRuntime.asPath)
+  systemProperty("contrib.bazelFixtureDir", rootProject.file("bazel-desktop").absolutePath)
+  providers.gradleProperty("bazelExecutionRoot").orNull?.let {
+    systemProperty("contrib.bazelExecutionRoot", it)
+  }
+}
+
+kotlin { jvmToolchain(17) }

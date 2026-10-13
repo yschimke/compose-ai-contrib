@@ -49,17 +49,16 @@ exports_files(["bundle-producer-all.jar"])
 # explicitly with `bazel build //:preview_bundle`. See `compose_preview.bzl` and
 # `../docs/portable-bundles.md`.
 #
-# To get resolvable Maven coordinates + sha256 instead of embedded jars, pin the
-# Maven graph first (`bazel run @maven//:pin`, which writes `maven_install.json`)
-# and uncomment the `maven_install` attribute below.
+# Uses the checked-in Maven pin for resolvable coordinates + sha256.
 bundle_preview(
     name = "preview_bundle",
     module = ":bazel_sample_lib",
-    deps = [":bazel_sample_lib"],
-    module_path = "//app:bazel_sample_lib",
+    backend = "android",
+    variant = "main",
+    module_path = "//:bazel_sample_lib",
     previews = [
         "GreetingKt.Greeting=com.example.bazelsample.GreetingKt#Greeting@app/src/main/kotlin/com/example/bazelsample/Greeting.kt",
     ],
-    # maven_install = "maven_install.json",  # uncomment after `bazel run @maven//:pin`
+    maven_install = "maven_install.json",
     tags = ["manual"],
 )

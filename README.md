@@ -20,7 +20,7 @@ off.
 | [`amper-cmp-desktop/`](amper-cmp-desktop/) | Kotlin Toolchain 0.13 (formerly Amper) | Compose Desktop module driving a real `RenderSession` end-to-end |
 | [`amper-compose-example/`](amper-compose-example/) | Kotlin Toolchain 0.13 | JetBrains Compose Desktop example discovered and rendered through the published APIs |
 | [`bazel/`](bazel/) | Bazel (bzlmod) | Resources discovery rule producing `resources.json` |
-| [`bazel-desktop/`](bazel-desktop/) | Bazel (bzlmod) | Compose **Desktop** `kt_jvm_library` packed into a portable preview bundle (`bundle_preview`); bundle published in CI |
+| [`bazel-desktop/`](bazel-desktop/) | Bazel (bzlmod) | Compose **Desktop** `kt_jvm_library` packed into a portable preview bundle (`bundle_preview`); bundle published in CI, live CMP render contract |
 | [`bazel-apk/`](bazel-apk/) | Bazel (bzlmod) | Compose APK via `rules_kotlin` + `rules_android` on Bazel 9 |
 | [`buck2/`](buck2/) | Buck2 (bundled prelude) | Resources discovery rule producing `resources.json` — byte-identical to the Bazel sample |
 

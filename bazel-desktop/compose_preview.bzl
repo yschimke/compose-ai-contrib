@@ -7,7 +7,7 @@ This is the Bazel-side answer to the portable-bundle ask (see
 
   - the consumer module's bytecode (`module`'s `JavaInfo` output jars) is
     minimized to the classes reachable from the selected previews,
-  - each reachable runtime jar (`deps`' `JavaInfo.transitive_runtime_jars`) is
+  - each reachable runtime jar (the module plus any additional `deps`) is
     recorded as a resolvable `ClasspathEntry.Maven` coordinate **with sha256**,
     recovered from `rules_jvm_external`'s pinned `maven_install.json` by basename
     (`resolution = "coordinates"`),
@@ -16,20 +16,14 @@ This is the Bazel-side answer to the portable-bundle ask (see
     `libs/` instead (`resolution = "embedded"` / `"mixed"`).
 
 `producer = "bazel"` is stamped into `bundle.json`. Rendering (`previews/<id>.png`)
-is out of scope under Bazel today — the Robolectric/Desktop render path isn't
-invocable here — so the bundle carries a stub cover plus a real `classpath[]`;
-pass `--render <id>=<png>` (via `render_pngs`) once a Bazel render lands.
+runs separately from this packaging action. By default the bundle carries a
+stub cover plus a real `classpath[]`;
+pass `--render <id>=<png>` via `render_files` to bake external renders.
 
-The producer jar is built by the repo's Gradle:
+The producer jar is staged by `./gradlew :bundle-producer:uberJar`.
+The action uses Bazel's execution-platform Java runtime, with its files declared
+as tools. It does not depend on java on PATH or the caller's shell environment.
 
-    ./gradlew :bundle-producer:uberJar
-    cp ../bundle-producer/build/libs/bundle-producer-all.jar bazel-apk/
-
-and referenced through the `producer_jar` attribute (default
-`:bundle-producer-all.jar`). It runs through the host `java` in a `run_shell`
-action — the same pragmatic shape `bazel/compose_preview.bzl` uses for the
-resources discover script — rather than taking a hermetic JVM toolchain dep for a
-single driver invocation.
 """
 
 # Bazel 9 removed `JavaInfo` as an implicit `.bzl` global (it was autoloaded in
@@ -42,15 +36,18 @@ def _bundle_preview_impl(ctx):
     producer = ctx.file.producer_jar
 
     # Consumer module bytecode: the library's own output jars.
-    module_jars = []
-    if JavaInfo in ctx.attr.module:
-        module_jars = ctx.attr.module[JavaInfo].runtime_output_jars
+    module_info = ctx.attr.module[JavaInfo]
+    module_jars = module_info.runtime_output_jars
+    if not module_jars:
+        fail("module must provide runtime output jars")
+    if not ctx.attr.previews:
+        fail("previews must contain at least one selected preview")
 
-    # Reachable runtime classpath: the transitive runtime jars of `deps`, minus
+    # Reachable runtime classpath: the module plus additional deps, minus
     # the module's own output jars (those are minimized into classes/app.jar; we
     # don't want them re-listed as a dependency / embedded under libs/).
     module_paths = {jar.path: True for jar in module_jars}
-    runtime_depset = depset(transitive = [
+    runtime_depset = depset(transitive = [module_info.transitive_runtime_jars] + [
         dep[JavaInfo].transitive_runtime_jars
         for dep in ctx.attr.deps
         if JavaInfo in dep
@@ -58,7 +55,10 @@ def _bundle_preview_impl(ctx):
     runtime_jars = [jar for jar in runtime_depset.to_list() if jar.path not in module_paths]
 
     args = ctx.actions.args()
-    args.add(producer.path)  # consumed as `java -jar "$@"` => java -jar <producer> <flags…>
+    args.add("-jar")
+    args.add(producer.path)
+    args.add("--backend", ctx.attr.backend)
+    args.add("--variant", ctx.attr.variant)
     args.add("--out", out.path)
     args.add("--module-path", ctx.attr.module_path)
     args.add("--producer", "bazel")
@@ -82,21 +82,29 @@ def _bundle_preview_impl(ctx):
     if ctx.attr.embed:
         args.add("--embed")
 
-    ctx.actions.run_shell(
-        command = 'java -jar "$@"',
+    java_runtime = ctx.toolchains["@bazel_tools//tools/jdk:runtime_toolchain_type"].java_runtime
+    ctx.actions.run(
+        executable = java_runtime.java_executable_exec_path,
+        tools = java_runtime.files,
         arguments = [args],
         inputs = inputs,
         outputs = [out],
         mnemonic = "ComposePreviewBundle",
         progress_message = "Packing compose-preview bundle for %{label}",
-        use_default_shell_env = True,
     )
     return [DefaultInfo(files = depset([out]))]
 
 bundle_preview = rule(
     implementation = _bundle_preview_impl,
     doc = "Packs a portable `compose-preview` bundle (`<name>.png` PNG+ZIP polyglot).",
+    toolchains = ["@bazel_tools//tools/jdk:runtime_toolchain_type"],
     attrs = {
+        "backend": attr.string(
+            default = "desktop",
+            values = ["desktop", "android"],
+            doc = "Render backend recorded in the bundle.",
+        ),
+        "variant": attr.string(default = "desktop"),
         "module": attr.label(
             mandatory = True,
             providers = [JavaInfo],
@@ -104,7 +112,7 @@ bundle_preview = rule(
         ),
         "deps": attr.label_list(
             providers = [JavaInfo],
-            doc = "Targets whose `transitive_runtime_jars` form the candidate third-party classpath.",
+            doc = "Additional runtime targets; the module closure is always included.",
         ),
         "previews": attr.string_list(
             mandatory = True,
@@ -133,4 +141,21 @@ bundle_preview = rule(
             doc = "The `bundle-producer-all.jar` built by `./gradlew :bundle-producer:uberJar`.",
         ),
     },
+)
+
+
+def _runtime_classpath_impl(ctx):
+    jars = ctx.attr.module[JavaInfo].transitive_runtime_jars
+    out = ctx.actions.declare_file(ctx.label.name + ".json")
+    ctx.actions.write(out, json.encode({
+        "moduleJars": [jar.path for jar in ctx.attr.module[JavaInfo].runtime_output_jars],
+        "runtimeJars": [jar.path for jar in jars.to_list()],
+    }))
+    # Building this target must also materialize the bytecode the manifest names.
+    return [DefaultInfo(files = depset([out], transitive = [jars]))]
+
+runtime_classpath = rule(
+    implementation = _runtime_classpath_impl,
+    attrs = {"module": attr.label(mandatory = True, providers = [JavaInfo])},
+    doc = "Exports execution-root-relative runtime jars for the render contract test.",
 )

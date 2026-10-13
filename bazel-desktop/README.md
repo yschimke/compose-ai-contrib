@@ -69,3 +69,17 @@ changing `artifacts` in `MODULE.bazel`, regenerate it:
 ```bash
 REPIN=1 bazel run @maven//:pin
 ```
+
+## Live CMP render contract
+
+Build `//:runtime_classpath` alongside the bundle, then from the repo root:
+
+```bash
+execution_root="$(cd bazel-desktop && bazel info execution_root)"
+./gradlew :contract-tests:bazel-cmp-desktop:test -PbazelExecutionRoot="$execution_root"
+```
+
+This renders the Bazel-built packaged Greeting with the published daemon and
+checks its decoded PNG is nonblank. Missing outputs fail. See
+[`docs/bazel.md`](../docs/bazel.md) for dependency versions, public project
+references, and the limits of Desktop JVM versus full CMP/KMP support.

@@ -8,7 +8,7 @@ tiny Android APK with a `@Composable @Preview` and a
 ## Status
 
 **Builds green on Bazel 9** via the `bazel-build-apk` job in
-[`.github/workflows/bazel.yml`](../../.github/workflows/bazel.yml) (a real
+[`.github/workflows/bazel.yml`](../.github/workflows/bazel.yml) (a real
 blocking check — no `continue-on-error`). It runs on Kotlin 2.x via
 `rules_kotlin` 2.x + the bundled
 `org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable` (the post-K2
@@ -25,6 +25,9 @@ the bundled Kotlin (2.1.21), and the Java toolchain pinned to 17 in `.bazelrc` s
 `rules_android`'s own `record`-using tools compile.
 
 ## Build
+
+Install Android platform 36 and build-tools 36.0.0, and set `ANDROID_HOME`.
+The build tools and bundle action use Bazel's declared remote JDK 17.
 
 From this directory:
 

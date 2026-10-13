@@ -1,6 +1,6 @@
 load("@rules_kotlin//kotlin:core.bzl", "kt_compiler_plugin")
 load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
-load(":compose_preview.bzl", "bundle_preview")
+load(":compose_preview.bzl", "bundle_preview", "runtime_classpath")
 
 # Compose compiler plugin (the Kotlin-bundled one, post-K2 plugin model).
 kt_compiler_plugin(
@@ -41,10 +41,14 @@ exports_files(["bundle-producer-all.jar"])
 bundle_preview(
     name = "preview_bundle",
     module = ":app",
-    deps = [":app"],
-    module_path = "//app:app",
+    module_path = "//:app",
     previews = [
         "GreetingKt.Greeting=com.example.bazeldesktop.GreetingKt#Greeting@app/src/main/kotlin/com/example/bazeldesktop/Greeting.kt",
     ],
     maven_install = "maven_install.json",
+)
+
+runtime_classpath(
+    name = "runtime_classpath",
+    module = ":app",
 )

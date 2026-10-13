@@ -12,6 +12,6 @@ common --noenable_workspace
 # flags rules_android 0.7.2 sets in its own .bazelrc (tested on Bazel 9.0.0rc3).
 # See issue #14.
 common --java_language_version=17
-common --java_runtime_version=17
+common --java_runtime_version=remotejdk_17
 common --tool_java_language_version=17
-common --tool_java_runtime_version=17
+common --tool_java_runtime_version=remotejdk_17
