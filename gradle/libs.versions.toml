@@ -1,32 +1,40 @@
 [versions]
-composeai = "0.16.15"
-kotlin = "2.3.21"
+# Tools, sessions, daemons and contracts now publish independently.
+composeai = "2.55.0"
+composeaiSession = "2.52.0"
+composeaiDaemon = "3.16.0"
+composeaiContracts = "3.30.0"
+composeaiDriver = "2.45.0"
+compose = "1.11.1"
+kotlin = "2.4.20"
 junit = "4.13.2"
 truth = "1.4.5"
 # ClassGraph drives the bundle producer's reachability closure walk — the same
 # library upstream's `BundlePreviewTask.closureWalk` uses, so the contrib
 # producers prune to reachable deps byte-for-byte the same way. No Gradle dep.
-classgraph = "4.8.179"
+classgraph = "4.8.197"
 # Wire-format JSON for the bundle manifest (`bundle.json`). Must encode the
 # `ClasspathEntry` sealed hierarchy with the `kind` discriminator exactly as the
 # upstream `:bundle-viewer` reader expects.
-kotlinxSerialization = "1.9.0"
+kotlinxSerialization = "1.11.0"
 
 [libraries]
+composeai-daemon-bom = { module = "ee.schimke.composeai:compose-preview-daemon-bom", version.ref = "composeaiDaemon" }
+composeai-contracts-bom = { module = "ee.schimke.composeai:compose-preview-contracts-bom", version.ref = "composeaiContracts" }
 composeai-preview-discovery = { module = "ee.schimke.composeai:preview-discovery", version.ref = "composeai" }
 composeai-daemon-launch-builder = { module = "ee.schimke.composeai:daemon-launch-builder", version.ref = "composeai" }
-composeai-render-cli = { module = "ee.schimke.composeai:render-cli", version.ref = "composeai" }
-composeai-render-session-api = { module = "ee.schimke.composeai:render-session-api", version.ref = "composeai" }
-composeai-render-session-subprocess = { module = "ee.schimke.composeai:render-session-subprocess", version.ref = "composeai" }
-composeai-daemon-desktop = { module = "ee.schimke.composeai:daemon-desktop", version.ref = "composeai" }
-composeai-daemon-core = { module = "ee.schimke.composeai:daemon-core", version.ref = "composeai" }
-composeai-data-render-connector = { module = "ee.schimke.composeai:data-render-connector", version.ref = "composeai" }
-composeai-data-render-core = { module = "ee.schimke.composeai:data-render-core", version.ref = "composeai" }
+composeai-render-cli = { module = "ee.schimke.composeai:render-cli", version.ref = "composeaiSession" }
+composeai-render-session-api = { module = "ee.schimke.composeai:render-session-api", version.ref = "composeaiSession" }
+composeai-render-session-subprocess = { module = "ee.schimke.composeai:render-session-subprocess", version.ref = "composeaiSession" }
+composeai-daemon-desktop = { module = "ee.schimke.composeai:daemon-desktop" }
+composeai-daemon-core = { module = "ee.schimke.composeai:daemon-core" }
+composeai-data-render-connector = { module = "ee.schimke.composeai:data-render-connector" }
+composeai-data-render-core = { module = "ee.schimke.composeai:data-render-core" }
 # Wire-format DTOs (`PreviewResult`, `PreviewManifest`, `ExtensionPayload`, the v1 a11y mirror)
 # and the Gradle Tooling-API render pipeline as a library. Introduced upstream by PR #1375;
 # consumed here by `:compose-preview-scripting`. Published to Maven Central since composeai 0.11.15.
-composeai-preview-data-api = { module = "ee.schimke.composeai:preview-data-api", version.ref = "composeai" }
-composeai-gradle-preview-driver = { module = "ee.schimke.composeai:gradle-preview-driver", version.ref = "composeai" }
+composeai-preview-data-api = { module = "ee.schimke.composeai:preview-data-api" }
+composeai-gradle-preview-driver = { module = "ee.schimke.composeai:gradle-preview-driver", version.ref = "composeaiDriver" }
 # Kotlin scripting host — compiles + evaluates `*.composepreview.kts` files inside
 # `:compose-preview-scripting`. Pulls `kotlin-compiler-embeddable` transitively (~50 MB);
 # kept off the main CLI's classpath upstream, lives only in this standalone binary.
@@ -41,3 +49,7 @@ truth = { module = "com.google.truth:truth", version.ref = "truth" }
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+compose = { id = "org.jetbrains.compose", version.ref = "compose" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+composeai-preview = { id = "ee.schimke.composeai.preview", version.ref = "composeai" }

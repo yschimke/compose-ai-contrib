@@ -17,6 +17,8 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -35,36 +37,38 @@ import org.junit.rules.TemporaryFolder
  * 3. The Amper fixture lives at a path passed via `contrib.amperFixtureDir` so the test can run
  *    from any working directory.
  *
- * **Self-skip:** the test exits cleanly (no failure) when the Amper fixture outputs are missing,
- * so a clean checkout passes. CI builds the fixture (`./amper build`) before running the test.
+ * **Local skip:** JUnit reports a skipped case when fixture outputs are missing,
+ * so a clean checkout passes. CI builds both fixtures and requires their outputs.
  */
-class AmperContractTest {
+@org.junit.runner.RunWith(org.junit.runners.Parameterized::class)
+class AmperContractTest(private val fixture: String, private val className: String, private val functionName: String) {
+  companion object {
+    @JvmStatic
+    @org.junit.runners.Parameterized.Parameters(name = "{0}")
+    fun fixtures() = listOf(
+      arrayOf("amper-cmp-desktop", "GreetingKt", "Greeting"),
+      arrayOf("amper-compose-example", "MainKt", "App"),
+    )
+  }
+
 
   @get:Rule val tempDir: TemporaryFolder = TemporaryFolder()
 
   @Test
   fun `amper-built classes drive a real render via RenderSession`() {
-    val amperFixtureDir = File(requireSysProp("contrib.amperFixtureDir"))
+    val amperFixtureDir = File(File(requireSysProp("contrib.amperFixtureDir")).parentFile, fixture)
     val amperKotlinOutput =
       File(
         amperFixtureDir,
-        "build/artifacts/CompiledJvmArtifact/amper-cmp-desktopjvm/kotlin-output",
+        "build/artifacts/CompiledJvmArtifact/${fixture}jvm/kotlin-output",
       )
 
-    if (!File(amperFixtureDir, "amper").canExecute()) {
-      System.err.println(
-        "[AmperContractTest] skipping — `${amperFixtureDir.path}/amper` wrapper missing or not executable"
-      )
-      return
+    val built = amperKotlinOutput.walkTopDown().any { it.isFile && it.extension == "class" }
+    if (System.getProperty("contrib.requireAmperOutputs", "false").toBoolean()) {
+      assertWithMessage("Missing outputs for $fixture: run ./kotlin build in $amperFixtureDir")
+        .that(built).isTrue()
     }
-    val classFiles = amperKotlinOutput.listFiles { f -> f.extension == "class" }
-    if (classFiles == null || classFiles.isEmpty()) {
-      System.err.println(
-        "[AmperContractTest] skipping — Amper outputs missing at $amperKotlinOutput. " +
-          "Run `cd ${amperFixtureDir.path} && AMPER_JAVA_OPTIONS=\"…trustStore=…\" ./amper build` first."
-      )
-      return
-    }
+    org.junit.Assume.assumeTrue("Build $fixture with ./kotlin build before rendering", built)
 
     val rendererClasspath =
       requireSysProp("contrib.rendererClasspath")
@@ -77,11 +81,16 @@ class AmperContractTest {
     val historyDir = File(moduleDir, ".compose-preview-history").apply { mkdirs() }
     val previewsJsonPath = File(moduleDir, "build/compose-previews/previews.json")
     previewsJsonPath.parentFile.mkdirs()
-    previewsJsonPath.writeText(handAuthoredPreviewsJson(modulePath = ":amper-cmp-desktop"))
+    val manifest = discoverAmperPreviews(amperFixtureDir, amperKotlinOutput, ":$fixture", rendererClasspath)
+    previewsJsonPath.writeText(manifest)
+    val discovered = Json.parseToJsonElement(manifest).jsonObject["previews"]!!.jsonArray.single().jsonObject
+    assertThat(discovered["className"]!!.jsonPrimitive.content).isEqualTo(className)
+    assertThat(discovered["functionName"]!!.jsonPrimitive.content).isEqualTo(functionName)
+    val target = discovered["id"]!!.jsonPrimitive.content
 
     val descriptor =
       DaemonLaunchBuilder.build(
-        modulePath = ":amper-cmp-desktop",
+        modulePath = ":$fixture",
         variant = "desktop",
         mainClass = "ee.schimke.composeai.daemon.DaemonMain",
         classpath = classpath,
@@ -89,8 +98,8 @@ class AmperContractTest {
         systemProperties =
           linkedMapOf(
             "composeai.daemon.protocolVersion" to "1",
-            "composeai.daemon.modulePath" to ":amper-cmp-desktop",
-            "composeai.daemon.moduleId" to ":amper-cmp-desktop",
+            "composeai.daemon.modulePath" to ":$fixture",
+            "composeai.daemon.moduleId" to ":$fixture",
             "composeai.daemon.moduleProjectDir" to moduleDir.absolutePath,
             "composeai.daemon.workspaceRoot" to amperFixtureDir.absolutePath,
             "composeai.daemon.previewsJsonPath" to previewsJsonPath.absolutePath,
@@ -107,7 +116,6 @@ class AmperContractTest {
     val descriptorFile = File(moduleDir, "build/compose-previews/daemon-launch.json")
     descriptorFile.writeText(DaemonLaunchBuilder.encode(descriptor))
 
-    val target = "GreetingKt.Greeting"
 
     SubprocessRenderSessions.open(
         RenderSessionConfig(
@@ -118,7 +126,7 @@ class AmperContractTest {
         )
       )
       .use { session ->
-        assertThat(session.modulePath).isEqualTo(":amper-cmp-desktop")
+        assertThat(session.modulePath).isEqualTo(":$fixture")
         assertThat(session.initializeResult.daemonVersion).isNotEmpty()
 
         val finishedParams = AtomicReference<JsonObject?>(null)
@@ -151,6 +159,12 @@ class AmperContractTest {
         val png = File(pngPath)
         assertWithMessage("rendered PNG must exist on disk: $pngPath").that(png.isFile).isTrue()
         assertThat(png.length()).isGreaterThan(0L)
+        val decoded = javax.imageio.ImageIO.read(png) ?: error("Not a valid PNG: $pngPath")
+        assertThat(decoded.width).isGreaterThan(0)
+        assertThat(decoded.height).isGreaterThan(0)
+        val colors = mutableSetOf<Int>()
+        for (y in 0 until decoded.height) for (x in 0 until decoded.width) colors += decoded.getRGB(x, y)
+        assertWithMessage("$target must render UI, not a uniform placeholder").that(colors.size).isGreaterThan(1)
       }
   }
 
@@ -158,57 +172,4 @@ class AmperContractTest {
     System.getProperty(name)
       ?: error("System property '$name' must be set by the Gradle test task")
 
-  private val previewsJson = Json {
-    ignoreUnknownKeys = true
-    prettyPrint = true
-    encodeDefaults = true
-  }
-
-  private fun handAuthoredPreviewsJson(modulePath: String): String =
-    previewsJson.encodeToString(
-      JsonObject.serializer(),
-      buildJsonObject {
-        put("module", JsonPrimitive(modulePath))
-        put("variant", JsonPrimitive("desktop"))
-        put(
-          "previews",
-          JsonArray(
-            listOf(
-              buildJsonObject {
-                put("id", JsonPrimitive("GreetingKt.Greeting"))
-                put("functionName", JsonPrimitive("Greeting"))
-                put("className", JsonPrimitive("GreetingKt"))
-                put("sourceFile", JsonPrimitive("src/Greeting.kt"))
-                put(
-                  "params",
-                  buildJsonObject {
-                    put("density", JsonPrimitive(2.625f))
-                    put("fontScale", JsonPrimitive(1.0f))
-                    put("showSystemUi", JsonPrimitive(false))
-                    put("showBackground", JsonPrimitive(true))
-                    put("backgroundColor", JsonPrimitive(0xFFFFFFFFL))
-                    put("uiMode", JsonPrimitive(0))
-                    put("previewParameterLimit", JsonPrimitive(Int.MAX_VALUE))
-                    put("kind", JsonPrimitive("COMPOSE"))
-                  },
-                )
-                put(
-                  "captures",
-                  JsonArray(
-                    listOf(
-                      buildJsonObject {
-                        put("renderOutput", JsonPrimitive("renders/GreetingKt.Greeting.png"))
-                        put("cost", JsonPrimitive(1.0f))
-                      }
-                    )
-                  ),
-                )
-                put("dataProducts", JsonArray(emptyList()))
-                put("targets", JsonArray(emptyList()))
-              }
-            )
-          ),
-        )
-      },
-    )
 }

@@ -1,6 +1,6 @@
 # Amper Android sample — non-Gradle Android integration fixture
 
-A tiny [Amper](https://amper.org) Android project sibling to
+A tiny [Amper](https://kotlin-toolchain.org) Android project sibling to
 [`amper-cmp-desktop/`](../amper-cmp-desktop/). Proves the build system
 can produce an Android APK with a `@Composable @Preview` function and a
 `@NotificationPreview` function, without a single line of Gradle.
@@ -22,11 +22,11 @@ cd contrib/amper-android
 # bundled Zulu JRE Amper auto-downloads doesn't trust the proxy CA, so
 # Maven Central / Google Maven fetches fail with PKIX errors. Wire the
 # system truststore (which the sandbox keeps current) explicitly:
-export AMPER_JAVA_OPTIONS="-ea -XX:+EnableDynamicAgentLoading \
+export KOTLIN_CLI_JAVA_OPTIONS="-ea -XX:+EnableDynamicAgentLoading \
   -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts \
   -Djavax.net.ssl.trustStorePassword=changeit"
 
-./amper build
+./kotlin build
 ```
 
 Cold start downloads Amper + the Android SDK image into Amper's cache;

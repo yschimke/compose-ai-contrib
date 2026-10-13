@@ -18,6 +18,8 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 
 /**
  * Standalone producer that renders the Amper Desktop fixture's `@Preview`
@@ -44,7 +46,7 @@ import kotlinx.serialization.json.jsonPrimitive
 object PreviewProducer {
   private const val MODULE_PATH = ":amper-cmp-desktop"
   private const val VARIANT = "desktop"
-  private const val PREVIEW_ID = "GreetingKt.Greeting"
+  private var PREVIEW_ID = "GreetingKt.Greeting"
   private const val CLASS_NAME = "GreetingKt"
   private const val FUNCTION_NAME = "Greeting"
   private const val SOURCE_FILE = "src/Greeting.kt"
@@ -78,7 +80,9 @@ object PreviewProducer {
     val historyDir = File(moduleDir, ".compose-preview-history").apply { mkdirs() }
     val previewsJsonPath = File(moduleDir, "build/compose-previews/previews.json")
     previewsJsonPath.parentFile.mkdirs()
-    previewsJsonPath.writeText(handAuthoredPreviewsJson(MODULE_PATH))
+    val manifest = discoverAmperPreviews(amperFixtureDir, amperKotlinOutput, MODULE_PATH, rendererClasspath)
+    previewsJsonPath.writeText(manifest)
+    PREVIEW_ID = Json.parseToJsonElement(manifest).jsonObject["previews"]!!.jsonArray.single().jsonObject["id"]!!.jsonPrimitive.content
 
     val descriptor =
       DaemonLaunchBuilder.build(
@@ -302,58 +306,6 @@ object PreviewProducer {
       ),
     )
   }
-
-  // Pre-rendered manifest the daemon reads to know what previews exist.
-  // Identical shape to the one AmperContractTest hand-authors — copying
-  // here keeps the producer self-contained rather than reaching across
-  // src/main ↔ src/test.
-  private fun handAuthoredPreviewsJson(modulePath: String): String =
-    prettyJson.encodeToString(
-      JsonObject.serializer(),
-      buildJsonObject {
-        put("module", JsonPrimitive(modulePath))
-        put("variant", JsonPrimitive(VARIANT))
-        put(
-          "previews",
-          JsonArray(
-            listOf(
-              buildJsonObject {
-                put("id", JsonPrimitive(PREVIEW_ID))
-                put("functionName", JsonPrimitive(FUNCTION_NAME))
-                put("className", JsonPrimitive(CLASS_NAME))
-                put("sourceFile", JsonPrimitive(SOURCE_FILE))
-                put(
-                  "params",
-                  buildJsonObject {
-                    put("density", JsonPrimitive(2.625f))
-                    put("fontScale", JsonPrimitive(1.0f))
-                    put("showSystemUi", JsonPrimitive(false))
-                    put("showBackground", JsonPrimitive(true))
-                    put("backgroundColor", JsonPrimitive(0xFFFFFFFFL))
-                    put("uiMode", JsonPrimitive(0))
-                    put("previewParameterLimit", JsonPrimitive(Int.MAX_VALUE))
-                    put("kind", JsonPrimitive("COMPOSE"))
-                  },
-                )
-                put(
-                  "captures",
-                  JsonArray(
-                    listOf(
-                      buildJsonObject {
-                        put("renderOutput", JsonPrimitive("renders/${PREVIEW_ID}.png"))
-                        put("cost", JsonPrimitive(1.0f))
-                      }
-                    )
-                  ),
-                )
-                put("dataProducts", JsonArray(emptyList()))
-                put("targets", JsonArray(emptyList()))
-              }
-            )
-          ),
-        )
-      },
-    )
 
   private fun requireSysProp(name: String): String =
     System.getProperty(name)

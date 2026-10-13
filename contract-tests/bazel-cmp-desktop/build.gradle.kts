@@ -2,9 +2,13 @@ plugins {
   alias(libs.plugins.kotlin.jvm)
 }
 
-val rendererRuntime by configurations.creating
+val rendererRuntime = configurations.create("rendererRuntime")
 
 dependencies {
+  testImplementation(platform(libs.composeai.daemon.bom))
+  testImplementation(platform(libs.composeai.contracts.bom))
+  rendererRuntime(platform(libs.composeai.daemon.bom))
+  rendererRuntime(platform(libs.composeai.contracts.bom))
   testImplementation(libs.composeai.daemon.launch.builder)
   testImplementation(libs.composeai.render.session.subprocess)
   testImplementation(libs.composeai.render.session.api)

@@ -79,9 +79,9 @@ object ComposePreviewScriptCompilationConfig :
     defaultImports(
       "ee.schimke.composeai.scripting.RenderedPreview",
       "ee.schimke.composeai.scripting.A11yHandle",
-      "ee.schimke.composeai.cli.AccessibilityFinding",
-      "ee.schimke.composeai.cli.CaptureResult",
-      "ee.schimke.composeai.cli.ScrollCapture",
+      "ee.schimke.composeai.previewdata.AccessibilityFinding",
+      "ee.schimke.composeai.previewdata.CaptureResult",
+      "ee.schimke.composeai.previewdata.ScrollCapture",
     )
     jvm { dependenciesFromCurrentContext(wholeClasspath = true) }
   })
