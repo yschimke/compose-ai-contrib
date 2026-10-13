@@ -126,7 +126,7 @@ consumed as the independently pinned `rules_compose_preview` module. Stage a CLI
 distribution containing the Bazel adapter into `.compose-preview/cli/`, then:
 
 ```sh
-bazel run //:ui-preview-run -- --filter RuntimeGreeting --output greeting.png
+bazel run //:ui-preview -- --filter RuntimeGreeting --output greeting.png
 bazel build //:ui-preview
 ```
 
@@ -138,9 +138,13 @@ documents immutable commits, checksum-pinned release archives and CLI provisioni
 
 ### Runnable PNG/ZIP bundle
 
-`bazel build //:ui-preview-bundle` packs both application previews into
-`bazel-bin/ui-preview-bundle.png` using the compose-ai-tools bundle format. Compose
+`bazel build //:ui-preview --output_groups=bundle` packs both application previews into
+`bazel-bin/ui-preview.bundle.png` using the compose-ai-tools bundle format. Compose
 and other identifiable libraries are recorded with Maven coordinates from the
 lockfile and JAR metadata; the server resolves those from Maven Central/Google
 Maven. Only unpublished local project JARs are embedded. Coordinate recovery
 accepts Bazel-transformed bytes and records its decisions in the bundle.
+
+The current rule declares one label. Select `png`, `bundle`, or both with output
+groups. Bundle packaging and `bazel run` reuse the shared PNG render; the runnable
+launcher does not start another daemon. There are no generated sibling targets.
