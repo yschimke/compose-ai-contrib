@@ -12,7 +12,7 @@ truth = "1.4.5"
 # ClassGraph drives the bundle producer's reachability closure walk — the same
 # library upstream's `BundlePreviewTask.closureWalk` uses, so the contrib
 # producers prune to reachable deps byte-for-byte the same way. No Gradle dep.
-classgraph = "4.8.197"
+classgraph = "4.8.199"
 # Wire-format JSON for the bundle manifest (`bundle.json`). Must encode the
 # `ClasspathEntry` sealed hierarchy with the `kind` discriminator exactly as the
 # upstream `:bundle-viewer` reader expects.
