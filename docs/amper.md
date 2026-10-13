@@ -46,7 +46,7 @@ default is `jvm.release: 21`.
 | --- | --- |
 | Compiled classes | `build/artifacts/CompiledJvmArtifact/<module>jvm/kotlin-output/` |
 | Module jar | `build/tasks/_<module>_jarJvm/<module>-jvm.jar` |
-| Resolved runtime jars | `~/.cache/JetBrains/Amper/.m2.cache/<group>/<artifact>/<version>/` |
+| Resolved runtime jars | `~/.cache/JetBrains/Kotlin/.m2.cache/<group>/<artifact>/<version>/` |
 
 ## Three-step rendering pipeline
 

@@ -111,7 +111,7 @@ open it in `compose-preview bundle open` or the `:bundle-viewer`.
   `embedded` for some deps until pinned — a JVM-desktop Bazel target recovers
   coordinates cleanly.
 - **Amper** — Amper resolves into a standard Maven-layout cache
-  (`~/.cache/JetBrains/Amper/.m2.cache/<group>/<artifact>/<version>/…`), so
+  (`~/.cache/JetBrains/Kotlin/.m2.cache/<group>/<artifact>/<version>/…`), so
   `Coordinates.recoverFromMavenLayout` reads the coordinate straight back from a
   resolved jar's path. The default Amper pack is therefore `coordinates` with a
   `sha256` per dep; a jar with no recoverable coordinate is embedded.
