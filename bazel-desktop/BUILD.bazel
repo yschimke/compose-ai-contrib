@@ -1,3 +1,5 @@
+load("@rules_compose_preview//:defs.bzl", "compose_preview")
+load("@rules_compose_preview//:tool.bzl", "compose_preview_cli")
 load("@rules_java//java:defs.bzl", "java_library")
 load("@rules_kotlin//kotlin:core.bzl", "define_kt_toolchain", "kt_compiler_plugin")
 load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
@@ -24,9 +26,9 @@ kt_jvm_library(
     srcs = glob(["app/src/main/kotlin/**/*.kt"]),
     plugins = [":compose_compiler_plugin"],
     deps = [
-        "@maven//:org_jetbrains_compose_runtime_runtime_desktop",
         "@maven//:org_jetbrains_compose_foundation_foundation_desktop",
         "@maven//:org_jetbrains_compose_material3_material3_desktop",
+        "@maven//:org_jetbrains_compose_runtime_runtime_desktop",
         "@maven//:org_jetbrains_compose_ui_ui_desktop",
         "@maven//:org_jetbrains_compose_ui_ui_tooling_preview_desktop",
     ],
@@ -47,12 +49,12 @@ exports_files(["bundle-producer-all.jar"])
 # `resolution = "coordinates"`). CI builds this and uploads it as an artifact.
 bundle_preview(
     name = "preview_bundle",
+    maven_install = "maven_install.json",
     module = ":app",
     module_path = "//:app",
     previews = [
         "GreetingKt.Greeting=com.example.bazeldesktop.GreetingKt#Greeting@app/src/main/kotlin/com/example/bazeldesktop/Greeting.kt",
     ],
-    maven_install = "maven_install.json",
 )
 
 runtime_classpath(
@@ -70,8 +72,8 @@ genrule(
 java_library(
     name = "runtime_message",
     srcs = ["app/src/runtime/java/com/example/bazeldesktop/RuntimeMessage.java"],
-    resources = ["app/src/runtime/resources/runtime-message.txt"],
     resource_strip_prefix = "app/src/runtime/resources",
+    resources = ["app/src/runtime/resources/runtime-message.txt"],
 )
 
 kt_jvm_library(
@@ -79,8 +81,8 @@ kt_jvm_library(
     srcs = glob(["app/src/dependency/kotlin/**/*.kt"]),
     plugins = [":compose_compiler_plugin"],
     deps = [
-        "@maven//:org_jetbrains_compose_runtime_runtime_desktop",
         "@maven//:org_jetbrains_compose_foundation_foundation_desktop",
+        "@maven//:org_jetbrains_compose_runtime_runtime_desktop",
         "@maven//:org_jetbrains_compose_ui_ui_tooling_preview_desktop",
     ],
 )
@@ -91,12 +93,30 @@ kt_jvm_library(
     name = "aspect_app",
     srcs = glob(["app/src/aspect/kotlin/**/*.kt"]) + [":generated_preview"],
     plugins = [":compose_compiler_plugin"],
-    runtime_deps = [":runtime_message", ":dependency_ui"],
+    runtime_deps = [
+        ":dependency_ui",
+        ":runtime_message",
+    ],
     deps = [
-        "@maven//:org_jetbrains_compose_runtime_runtime_desktop",
         "@maven//:org_jetbrains_compose_foundation_foundation_desktop",
         "@maven//:org_jetbrains_compose_material3_material3_desktop",
+        "@maven//:org_jetbrains_compose_runtime_runtime_desktop",
         "@maven//:org_jetbrains_compose_ui_ui_desktop",
         "@maven//:org_jetbrains_compose_ui_ui_tooling_preview_desktop",
     ],
+)
+
+# Stage the CLI distribution into .compose-preview/cli before using native targets.
+# Consumers can instead use a checksum-pinned CLI repository (see rules README).
+compose_preview_cli(
+    name = "preview_cli",
+    files = glob([".compose-preview/cli/**"]),
+    launcher = ".compose-preview/cli/bin/compose-preview",
+)
+
+compose_preview(
+    name = "ui-preview",
+    srcs = glob(["app/src/aspect/kotlin/**/*.kt"]) + [":generated_preview"],
+    cli = ":preview_cli",
+    module = ":aspect_app",
 )

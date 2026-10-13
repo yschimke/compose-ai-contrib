@@ -118,3 +118,20 @@ compose-preview bazel render --target //:aspect_app --filter RuntimeGreetingKt.R
 No `bundle_preview` or `runtime_classpath` target is required for this path.
 See the [CLI configuration and artifact contract](https://github.com/yschimke/compose-ai-tools/blob/main/docs/BAZEL.md)
 for provider overrides, build flags, internal executable wrappers and limitations.
+
+## Native Bazel build/run targets
+
+Reusable rules now live in [compose-preview-bazel](https://github.com/yschimke/compose-preview-bazel),
+consumed as the independently pinned `rules_compose_preview` module. Stage a CLI
+distribution containing the Bazel adapter into `.compose-preview/cli/`, then:
+
+```sh
+bazel run //:ui-preview-run -- --filter RuntimeGreeting --output greeting.png
+bazel build //:ui-preview
+```
+
+The build tree contains actual PNG captures under
+`bazel-bin/ui-preview/build/compose-previews/renders/`. These render actions are
+local and uncached while renderer/native provisioning uses the host. Neither
+entry point starts a nested build. For external repositories, the rule repo
+documents immutable commits, checksum-pinned release archives and CLI provisioning.

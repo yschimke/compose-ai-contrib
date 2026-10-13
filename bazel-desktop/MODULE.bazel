@@ -11,11 +11,21 @@ module(
     version = "0.0.0",
 )
 
+bazel_dep(name = "rules_compose_preview", version = "0.1.0-rc.1")
+
+# Independent, immutable rule module; preview CLI remains separately staged/pinned.
+git_override(
+    module_name = "rules_compose_preview",
+    commit = "00ce129b869d9082e2ee6501473ae23bb9b8132b",
+    remote = "https://github.com/yschimke/compose-preview-bazel.git",
+)
+
 bazel_dep(name = "bazel_skylib", version = "1.8.2")
 bazel_dep(name = "rules_jvm_external", version = "7.2")
 
 # Kotlin and the Compose compiler plugin are versioned together.
 bazel_dep(name = "rules_kotlin", version = "2.4.20")
+
 # Explicit JavaInfo dependency and Android rules compatible with Bazel 9.
 bazel_dep(name = "rules_java", version = "9.3.0")
 bazel_dep(name = "rules_android", version = "0.8.0")
@@ -40,6 +50,9 @@ maven.install(
         "org.jetbrains.compose.ui:ui-desktop:1.11.1",
         "org.jetbrains.compose.ui:ui-tooling-preview-desktop:1.11.1",
     ],
+    fail_if_repin_required = True,
+    known_contributing_modules = ["protobuf"],
+    lock_file = "//:maven_install.json",
     repositories = [
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
@@ -47,8 +60,5 @@ maven.install(
     # Force declared versions so any conflicting transitive strict pins resolve
     # to one version instead of failing resolution.
     version_conflict_policy = "pinned",
-    lock_file = "//:maven_install.json",
-    fail_if_repin_required = True,
-    known_contributing_modules = ["protobuf"],
 )
 use_repo(maven, "maven")
