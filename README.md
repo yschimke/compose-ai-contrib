@@ -6,7 +6,7 @@ Auto-generated from `main`. Browse inline or compare against PR branches.
 
 | Preview | Image |
 |---------|-------|
-| `BlueBoxPreview` | <img src="https://raw.githubusercontent.com/yschimke/compose-ai-contrib/compose-preview/scripting/main/renders/:compose-preview-scripting:demo/BlueBoxPreview_Blue_Box.png" width="150" /> |
-| `GreetingPreview` | <img src="https://raw.githubusercontent.com/yschimke/compose-ai-contrib/compose-preview/scripting/main/renders/:compose-preview-scripting:demo/GreetingPreview_Greeting.png" width="150" /> |
-| `RedBoxPreview` | <img src="https://raw.githubusercontent.com/yschimke/compose-ai-contrib/compose-preview/scripting/main/renders/:compose-preview-scripting:demo/RedBoxPreview_Red_Box.png" width="150" /> |
+| `BlueBoxPreview` | <img src="https://raw.githubusercontent.com/yschimke/compose-ai-contrib/compose-preview/scripting/main/renders/:compose-preview-scripting:demo/BlueBoxPreview_Blue_Box-7fcc36ea.png" width="150" /> |
+| `GreetingPreview` | <img src="https://raw.githubusercontent.com/yschimke/compose-ai-contrib/compose-preview/scripting/main/renders/:compose-preview-scripting:demo/GreetingPreview_Greeting-35c1de05.png" width="150" /> |
+| `RedBoxPreview` | <img src="https://raw.githubusercontent.com/yschimke/compose-ai-contrib/compose-preview/scripting/main/renders/:compose-preview-scripting:demo/RedBoxPreview_Red_Box-c72e7d63.png" width="150" /> |
 
