@@ -93,7 +93,21 @@ resource. It uses binary-retained `androidx.compose.ui.tooling.preview.Preview`;
 the old Desktop annotation has source-only retention and cannot be found in
 compiled jars.
 
-With a CLI containing the Bazel adapter:
+With a CLI containing automatic build selection, run from `bazel-desktop/`:
+
+```sh
+compose-preview list
+compose-preview show --filter RuntimeGreeting --json
+compose-preview render --filter RuntimeGreeting --output greeting.png
+```
+
+The shared `.compose-preview/bazel.json` selects `//:aspect_app` for everyone.
+The CLI detects the Bazel workspace and installs its aspect on first use; generated
+aspects and render outputs stay ignored. No Gradle preview plugin is applied.
+Bazel/Bazelisk is selected from PATH, with an explicit build-command override
+available for local wrappers.
+
+The explicit form is also available:
 
 ```sh
 compose-preview bazel init
