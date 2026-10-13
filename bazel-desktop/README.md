@@ -130,21 +130,33 @@ bazel run //:ui-preview -- --filter RuntimeGreeting --output greeting.png
 bazel build //:ui-preview
 ```
 
-The build tree contains actual PNG captures under
-`bazel-bin/ui-preview/build/compose-previews/renders/`. These render actions are
+Select `--output_groups=png` to build actual PNG captures under
+`bazel-bin/ui-preview.renders/`. The optional render actions are
 local and uncached while renderer/native provisioning uses the host. Neither
 entry point starts a nested build. For external repositories, the rule repo
 documents immutable commits, checksum-pinned release archives and CLI provisioning.
 
-### Runnable PNG/ZIP bundle
+### Prepared runnable bundles and optional rendering
 
-`bazel build //:ui-preview --output_groups=bundle` packs both application previews into
-`bazel-bin/ui-preview.bundle.png` using the compose-ai-tools bundle format. Compose
-and other identifiable libraries are recorded with Maven coordinates from the
-lockfile and JAR metadata; the server resolves those from Maven Central/Google
-Maven. Only unpublished local project JARs are embedded. Coordinate recovery
-accepts Bazel-transformed bytes and records its decisions in the bundle.
+Stage the independently built compose-ai-tools producer distribution at
+`.compose-preview/producer/` (its `lib/*.jar` files). Build it with
+`scripts/agent-gradle.sh :bundle-producer:installDist`; the full CLI is needed only
+for rendering and goes in `.compose-preview/cli/`.
 
-The current rule declares one label. Select `png`, `bundle`, or both with output
-groups. Bundle packaging and `bazel run` reuse the shared PNG render; the runnable
-launcher does not start another daemon. There are no generated sibling targets.
+```sh
+bazel build //:ui-source-bundle  # no CLI/daemon distribution required
+bazel build //:ui-preview       # default is also renderer-free preparation
+bazel run //:ui-preview -- render --filter RuntimeGreeting --output greeting.png
+bazel build //:ui-preview --output_groups=png
+bazel build //:ui-preview --output_groups=rendered_bundle
+```
+
+Preparation is offline and normally cached. The `.bundle.png` has a valid stub
+cover, own compiled classes/resources, Maven coordinates and embedded local
+runtime-only dependencies. Rendering resolves coordinates through the existing
+CLI bundle renderer. `.rendered-bundle.png` is a separate product with real cover
+and baked preview images; `.renders/` contains loose images. Rendering remains
+local and uncached pending a fully declared renderer/native/font toolchain.
+The explicitly declared `ui-source-bundle` example omits `cli` entirely. The
+producer uses shared JVM discovery/format contracts without daemon client/core/BTA,
+renderer or full CLI dependencies.

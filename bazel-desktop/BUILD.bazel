@@ -1,5 +1,5 @@
 load("@rules_compose_preview//:defs.bzl", "compose_preview")
-load("@rules_compose_preview//:tool.bzl", "compose_preview_cli")
+load("@rules_compose_preview//:tool.bzl", "compose_preview_cli", "compose_preview_producer")
 load("@rules_java//java:defs.bzl", "java_library")
 load("@rules_kotlin//kotlin:core.bzl", "define_kt_toolchain", "kt_compiler_plugin")
 load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
@@ -120,8 +120,24 @@ compose_preview(
     cli = ":preview_cli",
     maven_install = ":maven_install.json",
     module = ":aspect_app",
-    outputs = [
-        "png",
-        "bundle",
-    ],
+    outputs = ["bundle"],
+    producer = ":source_bundle_producer",
+)
+
+# Independent compose-ai-tools producer distribution; no CLI or daemon runtime on this tool.
+compose_preview_producer(
+    name = "source_bundle_producer",
+    jars = glob(
+        [".compose-preview/producer/lib/*.jar"],
+        allow_empty = True,
+    ),
+)
+
+# Source-only monorepo example: CLI and rendering are optional.
+compose_preview(
+    name = "ui-source-bundle",
+    srcs = glob(["app/src/aspect/kotlin/**/*.kt"]) + [":generated_preview"],
+    maven_install = ":maven_install.json",
+    module = ":aspect_app",
+    producer = ":source_bundle_producer",
 )
