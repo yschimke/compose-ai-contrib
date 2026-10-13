@@ -16,7 +16,7 @@ import java.io.File
  * recoverable coordinate (or [embed] = true) is carried in `libs/` instead.
  *
  * The reachability prune is the shared [BundleWriter] closure walk (ClassGraph over the Amper
- * `kotlin-output/` classes + the cache jars), so only deps the rendered preview actually reaches are
+ * `kotlin-output/` classes + the fixture's resolved runtime jars), so only deps the rendered preview actually reaches are
  * recorded — the same minimization the Gradle plugin does, with no Gradle dependency.
  */
 object AmperBundleEmitter {
@@ -24,7 +24,8 @@ object AmperBundleEmitter {
   /**
    * @param previews selected previews (first = cover), already rendered.
    * @param amperKotlinOutput the module's compiled-classes dir (`…/kotlin-output`).
-   * @param m2CacheRoots Maven-layout roots to recover coordinates from and to scan for runtime jars.
+   * @param runtimeClasspathFile newline-separated paths captured from the fixture's Kotlin Toolchain run task.
+   * @param m2CacheRoots Maven-layout roots used only to recover coordinates.
    * @param renderPngs `previewId -> rendered png` (baked into the bundle for detached viewing).
    * @param out the `bundle.png` polyglot to write.
    * @param embed force an offline `embedded` pack (every dep carried in `libs/`).
@@ -32,6 +33,7 @@ object AmperBundleEmitter {
   fun emit(
     previews: List<PreviewInfo>,
     amperKotlinOutput: File,
+    runtimeClasspathFile: File,
     m2CacheRoots: List<File>,
     renderPngs: Map<String, File>,
     modulePath: String,
@@ -41,9 +43,9 @@ object AmperBundleEmitter {
     verifyEmbedded: Boolean = false,
   ): BundleWriter.Result {
     val existingRoots = m2CacheRoots.filter { it.isDirectory }
-    val cacheJars = existingRoots.flatMap { collectJars(it) }
+    val runtimeJars = readRuntimeJars(runtimeClasspathFile)
     val dependencyJars =
-      cacheJars.map { jar ->
+      runtimeJars.map { jar ->
         BundleWriter.DependencyInput(
           jar = jar,
           coordinate = Coordinates.recoverFromMavenLayout(jar, existingRoots),
@@ -67,9 +69,7 @@ object AmperBundleEmitter {
         out,
       )
 
-    // Every jar in Amper's m2 cache was resolved *from* a repo, so a coordinate-recovery miss that
-    // forced an embed is, by construction, a published artifact — flag it loudly. Best-effort: an
-    // unreachable registry just leaves the jar embedded.
+    // Coordinate recovery is best-effort: jars outside a known Maven cache stay embedded.
     if (verifyEmbedded && result.embeddedWithoutCoordinate.isNotEmpty()) {
       val findings =
         EmbeddedVerifier.verify(
@@ -87,23 +87,23 @@ object AmperBundleEmitter {
     return result
   }
 
-  /** All `.jar` files under [root], skipping `-sources`/`-javadoc` sidecars. */
-  private fun collectJars(root: File): List<File> =
-    root
-      .walkTopDown()
-      .filter {
-        it.isFile &&
-          it.name.endsWith(".jar") &&
-          !it.name.endsWith("-sources.jar") &&
-          !it.name.endsWith("-javadoc.jar")
-      }
-      .toList()
+  /** The runtime classpath is the source of truth; cache roots only identify Maven coordinates. */
+  fun readRuntimeJars(classpathFile: File): List<File> {
+    require(classpathFile.isFile) {
+      "Missing Kotlin Toolchain runtime classpath: $classpathFile. Run the fixture's classpath export first."
+    }
+    val entries = classpathFile.readLines().filter(String::isNotBlank)
+    require(entries.isNotEmpty()) { "Empty Kotlin Toolchain runtime classpath: $classpathFile" }
+    val jars = entries.map(::File).filter { it.extension == "jar" }.distinctBy { it.absoluteFile.normalize().path }
+    require(jars.isNotEmpty()) { "No runtime jars in Kotlin Toolchain classpath: $classpathFile" }
+    jars.forEach { require(it.isFile) { "Missing runtime jar from Kotlin Toolchain classpath: $it" } }
+    return jars
+  }
 
   /**
    * Default Amper m2-cache roots, honouring an override system property
-   * (`contrib.amperM2Cache`, path-separated). Kotlin Toolchain's current cache plus the legacy Amper cache by default — the closure walk
-   * only keeps *reachable* jars, so a stray sibling repo would only cost scan time, but keeping the
-   * root tight keeps the ClassGraph scan fast and the recovered coordinates unambiguous.
+   * (`contrib.amperM2Cache`, path-separated). Kotlin Toolchain's current cache plus the legacy
+   * Amper cache by default. These roots are only used for coordinate recovery, never scanned.
    */
   fun defaultM2CacheRoots(): List<File> {
     System.getProperty("contrib.amperM2Cache")?.let { return it.split(File.pathSeparator).map(::File) }

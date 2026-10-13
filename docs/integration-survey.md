@@ -26,11 +26,10 @@ Do not advertise the Desktop contract as Android or iOS rendering support.
   the published `previewdata` and `previewdriver` packages. It is still a Gradle
   driver, not an Amper driver.
 - Portable bundles remain useful for detached preview sharing from non-Gradle
-  builds. The producer is build-system independent. The Amper emitter still scans
-  the shared Maven cache rather than an exact resolved application classpath;
-  multiple cached dependency versions can be ambiguous. A future integration
-  should consume Kotlin Toolchain's resolved runtime artifact, not infer it from
-  unrelated cached jars.
+  builds. The producer is build-system independent. The Amper fixture now exports
+  the JVM classpath selected by Kotlin Toolchain's `run` task, so unrelated jars
+  and older versions in the shared Maven cache cannot enter its bundle. Cache
+  paths only provide Maven coordinates for the selected jars.
 - Buck2 currently demonstrates resource manifest parity. It does not yet prove
   Compose Kotlin compilation or rendering, so it should remain a resource example.
 - Bazel remains outside this modernization pass; its fixture pins are unchanged.

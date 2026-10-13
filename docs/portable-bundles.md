@@ -53,7 +53,9 @@ mirroring its `bundle.json` field names and the `kind` discriminator exactly.
 - **Amper** — wired into [`contract-tests/amper-cmp-desktop`](../contract-tests/amper-cmp-desktop/)
   (`AmperBundleEmitter` + `PreviewProducer`): after rendering, it packs
   `_preview-bundle.png` (and, with `-Dcontrib.bundleEmbed=true`,
-  `_preview-bundle-embedded.png`).
+  `_preview-bundle-embedded.png`). The fixture first records Kotlin Toolchain's
+  resolved JVM runtime classpath using `./kotlin run`; the Maven cache is only
+  used to recover coordinates for those selected jars.
 - **Bazel** — the `bundle_preview` Starlark rule drives the producer's runnable
   `bundle-producer-all.jar` over a Bazel library's outputs. It's used in two
   samples: [`bazel-desktop/`](../bazel-desktop/) — a Compose **Desktop**
