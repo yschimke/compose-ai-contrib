@@ -1,6 +1,12 @@
-load("@rules_kotlin//kotlin:core.bzl", "kt_compiler_plugin")
+load("@rules_kotlin//kotlin:core.bzl", "define_kt_toolchain", "kt_compiler_plugin")
 load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 load(":compose_preview.bzl", "bundle_preview", "runtime_classpath")
+
+# CMP dependencies contain JVM 11 bytecode. Match the declared Java 17 toolchain.
+define_kt_toolchain(
+    name = "kotlin_toolchain",
+    jvm_target = "17",
+)
 
 # Compose compiler plugin (the Kotlin-bundled one, post-K2 plugin model).
 kt_compiler_plugin(
