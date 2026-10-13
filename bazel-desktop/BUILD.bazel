@@ -110,7 +110,10 @@ kt_jvm_library(
 # Consumers can instead use a checksum-pinned CLI repository (see rules README).
 compose_preview_cli(
     name = "preview_cli",
-    files = glob([".compose-preview/cli/**"]),
+    files = glob(
+        [".compose-preview/cli/**"],
+        allow_empty = True,
+    ),
     launcher = ".compose-preview/cli/bin/compose-preview",
 )
 
