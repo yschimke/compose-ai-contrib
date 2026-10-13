@@ -1,6 +1,10 @@
-# Driving `compose-preview` from Amper
+# Driving `compose-preview` from Amper / Kotlin Toolchain
 
-[Amper](https://github.com/JetBrains/amper) — JetBrains' declarative
+Use the released Kotlin Toolchain 0.13 wrappers in this repo. See the
+[current integration survey](integration-survey.md) for project examples and
+renderer compatibility limits.
+
+[Amper](https://github.com/JetBrains/kotlin-toolchain) — JetBrains' declarative
 build system with first-class Compose Multiplatform support — is the
 shortest non-Gradle path to rendering `@Preview` composables. The
 recipe below uses the three published `compose-preview` artifacts
@@ -8,7 +12,7 @@ recipe below uses the three published `compose-preview` artifacts
 [`ee.schimke.composeai:preview-discovery`](https://central.sonatype.com/artifact/ee.schimke.composeai/preview-discovery),
 [`:daemon-launch-builder`](https://central.sonatype.com/artifact/ee.schimke.composeai/daemon-launch-builder),
 [`:render-cli`](https://central.sonatype.com/artifact/ee.schimke.composeai/render-cli))
-plus a shell wrapper around `./amper build`. No Gradle, no AGP.
+plus a shell wrapper around `./kotlin build`. No Gradle, no AGP.
 
 ## Minimal Compose Desktop fixture
 
@@ -24,7 +28,9 @@ dependencies:
   - $compose.desktop.currentOs
 
 settings:
-  compose: enabled
+  compose:
+    enabled: true
+    version: 1.11.1
   jvm:
     release: 17
 ```
@@ -34,7 +40,7 @@ on JDK 17 and refuses class files compiled against newer JDKs with
 `UnsupportedClassVersionError` (class version 65 ≠ 61). Amper's
 default is `jvm.release: 21`.
 
-`./amper build` produces:
+`./kotlin build` produces:
 
 | Artifact | Path |
 | --- | --- |
@@ -45,7 +51,7 @@ default is `jvm.release: 21`.
 ## Three-step rendering pipeline
 
 ```
-./amper build                              ← Amper produces compiled classes
+./kotlin build                              ← Amper produces compiled classes
   ↓
 java -jar preview-discovery.jar            ← Phase A artifact #1
   → previews.json

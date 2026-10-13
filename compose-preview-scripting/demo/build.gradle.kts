@@ -6,9 +6,9 @@
 
 plugins {
   alias(libs.plugins.kotlin.jvm)
-  id("org.jetbrains.compose") version "1.10.3"
-  id("org.jetbrains.kotlin.plugin.compose") version "2.3.21"
-  id("ee.schimke.composeai.preview") version "0.16.15"
+  alias(libs.plugins.compose)
+  alias(libs.plugins.kotlin.compose)
+  alias(libs.plugins.composeai.preview)
 }
 
 kotlin {
@@ -23,5 +23,5 @@ dependencies {
   // ui-tooling-preview artifact. The CMP-bundled `compose.components.uiToolingPreview`
   // publishes under `org.jetbrains.compose.ui.tooling.preview.Preview`, which discovery
   // doesn't recognise. See cmp-shared upstream sample for the rationale.
-  implementation("org.jetbrains.compose.ui:ui-tooling-preview:1.10.3")
+  implementation("org.jetbrains.compose.ui:ui-tooling-preview:${libs.versions.compose.get()}")
 }

@@ -29,6 +29,7 @@ jobs:
       - name: Build scripting binary and render demo previews
         run: |
           ./gradlew --no-daemon \
+            :compose-preview-scripting:test \
             :compose-preview-scripting:installDist \
             :compose-preview-scripting:demo:composePreviewRenderAll
 
@@ -40,14 +41,15 @@ jobs:
       - name: Assert renders are not blank (stub-renderer guard)
         working-directory: compose-preview-scripting/demo/build/compose-previews/renders
         run: |
-          red=$(sha256sum RedBoxPreview_Red_Box.png | awk '{print $1}')
-          blue=$(sha256sum BlueBoxPreview_Blue_Box.png | awk '{print $1}')
-          echo "Red:  $red"
-          echo "Blue: $blue"
-          if [ "$red" = "$blue" ]; then
-            echo "::error::Red and Blue box renders are byte-identical — the renderer is the stub."
-            exit 1
-          fi
+          python - <<'PYTHON'
+          import hashlib
+          from pathlib import Path
+          def digest(prefix):
+              files = list(Path('.').glob(prefix + '*.png'))
+              assert len(files) == 1, f"Expected one {prefix} render, got {files}"
+              return hashlib.sha256(files[0].read_bytes()).hexdigest()
+          assert digest('RedBoxPreview') != digest('BlueBoxPreview'), 'Red and blue renders are identical'
+          PYTHON
 
       - name: Run example .composepreview.kts scripts
         working-directory: compose-preview-scripting/demo
