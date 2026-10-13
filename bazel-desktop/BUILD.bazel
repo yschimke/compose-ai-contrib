@@ -117,6 +117,8 @@ compose_preview_cli(
 compose_preview(
     name = "ui-preview",
     srcs = glob(["app/src/aspect/kotlin/**/*.kt"]) + [":generated_preview"],
+    bundle = True,
     cli = ":preview_cli",
+    maven_install = ":maven_install.json",
     module = ":aspect_app",
 )

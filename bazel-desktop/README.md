@@ -135,3 +135,12 @@ The build tree contains actual PNG captures under
 local and uncached while renderer/native provisioning uses the host. Neither
 entry point starts a nested build. For external repositories, the rule repo
 documents immutable commits, checksum-pinned release archives and CLI provisioning.
+
+### Runnable PNG/ZIP bundle
+
+`bazel build //:ui-preview-bundle` packs both application previews into
+`bazel-bin/ui-preview-bundle.png` using the compose-ai-tools bundle format. Compose
+and other identifiable libraries are recorded with Maven coordinates from the
+lockfile and JAR metadata; the server resolves those from Maven Central/Google
+Maven. Only unpublished local project JARs are embedded. Coordinate recovery
+accepts Bazel-transformed bytes and records its decisions in the bundle.
