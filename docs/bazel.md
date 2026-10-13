@@ -1,8 +1,9 @@
 # Driving Compose previews from Bazel
 
-The maintained path is Kotlin 2.1.21 + its matching Compose compiler plugin,
-`rules_kotlin` 2.1.10, `rules_jvm_external` 6.10, `rules_android` 0.7.2, and Bazel
-9.0.0. All three fixtures pin Bazel via `.bazelversion`. The Kotlin compiler
+The Desktop fixture uses Kotlin/compiler 2.4.20, `rules_kotlin` 2.4.20,
+`rules_jvm_external` 7.2, `rules_android` 0.8.0, and Bazel 9.2.0. The Android
+compatibility fixture retains its tested Kotlin/compiler 2.1.21 and Bazel 9.0.0
+graph. All three fixtures pin Bazel via `.bazelversion`. The Kotlin compiler
 and `org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable` must move
 in lockstep; the old standalone AndroidX compiler is not the K2 recipe.
 
@@ -60,9 +61,9 @@ old graph. Pin files carry both artifact checksums and repository URLs.
 
 Desktop deliberately uses explicit `-desktop` Maven variants: POM-only
 resolution of unsuffixed multiplatform coordinates can choose metadata or the
-wrong platform. The compatibility fixture is pinned to CMP 1.7.3. A separate dependency
-upgrade targets Kotlin/compiler 2.4.20 and CMP 1.11.1 (Material3 1.9.0),
-with a regenerated Maven pin. The published compose-preview
+wrong platform. CMP UI/foundation/runtime are 1.11.1; Material3 has its own
+release train and is pinned to stable 1.9.0. The Maven pin is regenerated
+with all artifact checksums. The published compose-preview
 renderer currently uses the CMP 1.11.1/Skiko ABI. CMP 1.12 changes Skiko APIs, so
 moving this fixture beyond that requires upgrading and verifying the renderer
 as well. A latest-version-only bump is not sufficient.
