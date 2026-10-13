@@ -3,7 +3,7 @@
     "captureLabel": "",
     "functionName": "Greeting",
     "renderBasename": "GreetingKt.Greeting.png",
-    "sha256": "11e83b1e435a10fa7fbeb263a45089b585ea213d2116014d905833380c3cd066",
+    "sha256": "cbd59c4636d92466a95cbf1bc99d659a5ea8c4ae20c18df164fba87ecd113d79",
     "sourceFile": "src/Greeting.kt"
   }
 }
