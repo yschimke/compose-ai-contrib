@@ -17,7 +17,9 @@ dependencies {
 }
 
 tasks.test {
-  // Explicitly invoked integration test: missing Bazel outputs are a failure.
+  // Bazel bytecode is produced outside Gradle: every explicit invocation must render it.
+  outputs.upToDateWhen { false }
+  // Missing Bazel outputs are a failure.
   systemProperty("contrib.rendererClasspath", rendererRuntime.asPath)
   systemProperty("contrib.bazelFixtureDir", rootProject.file("bazel-desktop").absolutePath)
   providers.gradleProperty("bazelExecutionRoot").orNull?.let {
