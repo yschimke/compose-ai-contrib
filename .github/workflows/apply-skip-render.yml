@@ -43,7 +43,7 @@ jobs:
   empty-envelope-smoke:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
 
       - name: Stage empty envelopes
         # Both shapes match `compose-preview show --json` / `show-resources

@@ -47,7 +47,7 @@ jobs:
       # Lets Claude read CI results on the PR it is working on.
       actions: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
         with:
           # Full history so Claude can diff against main.
           fetch-depth: 0
@@ -57,17 +57,17 @@ jobs:
       # / compose-preview-scripting Gradle modules — the heavier Amper and
       # Bazel fixtures have their own CI and aren't wired in here.
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v4.9.1
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 21.0.12+8.0.LTS
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v4.4.4
         with:
           cache-read-only: true
 
-      - uses: anthropics/claude-code-action@v1.0.163
+      - uses: anthropics/claude-code-action@v1.0.248
         with:
           # Bills the Claude subscription's included usage (shared with
           # interactive Claude Code sessions) rather than per-token API spend.
