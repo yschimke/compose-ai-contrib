@@ -42,6 +42,16 @@ bazel_dep(name = "rules_java", version = "9.3.0")
 # the resources-only `bazel/` sample keeps using bazelisk's default.)
 bazel_dep(name = "rules_android", version = "0.7.2")
 
+# The public preview rules, for the Android aspect the render-proof job runs
+# through `compose-preview` (`.compose-preview/bazel.json`). Pinned to the
+# compose-preview-bazel commit that orders resource overlays dependencies-first.
+bazel_dep(name = "rules_compose_preview", version = "0.1.0-rc.4")
+git_override(
+    module_name = "rules_compose_preview",
+    commit = "e85e351e2d8ffad8b8f009458d25714f24a4bdc3",
+    remote = "https://github.com/yschimke/compose-preview-bazel.git",
+)
+
 # Android SDK — picks up $ANDROID_HOME from the environment. On the
 # GitHub `ubuntu-latest` runner, `android-actions/setup-android@v4`
 # installs platform 34 + build-tools 34.0.0 and exports ANDROID_HOME.
