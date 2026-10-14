@@ -43,8 +43,9 @@ bazel_dep(name = "rules_java", version = "9.3.0")
 bazel_dep(name = "rules_android", version = "0.7.2")
 
 # The public preview rules, for the Android aspect the render-proof job runs
-# through `compose-preview` (`.compose-preview/bazel.json`). Pinned to the
-# compose-preview-bazel commit that orders resource overlays dependencies-first.
+# through `compose-preview` (`.compose-preview/bazel.json`). Pinned to
+# compose-preview-bazel#4's head (assets, and R packages of resource-less AARs);
+# move to its main commit once that merges.
 bazel_dep(name = "rules_compose_preview", version = "0.1.0-rc.4")
 git_override(
     module_name = "rules_compose_preview",
