@@ -114,7 +114,9 @@ jobs:
   # the Robolectric daemon against the aspect's linked resources and final R IDs.
   bazel-android-render:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # A cold cache builds rules_android's tools (protobuf included) from source,
+    # well past the CLI's 300 s default build timeout; hence `--timeout` below.
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4.4.0
       - uses: actions/checkout@v4.4.0
@@ -152,7 +154,7 @@ jobs:
           JAVA_HOME: ${{ env.JAVA_HOME_21_X64 }}
         run: >-
           ../compose-ai-tools/cli/build/install/compose-preview/bin/compose-preview
-          render --project "$PWD" --filter Greeting
+          render --project "$PWD" --filter Greeting --timeout 2400
           --output "$GITHUB_WORKSPACE/build/android-render/greeting.png" --verbose
 
       - name: Verify the render used the linked resources
