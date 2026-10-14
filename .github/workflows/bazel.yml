@@ -121,13 +121,22 @@ jobs:
           repository-cache: true
       - name: Build the upstream Jetpack Compose APK
         working-directory: examples/jetpack_compose
-        run: bazel test //app:force_build_apks_test
+        run: |
+          bazel test //app:force_build_apks_test
+          # A cached build_test does not materialize every dependency artifact,
+          # and Android transitions can put the APK outside bazel-bin's config.
+          bazel build //app:compose_example_app
+          bazel cquery //app:compose_example_app --output=files > apk-outputs.txt
       - name: Verify a dexed APK was produced
         working-directory: examples/jetpack_compose
         run: |
           python3 - <<'PYTHON'
           import zipfile
-          with zipfile.ZipFile("bazel-bin/app/compose_example_app.apk") as apk:
+          from pathlib import Path
+          outputs = [Path(line) for line in Path("apk-outputs.txt").read_text().splitlines()]
+          apks = [path for path in outputs if path.name == "compose_example_app.apk"]
+          assert len(apks) == 1, f"Expected one configured APK, got {apks}"
+          with zipfile.ZipFile(apks[0]) as apk:
               assert "AndroidManifest.xml" in apk.namelist()
               assert any(n.startswith("classes") and n.endswith(".dex") for n in apk.namelist())
           PYTHON
