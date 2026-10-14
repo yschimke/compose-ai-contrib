@@ -147,7 +147,7 @@ JRE doesn't trust the proxy CA and Maven Central / Google Maven fetches
 fail with PKIX errors. Wire the system truststore explicitly:
 
 ```bash
-export AMPER_JAVA_OPTIONS="-ea -XX:+EnableDynamicAgentLoading \
+export KOTLIN_CLI_JAVA_OPTIONS="-ea -XX:+EnableDynamicAgentLoading \
   -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts \
   -Djavax.net.ssl.trustStorePassword=changeit"
 ```
