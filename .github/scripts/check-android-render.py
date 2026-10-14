@@ -1,8 +1,9 @@
 """Check a Robolectric render of `bazel-apk`'s Greeting resolved its Android resources.
 
-The preview draws `R.string.greeting` on `R.color.proof_background`. Robolectric only
+The preview draws `R.drawable.proof_badge` and `R.string.greeting` on
+`R.color.proof_background`. Robolectric only
 resolves those through the resource table the Bazel Android aspect linked, so the
-colour filling a real share of the image, with darker text pixels inside it, is
+colour filling a real share of the image, the badge's colour and darker text pixels is
 evidence the linked APK and final R IDs both reached the renderer. Pure stdlib: the
 PNG is decoded here rather than pulling in an imaging library.
 """
@@ -12,6 +13,7 @@ import zlib
 from pathlib import Path
 
 PROOF = (0x12, 0xB4, 0xA8)
+BADGE = (0xB0, 0x30, 0x6A)
 
 
 def decode(path):
@@ -47,7 +49,10 @@ def decode(path):
                 pa, pb, pc = abs(p - left), abs(p - up), abs(p - corner)
                 pred = left if pa <= pb and pa <= pc else up if pb <= pc else corner
                 line[i] = (line[i] + pred) & 0xFF
-        rows.append([tuple(line[x * channels : x * channels + 3]) for x in range(width)])
+        # RGBA throughout: an RGB image is fully opaque.
+        rows.append(
+            [tuple(line[x * channels : x * channels + 3]) + ((line[x * channels + 3],) if channels == 4 else (255,)) for x in range(width)]
+        )
         prev = line
     return width, height, rows
 
@@ -56,10 +61,13 @@ def main(path):
     width, height, rows = decode(path)
     pixels = [p for row in rows for p in row]
     near = lambda p, c, tol: all(abs(a - b) <= tol for a, b in zip(p, c))
-    background = sum(near(p, PROOF, 6) for p in pixels)
-    dark = sum(sum(p) < 200 for p in pixels)
-    print(f"{path}: {width}x{height}, proof colour {background}px, dark {dark}px")
+    background = sum(p[3] >= 250 and near(p[:3], PROOF, 6) for p in pixels)
+    # Opaque only: transparent padding decodes as black and is not text.
+    dark = sum(p[3] >= 200 and sum(p[:3]) < 200 for p in pixels)
+    badge = sum(p[3] >= 250 and near(p[:3], BADGE, 6) for p in pixels)
+    print(f"{path}: {width}x{height}, proof colour {background}px, badge {badge}px, dark {dark}px")
     assert background >= len(pixels) // 4, "R.color.proof_background did not fill the preview"
+    assert badge >= 64, "R.drawable.proof_badge did not draw"
     assert dark > 0, "no text drawn: R.string.greeting did not render"
 
 
