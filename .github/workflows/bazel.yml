@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.4.0
-      - uses: bazel-contrib/setup-bazel@0.19.0
+      - uses: bazel-contrib/setup-bazel@0.19.1
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -58,8 +58,8 @@ jobs:
       - uses: actions/setup-java@v4.9.1
         with:
           distribution: temurin
-          java-version: 17.0.20+8
-      - uses: bazel-contrib/setup-bazel@0.19.0
+          java-version: 17.0.20+101
+      - uses: bazel-contrib/setup-bazel@0.19.1
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -94,13 +94,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.4.0
-      - uses: bazel-contrib/setup-bazel@0.19.0
+      - uses: bazel-contrib/setup-bazel@0.19.1
         with:
           bazelisk-cache: true
           disk-cache: true
           repository-cache: true
 
-      - uses: android-actions/setup-android@v4
+      - uses: android-actions/setup-android@v4.0.4
       - name: Install the pinned Android SDK
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
 
@@ -135,10 +135,10 @@ jobs:
           java-version: |
             21
             17
-      - uses: android-actions/setup-android@v4
+      - uses: android-actions/setup-android@v4.0.4
       - name: Install the pinned Android SDK
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
-      - uses: bazel-contrib/setup-bazel@0.19.0
+      - uses: bazel-contrib/setup-bazel@0.19.1
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -176,7 +176,7 @@ jobs:
           repository: bazel-contrib/rules_kotlin
           # v2.4.20: immutable reference to the maintained real Compose APK.
           ref: 02f96a1144527e46724f17381a11cd2cd8b36980
-      - uses: bazel-contrib/setup-bazel@0.19.0
+      - uses: bazel-contrib/setup-bazel@0.19.1
         with:
           bazelisk-cache: true
           disk-cache: true
