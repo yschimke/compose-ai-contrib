@@ -122,9 +122,9 @@ jobs:
       - uses: actions/checkout@v4.4.0
         with:
           repository: yschimke/compose-ai-tools
-          # main at #5965 (Android Bazel targets on the Robolectric daemon). No
-          # CLI release carries it yet; move to a release once one does.
-          ref: 4ca7f55d67acb307192a7aaa2259ece4e4b4f20d
+          # main at #5966 (Android Bazel render and bundle). No CLI release
+          # carries it yet; move to a release once one does.
+          ref: ca5da5cc27bac1158686c37689085d355d200c19
           path: compose-ai-tools
           persist-credentials: false
       # 17 builds the CLI (listed last, so it is JAVA_HOME); 21 runs it, since
