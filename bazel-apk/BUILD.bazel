@@ -16,6 +16,7 @@ kt_android_library(
     custom_package = "com.example.bazelsample",
     manifest = "app/src/main/AndroidManifest.xml",
     plugins = [":compose_compiler_plugin"],
+    resource_files = glob(["app/src/main/res/**"]),
     deps = [
         "@maven//:androidx_activity_activity_compose",
         "@maven//:androidx_compose_foundation_foundation",

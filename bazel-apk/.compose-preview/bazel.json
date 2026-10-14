@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "target": "//:bazel_sample_lib",
+  "aspect": "@rules_compose_preview//:android.bzl%compose_preview_android_aspect",
+  "installAspect": false
+}
