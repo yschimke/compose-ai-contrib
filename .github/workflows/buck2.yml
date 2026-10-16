@@ -64,9 +64,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: yschimke/compose-ai-tools
-          # compose-ai-tools#6050 (the Buck2 driver). No CLI release carries it
+          # main at compose-ai-tools#6050 (the Buck2 driver). No CLI release carries it
           # yet; move to a release once one does.
-          ref: 4bc7ae6b1a02ce5464f1860df003cacddb5c0c7f
+          ref: c4968e43373d9e281b6fef43f9f8b4fd6b112b63
           path: compose-ai-tools
           persist-credentials: false
       # 17 builds the CLI (listed last, so it is JAVA_HOME); 21 is the JDK the
