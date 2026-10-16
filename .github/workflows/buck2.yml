@@ -5,12 +5,14 @@ on:
     paths:
       - "buck2/**"
       - "buck2-desktop/**"
+      - "buck2-android/**"
       - ".github/workflows/buck2.yml"
   push:
     branches: [main]
     paths:
       - "buck2/**"
       - "buck2-desktop/**"
+      - "buck2-android/**"
       - ".github/workflows/buck2.yml"
   workflow_dispatch:
 
@@ -64,9 +66,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: yschimke/compose-ai-tools
-          # main at compose-ai-tools#6050 (the Buck2 driver). No CLI release carries it
-          # yet; move to a release once one does.
-          ref: c4968e43373d9e281b6fef43f9f8b4fd6b112b63
+          # main at compose-ai-tools#6061 (Buck2 Desktop and Android). Move to a release
+          # once one carries it.
+          ref: b7beaaa03b1f8bfc554018dd21764a777934260e
           path: compose-ai-tools
           persist-credentials: false
       # 17 builds the CLI (listed last, so it is JAVA_HOME); 21 is the JDK the
@@ -137,4 +139,95 @@ jobs:
         with:
           name: buck2-desktop-render
           path: build/buck2-render/
+          if-no-files-found: warn
+
+  # The same for a Jetpack Compose android_library: the BXL script links its
+  # resource closure into a standalone resource APK and R jar, and the preview
+  # renders on the Android (Robolectric) daemon.
+  buck2-android-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: yschimke/compose-ai-tools
+          # main at compose-ai-tools#6061 (Buck2 Desktop and Android). Move to a release
+          # once one carries it.
+          ref: b7beaaa03b1f8bfc554018dd21764a777934260e
+          path: compose-ai-tools
+          persist-credentials: false
+      - uses: actions/setup-java@v4.9.1
+        with:
+          distribution: temurin
+          java-version: |
+            21
+            17
+
+      - name: Install Buck2
+        env:
+          BUCK2_RELEASE: "2026-10-15"
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd
+          curl -fsSL -o /tmp/buck2.zst \
+            "https://github.com/facebook/buck2/releases/download/$BUCK2_RELEASE/buck2-x86_64-unknown-linux-gnu.zst"
+          zstd -d /tmp/buck2.zst -o /tmp/buck2
+          chmod +x /tmp/buck2
+          sudo mv /tmp/buck2 /usr/local/bin/buck2
+          buck2 --version
+
+      # The runner's preinstalled SDK: its newest build tools and numbered platform.
+      - name: Point Buck2 at JDK 21 and the Android SDK
+        working-directory: buck2-android
+        run: |
+          set -euo pipefail
+          build_tools="$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          platform="$(ls "$ANDROID_HOME/platforms" | grep -E '^android-[0-9]+$' | sort -V | tail -1)"
+          printf '[java]\n  java_home = %s\n\n[android]\n  sdk_path = %s\n  build_tools_version = %s\n  compile_sdk_version = %s\n' \
+            "$JAVA_HOME_21_X64" "$ANDROID_HOME" "$build_tools" "$platform" > .buckconfig.local
+          cat .buckconfig.local
+
+      - name: Build the Compose Android library
+        working-directory: buck2-android
+        run: buck2 build //app:app --show-output
+
+      - name: Build the compose-preview CLI
+        working-directory: compose-ai-tools
+        run: ./gradlew :cli:installDist --stacktrace
+
+      - name: List and render the preview through the CLI
+        working-directory: buck2-android/app
+        env:
+          CLI: ${{ github.workspace }}/compose-ai-tools/cli/build/install/compose-preview/bin/compose-preview
+        run: |
+          set -euo pipefail
+          "$CLI" list --json --timeout 1800 > "$RUNNER_TEMP/list.json"
+          python3 - "$RUNNER_TEMP/list.json" <<'PYTHON'
+          import sys
+          text = open(sys.argv[1]).read()
+          assert "com.example.buckandroid.GreetingKt.GreetingPreview" in text, text
+          PYTHON
+          mkdir -p "$GITHUB_WORKSPACE/build/buck2-android-render"
+          "$CLI" render --filter Greeting --timeout 1800 --verbose \
+            --output "$GITHUB_WORKSPACE/build/buck2-android-render/greeting.png"
+
+      - name: Verify the render
+        run: |
+          python3 - build/buck2-android-render/greeting.png <<'PYTHON'
+          import struct, sys
+          data = open(sys.argv[1], "rb").read()
+          assert data[:8] == b"\x89PNG\r\n\x1a\n", "not a PNG"
+          width, height = struct.unpack(">II", data[16:24])
+          assert width > 100 and height > 20, (width, height)
+          print(f"greeting.png {width}x{height}")
+          PYTHON
+
+      - name: Upload the render
+        if: always()
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: buck2-android-render
+          path: build/buck2-android-render/
           if-no-files-found: warn

@@ -1,0 +1,23 @@
+android_resource(
+    name = "res",
+    package = "com.example.buckandroid",
+    res = "res",
+    manifest = "AndroidManifest.xml",
+)
+
+android_library(
+    name = "app",
+    srcs = glob(["src/**/*.kt"]),
+    language = "KOTLIN",
+    manifest = "AndroidManifest.xml",
+    kotlin_compiler_plugins = [
+        ("//third_party:kotlin-compose-compiler-plugin-embeddable_jar", {}),
+    ],
+    deps = [
+        ":res",
+        "//third_party:compose_android",
+    ],
+    source = "17",
+    target = "17",
+    visibility = ["PUBLIC"],
+)
