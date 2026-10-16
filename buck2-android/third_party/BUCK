@@ -1,0 +1,760 @@
+# Jetpack Compose 1.12.1 for Android: the runtime closure of foundation and
+# ui-tooling-preview, as Gradle resolves it for an Android consumer. See README.md.
+
+remote_file(
+    name = "activity_ktx_aar",
+    out = "activity-ktx-1.7.0.aar",
+    sha1 = "e9c29708c0179b483d22a764b7a645ec1eaa6174",
+    url = "mvn:https://maven.google.com:androidx.activity:activity-ktx:aar:1.7.0",
+)
+
+android_prebuilt_aar(
+    name = "activity_ktx",
+    aar = ":activity_ktx_aar",
+)
+
+remote_file(
+    name = "activity_aar",
+    out = "activity-1.7.0.aar",
+    sha1 = "7c28313e2f754db008beb3e8f57118c62c2d080d",
+    url = "mvn:https://maven.google.com:androidx.activity:activity:aar:1.7.0",
+)
+
+android_prebuilt_aar(
+    name = "activity",
+    aar = ":activity_aar",
+)
+
+remote_file(
+    name = "annotation_experimental_aar",
+    out = "annotation-experimental-1.4.1.aar",
+    sha1 = "7851235e2a16ce50270a74b555edaf9209b42864",
+    url = "mvn:https://maven.google.com:androidx.annotation:annotation-experimental:aar:1.4.1",
+)
+
+android_prebuilt_aar(
+    name = "annotation_experimental",
+    aar = ":annotation_experimental_aar",
+)
+
+remote_file(
+    name = "annotation_jvm_jar",
+    out = "annotation-jvm-1.9.1.jar",
+    sha1 = "b17951747e38bf3986a24431b9ba0d039958aa5f",
+    url = "mvn:https://maven.google.com:androidx.annotation:annotation-jvm:jar:1.9.1",
+)
+
+prebuilt_jar(
+    name = "annotation_jvm",
+    binary_jar = ":annotation_jvm_jar",
+)
+
+remote_file(
+    name = "core_common_jar",
+    out = "core-common-2.2.0.jar",
+    sha1 = "5e1b8b81dfd5f52c56a8d53b18ca759c19a301f3",
+    url = "mvn:https://maven.google.com:androidx.arch.core:core-common:jar:2.2.0",
+)
+
+prebuilt_jar(
+    name = "core_common",
+    binary_jar = ":core_common_jar",
+)
+
+remote_file(
+    name = "core_runtime_aar",
+    out = "core-runtime-2.2.0.aar",
+    sha1 = "39705982680d78556b679ef9d5400d4f17509b0b",
+    url = "mvn:https://maven.google.com:androidx.arch.core:core-runtime:aar:2.2.0",
+)
+
+android_prebuilt_aar(
+    name = "core_runtime",
+    aar = ":core_runtime_aar",
+)
+
+remote_file(
+    name = "autofill_aar",
+    out = "autofill-1.0.0.aar",
+    sha1 = "d95a6e3b895ad8f037dd01d88c87138b6d5eb507",
+    url = "mvn:https://maven.google.com:androidx.autofill:autofill:aar:1.0.0",
+)
+
+android_prebuilt_aar(
+    name = "autofill",
+    aar = ":autofill_aar",
+)
+
+remote_file(
+    name = "collection_jvm_jar",
+    out = "collection-jvm-1.5.0.jar",
+    sha1 = "7ba2c69414d46ebc2dd76598bdd0a75c54281a57",
+    url = "mvn:https://maven.google.com:androidx.collection:collection-jvm:jar:1.5.0",
+)
+
+prebuilt_jar(
+    name = "collection_jvm",
+    binary_jar = ":collection_jvm_jar",
+)
+
+remote_file(
+    name = "collection_ktx_jar",
+    out = "collection-ktx-1.5.0.jar",
+    sha1 = "27c78a926a16a1bf792b2285cf2834e8caae4a07",
+    url = "mvn:https://maven.google.com:androidx.collection:collection-ktx:jar:1.5.0",
+)
+
+prebuilt_jar(
+    name = "collection_ktx",
+    binary_jar = ":collection_ktx_jar",
+)
+
+remote_file(
+    name = "animation_android_aar",
+    out = "animation-android-1.12.1.aar",
+    sha1 = "8372b7758ebbb83b0524823aecc5fa07e0110b45",
+    url = "mvn:https://maven.google.com:androidx.compose.animation:animation-android:aar:1.12.1",
+)
+
+android_prebuilt_aar(
+    name = "animation_android",
+    aar = ":animation_android_aar",
+)
+
+remote_file(
+    name = "animation_core_android_aar",
+    out = "animation-core-android-1.12.1.aar",
+    sha1 = "da9e6d1072e99f4d9d6667840b4da029fafb647c",
+    url = "mvn:https://maven.google.com:androidx.compose.animation:animation-core-android:aar:1.12.1",
+)
+
+android_prebuilt_aar(
+    name = "animation_core_android",
+    aar = ":animation_core_android_aar",
+)
+
+remote_file(
+    name = "foundation_android_aar",
+    out = "foundation-android-1.12.1.aar",
+    sha1 = "782d83fdb0f27e1fd723099da6ef33c45a69711c",
+    url = "mvn:https://maven.google.com:androidx.compose.foundation:foundation-android:aar:1.12.1",
+)
+
+android_prebuilt_aar(
+    name = "foundation_android",
+    aar = ":foundation_android_aar",
+)
+
+remote_file(
+    name = "foundation_layout_android_aar",
+    out = "foundation-layout-android-1.12.1.aar",
+    sha1 = "9f9f636406670a10694e93b3b2096431d2f76a27",
+    url = "mvn:https://maven.google.com:androidx.compose.foundation:foundation-layout-android:aar:1.12.1",
+)
+
+android_prebuilt_aar(
+    name = "foundation_layout_android",
+    aar = ":foundation_layout_android_aar",
+)
+
+remote_file(
+    name = "runtime_android_aar",
+    out = "runtime-android-1.12.1.aar",
+    sha1 = "ba1fb5d45b4fe4d6a64bade2ed260438e38eba95",
+    url = "mvn:https://maven.google.com:androidx.compose.runtime:runtime-android:aar:1.12.1",
+)
+
+android_prebuilt_aar(
+    name = "runtime_android",
+    aar = ":runtime_android_aar",
+)
+
+remote_file(
+    name = "runtime_annotation_android_aar",
+    out = "runtime-annotation-android-1.12.1.aar",
+    sha1 = "b3b290da41f89f33ac97c1880a6c5b44660971f4",
+    url = "mvn:https://maven.google.com:androidx.compose.runtime:runtime-annotation-android:aar:1.12.1",
+)
+
+android_prebuilt_aar(
+    name = "runtime_annotation_android",
+    aar = ":runtime_annotation_android_aar",
+)
+
+remote_file(
+    name = "runtime_retain_android_aar",
+    out = "runtime-retain-android-1.12.1.aar",
+    sha1 = "d24af7d8bf33f1d29645a71f5aa11b92adf6c428",
+    url = "mvn:https://maven.google.com:androidx.compose.runtime:runtime-retain-android:aar:1.12.1",
+)
+
+android_prebuilt_aar(
+    name = "runtime_retain_android",
+    aar = ":runtime_retain_android_aar",
+)
+
+remote_file(
+    name = "runtime_saveable_android_aar",
+    out = "runtime-saveable-android-1.12.1.aar",
+    sha1 = "7a5ddf612079125bf07e31743a17aaf6ff9cd5c4",
+    url = "mvn:https://maven.google.com:androidx.compose.runtime:runtime-saveable-android:aar:1.12.1",
+)
+
+android_prebuilt_aar(
+    name = "runtime_saveable_android",
+    aar = ":runtime_saveable_android_aar",
+)
+
+remote_file(
+    name = "ui_android_aar",
+    out = "ui-android-1.12.1.aar",
+    sha1 = "95600d9aea586baa1493db8a2c0ab48507cc4ecf",
+    url = "mvn:https://maven.google.com:androidx.compose.ui:ui-android:aar:1.12.1",
+)
+
+android_prebuilt_aar(
+    name = "ui_android",
+    aar = ":ui_android_aar",
+)
+
+remote_file(
+    name = "ui_geometry_android_aar",
+    out = "ui-geometry-android-1.12.1.aar",
+    sha1 = "96da08446336091b5fc670d1b2898fb341adb211",
+    url = "mvn:https://maven.google.com:androidx.compose.ui:ui-geometry-android:aar:1.12.1",
+)
+
+android_prebuilt_aar(
+    name = "ui_geometry_android",
+    aar = ":ui_geometry_android_aar",
+)
+
+remote_file(
+    name = "ui_graphics_android_aar",
+    out = "ui-graphics-android-1.12.1.aar",
+    sha1 = "4845c4ce1160556550774c554ede96f4e6999f3f",
+    url = "mvn:https://maven.google.com:androidx.compose.ui:ui-graphics-android:aar:1.12.1",
+)
+
+android_prebuilt_aar(
+    name = "ui_graphics_android",
+    aar = ":ui_graphics_android_aar",
+)
+
+remote_file(
+    name = "ui_text_android_aar",
+    out = "ui-text-android-1.12.1.aar",
+    sha1 = "c56eda7f2fe00c23d56729fbf14ae83b2e346b22",
+    url = "mvn:https://maven.google.com:androidx.compose.ui:ui-text-android:aar:1.12.1",
+)
+
+android_prebuilt_aar(
+    name = "ui_text_android",
+    aar = ":ui_text_android_aar",
+)
+
+remote_file(
+    name = "ui_tooling_preview_android_aar",
+    out = "ui-tooling-preview-android-1.12.1.aar",
+    sha1 = "859445fd8ceabdba8bda5e4bb5ffe17a4a9fdf2c",
+    url = "mvn:https://maven.google.com:androidx.compose.ui:ui-tooling-preview-android:aar:1.12.1",
+)
+
+android_prebuilt_aar(
+    name = "ui_tooling_preview_android",
+    aar = ":ui_tooling_preview_android_aar",
+)
+
+remote_file(
+    name = "ui_unit_android_aar",
+    out = "ui-unit-android-1.12.1.aar",
+    sha1 = "eb2a07d9fdb78160915bdf745a1c4eaab575cb0b",
+    url = "mvn:https://maven.google.com:androidx.compose.ui:ui-unit-android:aar:1.12.1",
+)
+
+android_prebuilt_aar(
+    name = "ui_unit_android",
+    aar = ":ui_unit_android_aar",
+)
+
+remote_file(
+    name = "ui_util_android_aar",
+    out = "ui-util-android-1.12.1.aar",
+    sha1 = "bc47747ffec23978ed0877a81389a99fd7e2a0c4",
+    url = "mvn:https://maven.google.com:androidx.compose.ui:ui-util-android:aar:1.12.1",
+)
+
+android_prebuilt_aar(
+    name = "ui_util_android",
+    aar = ":ui_util_android_aar",
+)
+
+remote_file(
+    name = "concurrent_futures_jar",
+    out = "concurrent-futures-1.1.0.jar",
+    sha1 = "50b7fb98350d5f42a4e49704b03278542293ba48",
+    url = "mvn:https://maven.google.com:androidx.concurrent:concurrent-futures:jar:1.1.0",
+)
+
+prebuilt_jar(
+    name = "concurrent_futures",
+    binary_jar = ":concurrent_futures_jar",
+)
+
+remote_file(
+    name = "core_ktx_aar",
+    out = "core-ktx-1.16.0.aar",
+    sha1 = "fb0ea209ea2411dc5106cd1c95b513c81ce8aedb",
+    url = "mvn:https://maven.google.com:androidx.core:core-ktx:aar:1.16.0",
+)
+
+android_prebuilt_aar(
+    name = "core_ktx",
+    aar = ":core_ktx_aar",
+)
+
+remote_file(
+    name = "core_viewtree_aar",
+    out = "core-viewtree-1.0.0.aar",
+    sha1 = "449ba4f495b4d10d18edd01f32f9328be40d5749",
+    url = "mvn:https://maven.google.com:androidx.core:core-viewtree:aar:1.0.0",
+)
+
+android_prebuilt_aar(
+    name = "core_viewtree",
+    aar = ":core_viewtree_aar",
+)
+
+remote_file(
+    name = "core_aar",
+    out = "core-1.16.0.aar",
+    sha1 = "3a0b0bf75b4649cad42a39b6356fec1eea63cfc8",
+    url = "mvn:https://maven.google.com:androidx.core:core:aar:1.16.0",
+)
+
+android_prebuilt_aar(
+    name = "core",
+    aar = ":core_aar",
+)
+
+remote_file(
+    name = "customview_poolingcontainer_aar",
+    out = "customview-poolingcontainer-1.0.0.aar",
+    sha1 = "0579fc832cf0e5be08d8d9571850b50d22d9de3c",
+    url = "mvn:https://maven.google.com:androidx.customview:customview-poolingcontainer:aar:1.0.0",
+)
+
+android_prebuilt_aar(
+    name = "customview_poolingcontainer",
+    aar = ":customview_poolingcontainer_aar",
+)
+
+remote_file(
+    name = "emoji2_aar",
+    out = "emoji2-1.4.0.aar",
+    sha1 = "db99b152737e1ef1cca8e2ff24986a1e1dc8561d",
+    url = "mvn:https://maven.google.com:androidx.emoji2:emoji2:aar:1.4.0",
+)
+
+android_prebuilt_aar(
+    name = "emoji2",
+    aar = ":emoji2_aar",
+)
+
+remote_file(
+    name = "graphics_path_aar",
+    out = "graphics-path-1.0.1.aar",
+    sha1 = "7e243033abd313c7202428422a01d48691378e33",
+    url = "mvn:https://maven.google.com:androidx.graphics:graphics-path:aar:1.0.1",
+)
+
+android_prebuilt_aar(
+    name = "graphics_path",
+    aar = ":graphics_path_aar",
+)
+
+remote_file(
+    name = "interpolator_aar",
+    out = "interpolator-1.0.0.aar",
+    sha1 = "8a01fa254a23b9388571eb6334b03707c7d122d7",
+    url = "mvn:https://maven.google.com:androidx.interpolator:interpolator:aar:1.0.0",
+)
+
+android_prebuilt_aar(
+    name = "interpolator",
+    aar = ":interpolator_aar",
+)
+
+remote_file(
+    name = "lifecycle_common_jvm_jar",
+    out = "lifecycle-common-jvm-2.9.4.jar",
+    sha1 = "ab739bccdb3541983385af169565c7c035d897e7",
+    url = "mvn:https://maven.google.com:androidx.lifecycle:lifecycle-common-jvm:jar:2.9.4",
+)
+
+prebuilt_jar(
+    name = "lifecycle_common_jvm",
+    binary_jar = ":lifecycle_common_jvm_jar",
+)
+
+remote_file(
+    name = "lifecycle_livedata_core_aar",
+    out = "lifecycle-livedata-core-2.9.4.aar",
+    sha1 = "8ffb4401079c231b0a85014cf2e4df02c804d53b",
+    url = "mvn:https://maven.google.com:androidx.lifecycle:lifecycle-livedata-core:aar:2.9.4",
+)
+
+android_prebuilt_aar(
+    name = "lifecycle_livedata_core",
+    aar = ":lifecycle_livedata_core_aar",
+)
+
+remote_file(
+    name = "lifecycle_process_aar",
+    out = "lifecycle-process-2.9.4.aar",
+    sha1 = "6b51ead80ff00bb23d5801f08e67aa6b628e07b5",
+    url = "mvn:https://maven.google.com:androidx.lifecycle:lifecycle-process:aar:2.9.4",
+)
+
+android_prebuilt_aar(
+    name = "lifecycle_process",
+    aar = ":lifecycle_process_aar",
+)
+
+remote_file(
+    name = "lifecycle_runtime_android_aar",
+    out = "lifecycle-runtime-android-2.9.4.aar",
+    sha1 = "0fd218d3a91d46511975ef11165ffba7d696c04a",
+    url = "mvn:https://maven.google.com:androidx.lifecycle:lifecycle-runtime-android:aar:2.9.4",
+)
+
+android_prebuilt_aar(
+    name = "lifecycle_runtime_android",
+    aar = ":lifecycle_runtime_android_aar",
+)
+
+remote_file(
+    name = "lifecycle_runtime_compose_android_aar",
+    out = "lifecycle-runtime-compose-android-2.9.4.aar",
+    sha1 = "0ca8d7bbd9529da9346e0e6a27462fafcdc324ae",
+    url = "mvn:https://maven.google.com:androidx.lifecycle:lifecycle-runtime-compose-android:aar:2.9.4",
+)
+
+android_prebuilt_aar(
+    name = "lifecycle_runtime_compose_android",
+    aar = ":lifecycle_runtime_compose_android_aar",
+)
+
+remote_file(
+    name = "lifecycle_runtime_ktx_android_aar",
+    out = "lifecycle-runtime-ktx-android-2.9.4.aar",
+    sha1 = "58b7a78b98c61ac487551aa60cd17e1a4d01af96",
+    url = "mvn:https://maven.google.com:androidx.lifecycle:lifecycle-runtime-ktx-android:aar:2.9.4",
+)
+
+android_prebuilt_aar(
+    name = "lifecycle_runtime_ktx_android",
+    aar = ":lifecycle_runtime_ktx_android_aar",
+)
+
+remote_file(
+    name = "lifecycle_viewmodel_android_aar",
+    out = "lifecycle-viewmodel-android-2.9.4.aar",
+    sha1 = "d7f04dd2b3815ea592642340dabc73352c3786a3",
+    url = "mvn:https://maven.google.com:androidx.lifecycle:lifecycle-viewmodel-android:aar:2.9.4",
+)
+
+android_prebuilt_aar(
+    name = "lifecycle_viewmodel_android",
+    aar = ":lifecycle_viewmodel_android_aar",
+)
+
+remote_file(
+    name = "lifecycle_viewmodel_ktx_aar",
+    out = "lifecycle-viewmodel-ktx-2.9.4.aar",
+    sha1 = "83844a139f46cf3d195148d78f1820ecebf61294",
+    url = "mvn:https://maven.google.com:androidx.lifecycle:lifecycle-viewmodel-ktx:aar:2.9.4",
+)
+
+android_prebuilt_aar(
+    name = "lifecycle_viewmodel_ktx",
+    aar = ":lifecycle_viewmodel_ktx_aar",
+)
+
+remote_file(
+    name = "lifecycle_viewmodel_savedstate_android_aar",
+    out = "lifecycle-viewmodel-savedstate-android-2.9.4.aar",
+    sha1 = "5ec9278f5df344e931a5e57d91f91f181a165055",
+    url = "mvn:https://maven.google.com:androidx.lifecycle:lifecycle-viewmodel-savedstate-android:aar:2.9.4",
+)
+
+android_prebuilt_aar(
+    name = "lifecycle_viewmodel_savedstate_android",
+    aar = ":lifecycle_viewmodel_savedstate_android_aar",
+)
+
+remote_file(
+    name = "profileinstaller_aar",
+    out = "profileinstaller-1.4.0.aar",
+    sha1 = "6b6262e9ca50d1f75a496f3b64ebeb092a9d42eb",
+    url = "mvn:https://maven.google.com:androidx.profileinstaller:profileinstaller:aar:1.4.0",
+)
+
+android_prebuilt_aar(
+    name = "profileinstaller",
+    aar = ":profileinstaller_aar",
+)
+
+remote_file(
+    name = "savedstate_android_aar",
+    out = "savedstate-android-1.3.2.aar",
+    sha1 = "2d0bd847019e056e14327f62cab1d6b26f1cb1dc",
+    url = "mvn:https://maven.google.com:androidx.savedstate:savedstate-android:aar:1.3.2",
+)
+
+android_prebuilt_aar(
+    name = "savedstate_android",
+    aar = ":savedstate_android_aar",
+)
+
+remote_file(
+    name = "savedstate_compose_android_aar",
+    out = "savedstate-compose-android-1.3.2.aar",
+    sha1 = "f19f69cc6e9a996295d61e674f54f7f63454b7e4",
+    url = "mvn:https://maven.google.com:androidx.savedstate:savedstate-compose-android:aar:1.3.2",
+)
+
+android_prebuilt_aar(
+    name = "savedstate_compose_android",
+    aar = ":savedstate_compose_android_aar",
+)
+
+remote_file(
+    name = "savedstate_ktx_aar",
+    out = "savedstate-ktx-1.3.2.aar",
+    sha1 = "d09ffd11731a36f819dedbfe93f941458e63484f",
+    url = "mvn:https://maven.google.com:androidx.savedstate:savedstate-ktx:aar:1.3.2",
+)
+
+android_prebuilt_aar(
+    name = "savedstate_ktx",
+    aar = ":savedstate_ktx_aar",
+)
+
+remote_file(
+    name = "startup_runtime_aar",
+    out = "startup-runtime-1.1.1.aar",
+    sha1 = "9d4ba67056aff98b69eadc1477c19a1e67cb9470",
+    url = "mvn:https://maven.google.com:androidx.startup:startup-runtime:aar:1.1.1",
+)
+
+android_prebuilt_aar(
+    name = "startup_runtime",
+    aar = ":startup_runtime_aar",
+)
+
+remote_file(
+    name = "tracing_aar",
+    out = "tracing-1.2.0.aar",
+    sha1 = "a6ac2cc501278fdc99c56b428548e0cd1e9300f7",
+    url = "mvn:https://maven.google.com:androidx.tracing:tracing:aar:1.2.0",
+)
+
+android_prebuilt_aar(
+    name = "tracing",
+    aar = ":tracing_aar",
+)
+
+remote_file(
+    name = "versionedparcelable_aar",
+    out = "versionedparcelable-1.1.1.aar",
+    sha1 = "18e18071e7715679e0593c570217edeb5ca48b9e",
+    url = "mvn:https://maven.google.com:androidx.versionedparcelable:versionedparcelable:aar:1.1.1",
+)
+
+android_prebuilt_aar(
+    name = "versionedparcelable",
+    aar = ":versionedparcelable_aar",
+)
+
+remote_file(
+    name = "window_core_android_aar",
+    out = "window-core-android-1.5.0.aar",
+    sha1 = "22a9096078eea50902ec3816c054eb41cdc54547",
+    url = "mvn:https://maven.google.com:androidx.window:window-core-android:aar:1.5.0",
+)
+
+android_prebuilt_aar(
+    name = "window_core_android",
+    aar = ":window_core_android_aar",
+)
+
+remote_file(
+    name = "window_aar",
+    out = "window-1.5.0.aar",
+    sha1 = "0386d81dd80774e9f495a5750b4d3af206a45004",
+    url = "mvn:https://maven.google.com:androidx.window:window:aar:1.5.0",
+)
+
+android_prebuilt_aar(
+    name = "window",
+    aar = ":window_aar",
+)
+
+remote_file(
+    name = "listenablefuture_jar",
+    out = "listenablefuture-1.0.jar",
+    sha1 = "c949a840a6acbc5268d088e47b04177bf90b3cad",
+    url = "mvn:com.google.guava:listenablefuture:jar:1.0",
+)
+
+prebuilt_jar(
+    name = "listenablefuture",
+    binary_jar = ":listenablefuture_jar",
+)
+
+remote_file(
+    name = "kotlin_stdlib_jar",
+    out = "kotlin-stdlib-2.1.20.jar",
+    sha1 = "aa8ca79cd50578314f6d1180c47cbe14c0fee567",
+    url = "mvn:org.jetbrains.kotlin:kotlin-stdlib:jar:2.1.20",
+)
+
+prebuilt_jar(
+    name = "kotlin_stdlib",
+    binary_jar = ":kotlin_stdlib_jar",
+)
+
+remote_file(
+    name = "kotlinx_coroutines_android_jar",
+    out = "kotlinx-coroutines-android-1.9.0.jar",
+    sha1 = "6cf3b8df5a2ce8c6b0dffe55657a827c405ee2fe",
+    url = "mvn:org.jetbrains.kotlinx:kotlinx-coroutines-android:jar:1.9.0",
+)
+
+prebuilt_jar(
+    name = "kotlinx_coroutines_android",
+    binary_jar = ":kotlinx_coroutines_android_jar",
+)
+
+remote_file(
+    name = "kotlinx_coroutines_core_jvm_jar",
+    out = "kotlinx-coroutines-core-jvm-1.9.0.jar",
+    sha1 = "9beade4c1c1569e4f36cbd2c37e02e3e41502601",
+    url = "mvn:org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:jar:1.9.0",
+)
+
+prebuilt_jar(
+    name = "kotlinx_coroutines_core_jvm",
+    binary_jar = ":kotlinx_coroutines_core_jvm_jar",
+)
+
+remote_file(
+    name = "kotlinx_serialization_core_jvm_jar",
+    out = "kotlinx-serialization-core-jvm-1.7.3.jar",
+    sha1 = "1f226780b845ff9206474c05159245d861556249",
+    url = "mvn:org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:jar:1.7.3",
+)
+
+prebuilt_jar(
+    name = "kotlinx_serialization_core_jvm",
+    binary_jar = ":kotlinx_serialization_core_jvm_jar",
+)
+
+remote_file(
+    name = "annotations_jar",
+    out = "annotations-23.0.0.jar",
+    sha1 = "8cc20c07506ec18e0834947b84a864bfc094484e",
+    url = "mvn:org.jetbrains:annotations:jar:23.0.0",
+)
+
+prebuilt_jar(
+    name = "annotations",
+    binary_jar = ":annotations_jar",
+)
+
+remote_file(
+    name = "jspecify_jar",
+    out = "jspecify-1.0.0.jar",
+    sha1 = "7425a601c1c7ec76645a78d22b8c6a627edee507",
+    url = "mvn:org.jspecify:jspecify:jar:1.0.0",
+)
+
+prebuilt_jar(
+    name = "jspecify",
+    binary_jar = ":jspecify_jar",
+)
+
+android_library(
+    name = "compose_android",
+    exported_deps = [
+        ":activity_ktx",
+        ":activity",
+        ":annotation_experimental",
+        ":annotation_jvm",
+        ":core_common",
+        ":core_runtime",
+        ":autofill",
+        ":collection_jvm",
+        ":collection_ktx",
+        ":animation_android",
+        ":animation_core_android",
+        ":foundation_android",
+        ":foundation_layout_android",
+        ":runtime_android",
+        ":runtime_annotation_android",
+        ":runtime_retain_android",
+        ":runtime_saveable_android",
+        ":ui_android",
+        ":ui_geometry_android",
+        ":ui_graphics_android",
+        ":ui_text_android",
+        ":ui_tooling_preview_android",
+        ":ui_unit_android",
+        ":ui_util_android",
+        ":concurrent_futures",
+        ":core_ktx",
+        ":core_viewtree",
+        ":core",
+        ":customview_poolingcontainer",
+        ":emoji2",
+        ":graphics_path",
+        ":interpolator",
+        ":lifecycle_common_jvm",
+        ":lifecycle_livedata_core",
+        ":lifecycle_process",
+        ":lifecycle_runtime_android",
+        ":lifecycle_runtime_compose_android",
+        ":lifecycle_runtime_ktx_android",
+        ":lifecycle_viewmodel_android",
+        ":lifecycle_viewmodel_ktx",
+        ":lifecycle_viewmodel_savedstate_android",
+        ":profileinstaller",
+        ":savedstate_android",
+        ":savedstate_compose_android",
+        ":savedstate_ktx",
+        ":startup_runtime",
+        ":tracing",
+        ":versionedparcelable",
+        ":window_core_android",
+        ":window",
+        ":listenablefuture",
+        ":kotlin_stdlib",
+        ":kotlinx_coroutines_android",
+        ":kotlinx_coroutines_core_jvm",
+        ":kotlinx_serialization_core_jvm",
+        ":annotations",
+        ":jspecify",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+# The Compose compiler plugin is versioned with the Kotlin compiler: 2.2.0 is
+# the kotlinc the prelude's kotlincd_toolchain ships.
+remote_file(
+    name = "kotlin-compose-compiler-plugin-embeddable_jar",
+    out = "kotlin-compose-compiler-plugin-embeddable-2.2.0.jar",
+    sha1 = "416815567baaba38c3018b4f6f259d30b5edf12c",
+    url = "mvn:org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable:jar:2.2.0",
+    visibility = ["PUBLIC"],
+)
