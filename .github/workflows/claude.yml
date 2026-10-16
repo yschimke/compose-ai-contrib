@@ -67,7 +67,7 @@ jobs:
         with:
           cache-read-only: true
 
-      - uses: anthropics/claude-code-action@v1.0.250
+      - uses: anthropics/claude-code-action@v1.0.251
         with:
           # Bills the Claude subscription's included usage (shared with
           # interactive Claude Code sessions) rather than per-token API spend.
