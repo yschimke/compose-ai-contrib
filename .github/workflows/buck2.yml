@@ -153,7 +153,7 @@ jobs:
         with:
           repository: yschimke/compose-ai-tools
           # compose-ai-tools#6061 (Buck2 Android). Move to a release once one carries it.
-          ref: 3c01aac81e18eb003fc850bea2b49fc41631f4b5
+          ref: b6d72f2bc2089c1c607d940a3ebba5a24b83cfe5
           path: compose-ai-tools
           persist-credentials: false
       - uses: actions/setup-java@v4.9.1
