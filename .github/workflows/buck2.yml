@@ -66,9 +66,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: yschimke/compose-ai-tools
-          # main at compose-ai-tools#6050 (the Buck2 driver). No CLI release carries it
-          # yet; move to a release once one does.
-          ref: c4968e43373d9e281b6fef43f9f8b4fd6b112b63
+          # main at compose-ai-tools#6061 (Buck2 Desktop and Android). Move to a release
+          # once one carries it.
+          ref: b7beaaa03b1f8bfc554018dd21764a777934260e
           path: compose-ai-tools
           persist-credentials: false
       # 17 builds the CLI (listed last, so it is JAVA_HOME); 21 is the JDK the
@@ -152,8 +152,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: yschimke/compose-ai-tools
-          # compose-ai-tools#6061 (Buck2 Android). Move to a release once one carries it.
-          ref: b6d72f2bc2089c1c607d940a3ebba5a24b83cfe5
+          # main at compose-ai-tools#6061 (Buck2 Desktop and Android). Move to a release
+          # once one carries it.
+          ref: b7beaaa03b1f8bfc554018dd21764a777934260e
           path: compose-ai-tools
           persist-credentials: false
       - uses: actions/setup-java@v4.9.1
