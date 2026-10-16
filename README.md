@@ -23,6 +23,7 @@ off.
 | [`bazel-desktop/`](bazel-desktop/) | Bazel (bzlmod) | Compose **Desktop** `kt_jvm_library` packed into a portable preview bundle (`bundle_preview`); bundle published in CI, live CMP render contract |
 | [`bazel-apk/`](bazel-apk/) | Bazel (bzlmod) | Compose APK via `rules_kotlin` + `rules_android` on Bazel 9 |
 | [`buck2/`](buck2/) | Buck2 (bundled prelude) | Resources discovery rule producing `resources.json` — byte-identical to the Bazel sample |
+| [`buck2-desktop/`](buck2-desktop/) | Buck2 (bundled prelude) | Compose **Desktop** `kotlin_library`, rendered by `compose-preview` through its BXL script with no BUCK changes |
 
 Each directory is self-contained — see its README for build
 instructions.
@@ -80,7 +81,8 @@ the tools, sessions, daemon BOM, contracts BOM, and driver pins. They publish in
   (uploaded as the `bazel-desktop-bundle` artifact), and the Compose APK target.
 - [`.github/workflows/buck2.yml`](.github/workflows/buck2.yml) builds
   the Buck2 resources-discovery target and verifies byte-for-byte
-  parity with the Bazel sample's output.
+  parity with the Bazel sample's output, then builds `buck2-desktop/` and renders
+  its preview through the `compose-preview` CLI (uploaded as `buck2-desktop-render`).
 - [`.github/workflows/compose-preview-scripting.yml`](.github/workflows/compose-preview-scripting.yml)
   builds the scripting binary, renders the demo previews, and runs example scripts.
 

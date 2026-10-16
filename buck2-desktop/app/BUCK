@@ -1,0 +1,11 @@
+kotlin_library(
+    name = "app",
+    srcs = glob(["src/**/*.kt"]),
+    kotlin_compiler_plugins = [
+        ("//third_party:kotlin-compose-compiler-plugin-embeddable_jar", {}),
+    ],
+    deps = ["//third_party:compose_desktop"],
+    source = "17",
+    target = "17",
+    visibility = ["PUBLIC"],
+)

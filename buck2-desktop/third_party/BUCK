@@ -1,0 +1,648 @@
+# Compose Multiplatform 1.10.3 for linux-x64: the runtime closure of foundation-desktop,
+# ui-tooling-preview-desktop and desktop-jvm-linux-x64, as Gradle resolves it. See README.md.
+
+remote_file(
+    name = "desktop_jvm_jar",
+    out = "desktop-jvm-1.10.3.jar",
+    sha1 = "42facd9840309ac4eb841a986c5d1b97d2780471",
+    url = "mvn:org.jetbrains.compose.desktop:desktop-jvm:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "desktop_jvm",
+    binary_jar = ":desktop_jvm_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "material_desktop_jar",
+    out = "material-desktop-1.10.3.jar",
+    sha1 = "63e1c3c6705d111bf84e41110e7729df5b85163e",
+    url = "mvn:org.jetbrains.compose.material:material-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "material_desktop",
+    binary_jar = ":material_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "material_ripple_desktop_jar",
+    out = "material-ripple-desktop-1.10.3.jar",
+    sha1 = "74a14824f086339703264689c5a7cf4ceb39ed40",
+    url = "mvn:org.jetbrains.compose.material:material-ripple-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "material_ripple_desktop",
+    binary_jar = ":material_ripple_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "foundation_desktop_jar",
+    out = "foundation-desktop-1.10.3.jar",
+    sha1 = "0d9ba57abee3527886ea640d3b390a70ba9e28af",
+    url = "mvn:org.jetbrains.compose.foundation:foundation-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "foundation_desktop",
+    binary_jar = ":foundation_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "ui_tooling_preview_desktop_jar",
+    out = "ui-tooling-preview-desktop-1.10.3.jar",
+    sha1 = "6d464d6c6d654d45aecdfaff7a08d64af62217e2",
+    url = "mvn:org.jetbrains.compose.ui:ui-tooling-preview-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "ui_tooling_preview_desktop",
+    binary_jar = ":ui_tooling_preview_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "skiko_awt_runtime_linux_x64_jar",
+    out = "skiko-awt-runtime-linux-x64-0.9.37.4.jar",
+    sha1 = "7f7f2e1ba05576c36fe488ed59c1f09aa302b497",
+    url = "mvn:org.jetbrains.skiko:skiko-awt-runtime-linux-x64:jar:0.9.37.4",
+)
+
+prebuilt_jar(
+    name = "skiko_awt_runtime_linux_x64",
+    binary_jar = ":skiko_awt_runtime_linux_x64_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "animation_desktop_jar",
+    out = "animation-desktop-1.10.3.jar",
+    sha1 = "52a17b8bd5f608cdb60f01c64eee2830b8484ca7",
+    url = "mvn:org.jetbrains.compose.animation:animation-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "animation_desktop",
+    binary_jar = ":animation_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "foundation_layout_desktop_jar",
+    out = "foundation-layout-desktop-1.10.3.jar",
+    sha1 = "149192cb271d4c11905104b9180d5d648b3591f2",
+    url = "mvn:org.jetbrains.compose.foundation:foundation-layout-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "foundation_layout_desktop",
+    binary_jar = ":foundation_layout_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "animation_core_desktop_jar",
+    out = "animation-core-desktop-1.10.3.jar",
+    sha1 = "5dd98c5745e548644b7657901bbcc4c2c8f9ec59",
+    url = "mvn:org.jetbrains.compose.animation:animation-core-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "animation_core_desktop",
+    binary_jar = ":animation_core_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "ui_desktop_jar",
+    out = "ui-desktop-1.10.3.jar",
+    sha1 = "73a6b1e10434fb11bae82daa68c205c71af03c55",
+    url = "mvn:org.jetbrains.compose.ui:ui-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "ui_desktop",
+    binary_jar = ":ui_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "ui_text_desktop_jar",
+    out = "ui-text-desktop-1.10.3.jar",
+    sha1 = "7babd6e2dea601e74bed24b4017350e1acf4569c",
+    url = "mvn:org.jetbrains.compose.ui:ui-text-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "ui_text_desktop",
+    binary_jar = ":ui_text_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "ui_backhandler_desktop_jar",
+    out = "ui-backhandler-desktop-1.10.3.jar",
+    sha1 = "ed725f86a0fdff73fb37561ffb606166725e4b6f",
+    url = "mvn:org.jetbrains.compose.ui:ui-backhandler-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "ui_backhandler_desktop",
+    binary_jar = ":ui_backhandler_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "ui_graphics_desktop_jar",
+    out = "ui-graphics-desktop-1.10.3.jar",
+    sha1 = "1fd5d0189d75eca10163a1f07842627519399337",
+    url = "mvn:org.jetbrains.compose.ui:ui-graphics-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "ui_graphics_desktop",
+    binary_jar = ":ui_graphics_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "ui_unit_desktop_jar",
+    out = "ui-unit-desktop-1.10.3.jar",
+    sha1 = "aeeb2f31358ab5abf0bafa0828de2faba7189db5",
+    url = "mvn:org.jetbrains.compose.ui:ui-unit-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "ui_unit_desktop",
+    binary_jar = ":ui_unit_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "ui_geometry_desktop_jar",
+    out = "ui-geometry-desktop-1.10.3.jar",
+    sha1 = "779ddaadbc03720f7bb2507f6ed6dc4ffc9e7f3e",
+    url = "mvn:org.jetbrains.compose.ui:ui-geometry-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "ui_geometry_desktop",
+    binary_jar = ":ui_geometry_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "ui_util_desktop_jar",
+    out = "ui-util-desktop-1.10.3.jar",
+    sha1 = "fe41825dccacb792ded7df579736a0ed919ee270",
+    url = "mvn:org.jetbrains.compose.ui:ui-util-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "ui_util_desktop",
+    binary_jar = ":ui_util_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "runtime_desktop_jar",
+    out = "runtime-desktop-1.10.3.jar",
+    sha1 = "edbd39fc9691f4ba1e29c6690341148db4272752",
+    url = "mvn:org.jetbrains.compose.runtime:runtime-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "runtime_desktop",
+    binary_jar = ":runtime_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "navigationevent_desktop_jar",
+    out = "navigationevent-desktop-1.0.2.jar",
+    sha1 = "0ddb1e7fe97ed51c3d35bba493f97fcf12398719",
+    url = "mvn:https://maven.google.com:androidx.navigationevent:navigationevent-desktop:jar:1.0.2",
+)
+
+prebuilt_jar(
+    name = "navigationevent_desktop",
+    binary_jar = ":navigationevent_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "runtime_saveable_desktop_jar",
+    out = "runtime-saveable-desktop-1.10.3.jar",
+    sha1 = "9b0e2a8ce3ae7d2b1a40307bc9271933b238cfd4",
+    url = "mvn:org.jetbrains.compose.runtime:runtime-saveable-desktop:jar:1.10.3",
+)
+
+prebuilt_jar(
+    name = "runtime_saveable_desktop",
+    binary_jar = ":runtime_saveable_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "runtime_runtime_saveable_desktop_jar",
+    out = "runtime-saveable-desktop-1.10.5.jar",
+    sha1 = "f6903c683c07ba479659ba4eb55bc7c80a7c433e",
+    url = "mvn:https://maven.google.com:androidx.compose.runtime:runtime-saveable-desktop:jar:1.10.5",
+)
+
+prebuilt_jar(
+    name = "runtime_runtime_saveable_desktop",
+    binary_jar = ":runtime_runtime_saveable_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "runtime_annotation_jvm_jar",
+    out = "runtime-annotation-jvm-1.10.5.jar",
+    sha1 = "ea491da34ba40ae9bd340c393566753ddfd95a76",
+    url = "mvn:https://maven.google.com:androidx.compose.runtime:runtime-annotation-jvm:jar:1.10.5",
+)
+
+prebuilt_jar(
+    name = "runtime_annotation_jvm",
+    binary_jar = ":runtime_annotation_jvm_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "runtime_retain_desktop_jar",
+    out = "runtime-retain-desktop-1.10.5.jar",
+    sha1 = "879812e3cd2c6151f5d91f515a35952b1be07a76",
+    url = "mvn:https://maven.google.com:androidx.compose.runtime:runtime-retain-desktop:jar:1.10.5",
+)
+
+prebuilt_jar(
+    name = "runtime_retain_desktop",
+    binary_jar = ":runtime_retain_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "lifecycle_runtime_compose_desktop_jar",
+    out = "lifecycle-runtime-compose-desktop-2.9.6.jar",
+    sha1 = "7b6b6793f3c4c5996b20d1d99cf728e5fac00364",
+    url = "mvn:org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose-desktop:jar:2.9.6",
+)
+
+prebuilt_jar(
+    name = "lifecycle_runtime_compose_desktop",
+    binary_jar = ":lifecycle_runtime_compose_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "lifecycle_viewmodel_savedstate_desktop_jar",
+    out = "lifecycle-viewmodel-savedstate-desktop-2.9.4.jar",
+    sha1 = "72a1919b08c5a4da224d8a65ce1589aa69934e8a",
+    url = "mvn:https://maven.google.com:androidx.lifecycle:lifecycle-viewmodel-savedstate-desktop:jar:2.9.4",
+)
+
+prebuilt_jar(
+    name = "lifecycle_viewmodel_savedstate_desktop",
+    binary_jar = ":lifecycle_viewmodel_savedstate_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "lifecycle_viewmodel_desktop_jar",
+    out = "lifecycle-viewmodel-desktop-2.9.4.jar",
+    sha1 = "93fee6d78f0df0e38f36e0fa2eff74f8da6d5481",
+    url = "mvn:https://maven.google.com:androidx.lifecycle:lifecycle-viewmodel-desktop:jar:2.9.4",
+)
+
+prebuilt_jar(
+    name = "lifecycle_viewmodel_desktop",
+    binary_jar = ":lifecycle_viewmodel_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "lifecycle_runtime_desktop_jar",
+    out = "lifecycle-runtime-desktop-2.9.4.jar",
+    sha1 = "1cc820319ec0139e76b8a2fe4be0b356b4e624c4",
+    url = "mvn:https://maven.google.com:androidx.lifecycle:lifecycle-runtime-desktop:jar:2.9.4",
+)
+
+prebuilt_jar(
+    name = "lifecycle_runtime_desktop",
+    binary_jar = ":lifecycle_runtime_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "savedstate_compose_desktop_jar",
+    out = "savedstate-compose-desktop-1.3.6.jar",
+    sha1 = "63692375ffe667f12cb3ea8aa1e605d659ed2add",
+    url = "mvn:org.jetbrains.androidx.savedstate:savedstate-compose-desktop:jar:1.3.6",
+)
+
+prebuilt_jar(
+    name = "savedstate_compose_desktop",
+    binary_jar = ":savedstate_compose_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "savedstate_savedstate_compose_desktop_jar",
+    out = "savedstate-compose-desktop-1.3.3.jar",
+    sha1 = "cd60b543d5722a8b5e6cea1e4ccdec8b4375a22b",
+    url = "mvn:https://maven.google.com:androidx.savedstate:savedstate-compose-desktop:jar:1.3.3",
+)
+
+prebuilt_jar(
+    name = "savedstate_savedstate_compose_desktop",
+    binary_jar = ":savedstate_savedstate_compose_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "savedstate_desktop_jar",
+    out = "savedstate-desktop-1.3.3.jar",
+    sha1 = "1c5bfc3fb56614538528060a06f2c03e34fa5188",
+    url = "mvn:https://maven.google.com:androidx.savedstate:savedstate-desktop:jar:1.3.3",
+)
+
+prebuilt_jar(
+    name = "savedstate_desktop",
+    binary_jar = ":savedstate_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "lifecycle_common_jvm_jar",
+    out = "lifecycle-common-jvm-2.9.4.jar",
+    sha1 = "ab739bccdb3541983385af169565c7c035d897e7",
+    url = "mvn:https://maven.google.com:androidx.lifecycle:lifecycle-common-jvm:jar:2.9.4",
+)
+
+prebuilt_jar(
+    name = "lifecycle_common_jvm",
+    binary_jar = ":lifecycle_common_jvm_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "lifecycle_lifecycle_runtime_compose_desktop_jar",
+    out = "lifecycle-runtime-compose-desktop-2.9.4.jar",
+    sha1 = "86a4ffec845d4e488078118a0b5095bd1fabcafe",
+    url = "mvn:https://maven.google.com:androidx.lifecycle:lifecycle-runtime-compose-desktop:jar:2.9.4",
+)
+
+prebuilt_jar(
+    name = "lifecycle_lifecycle_runtime_compose_desktop",
+    binary_jar = ":lifecycle_lifecycle_runtime_compose_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "runtime_runtime_desktop_jar",
+    out = "runtime-desktop-1.10.5.jar",
+    sha1 = "0b1705e2087f06395622b784aa88e2e738043459",
+    url = "mvn:https://maven.google.com:androidx.compose.runtime:runtime-desktop:jar:1.10.5",
+)
+
+prebuilt_jar(
+    name = "runtime_runtime_desktop",
+    binary_jar = ":runtime_runtime_desktop_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "skiko_awt_jar",
+    out = "skiko-awt-0.9.37.4.jar",
+    sha1 = "fc7470cca1041a52b182a921205c5c224e7709ad",
+    url = "mvn:org.jetbrains.skiko:skiko-awt:jar:0.9.37.4",
+)
+
+prebuilt_jar(
+    name = "skiko_awt",
+    binary_jar = ":skiko_awt_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "atomicfu_jvm_jar",
+    out = "atomicfu-jvm-0.23.2.jar",
+    sha1 = "a4601dc42dceb031a586058e8356ff778a57dea0",
+    url = "mvn:org.jetbrains.kotlinx:atomicfu-jvm:jar:0.23.2",
+)
+
+prebuilt_jar(
+    name = "atomicfu_jvm",
+    binary_jar = ":atomicfu_jvm_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "collection_jvm_jar",
+    out = "collection-jvm-1.5.0.jar",
+    sha1 = "7ba2c69414d46ebc2dd76598bdd0a75c54281a57",
+    url = "mvn:https://maven.google.com:androidx.collection:collection-jvm:jar:1.5.0",
+)
+
+prebuilt_jar(
+    name = "collection_jvm",
+    binary_jar = ":collection_jvm_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "core_common_jar",
+    out = "core-common-2.2.0.jar",
+    sha1 = "5e1b8b81dfd5f52c56a8d53b18ca759c19a301f3",
+    url = "mvn:https://maven.google.com:androidx.arch.core:core-common:jar:2.2.0",
+)
+
+prebuilt_jar(
+    name = "core_common",
+    binary_jar = ":core_common_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "annotation_jvm_jar",
+    out = "annotation-jvm-1.9.1.jar",
+    sha1 = "b17951747e38bf3986a24431b9ba0d039958aa5f",
+    url = "mvn:https://maven.google.com:androidx.annotation:annotation-jvm:jar:1.9.1",
+)
+
+prebuilt_jar(
+    name = "annotation_jvm",
+    binary_jar = ":annotation_jvm_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "kotlin_stdlib_jdk8_jar",
+    out = "kotlin-stdlib-jdk8-2.2.20.jar",
+    sha1 = "57c4d839a6e5ad105d61ffc5cc0bf4de649c1714",
+    url = "mvn:org.jetbrains.kotlin:kotlin-stdlib-jdk8:jar:2.2.20",
+)
+
+prebuilt_jar(
+    name = "kotlin_stdlib_jdk8",
+    binary_jar = ":kotlin_stdlib_jdk8_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "kotlin_stdlib_jdk7_jar",
+    out = "kotlin-stdlib-jdk7-2.2.20.jar",
+    sha1 = "bdbe3b5d872fa3b74d8fcd4e7ca3193f4abc9cc8",
+    url = "mvn:org.jetbrains.kotlin:kotlin-stdlib-jdk7:jar:2.2.20",
+)
+
+prebuilt_jar(
+    name = "kotlin_stdlib_jdk7",
+    binary_jar = ":kotlin_stdlib_jdk7_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "kotlinx_coroutines_core_jvm_jar",
+    out = "kotlinx-coroutines-core-jvm-1.9.0.jar",
+    sha1 = "9beade4c1c1569e4f36cbd2c37e02e3e41502601",
+    url = "mvn:org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:jar:1.9.0",
+)
+
+prebuilt_jar(
+    name = "kotlinx_coroutines_core_jvm",
+    binary_jar = ":kotlinx_coroutines_core_jvm_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "kotlinx_serialization_core_jvm_jar",
+    out = "kotlinx-serialization-core-jvm-1.7.3.jar",
+    sha1 = "1f226780b845ff9206474c05159245d861556249",
+    url = "mvn:org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:jar:1.7.3",
+)
+
+prebuilt_jar(
+    name = "kotlinx_serialization_core_jvm",
+    binary_jar = ":kotlinx_serialization_core_jvm_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "kotlin_stdlib_jar",
+    out = "kotlin-stdlib-2.2.20.jar",
+    sha1 = "5380b19fa1924399b62ce3a1faffebb2b4f82272",
+    url = "mvn:org.jetbrains.kotlin:kotlin-stdlib:jar:2.2.20",
+)
+
+prebuilt_jar(
+    name = "kotlin_stdlib",
+    binary_jar = ":kotlin_stdlib_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "annotations_jar",
+    out = "annotations-23.0.0.jar",
+    sha1 = "8cc20c07506ec18e0834947b84a864bfc094484e",
+    url = "mvn:org.jetbrains:annotations:jar:23.0.0",
+)
+
+prebuilt_jar(
+    name = "annotations",
+    binary_jar = ":annotations_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "jbr_api_jar",
+    out = "jbr-api-1.5.0.jar",
+    sha1 = "4158e485a7a4ecfd521e03095d81e0225529e8d2",
+    url = "mvn:org.jetbrains.runtime:jbr-api:jar:1.5.0",
+)
+
+prebuilt_jar(
+    name = "jbr_api",
+    binary_jar = ":jbr_api_jar",
+    visibility = ["PUBLIC"],
+)
+
+remote_file(
+    name = "jspecify_jar",
+    out = "jspecify-1.0.0.jar",
+    sha1 = "7425a601c1c7ec76645a78d22b8c6a627edee507",
+    url = "mvn:org.jspecify:jspecify:jar:1.0.0",
+)
+
+prebuilt_jar(
+    name = "jspecify",
+    binary_jar = ":jspecify_jar",
+    visibility = ["PUBLIC"],
+)
+
+java_library(
+    name = "compose_desktop",
+    exported_deps = [
+        ":desktop_jvm",
+        ":material_desktop",
+        ":material_ripple_desktop",
+        ":foundation_desktop",
+        ":ui_tooling_preview_desktop",
+        ":skiko_awt_runtime_linux_x64",
+        ":animation_desktop",
+        ":foundation_layout_desktop",
+        ":animation_core_desktop",
+        ":ui_desktop",
+        ":ui_text_desktop",
+        ":ui_backhandler_desktop",
+        ":ui_graphics_desktop",
+        ":ui_unit_desktop",
+        ":ui_geometry_desktop",
+        ":ui_util_desktop",
+        ":runtime_desktop",
+        ":navigationevent_desktop",
+        ":runtime_saveable_desktop",
+        ":runtime_runtime_saveable_desktop",
+        ":runtime_annotation_jvm",
+        ":runtime_retain_desktop",
+        ":lifecycle_runtime_compose_desktop",
+        ":lifecycle_viewmodel_savedstate_desktop",
+        ":lifecycle_viewmodel_desktop",
+        ":lifecycle_runtime_desktop",
+        ":savedstate_compose_desktop",
+        ":savedstate_savedstate_compose_desktop",
+        ":savedstate_desktop",
+        ":lifecycle_common_jvm",
+        ":lifecycle_lifecycle_runtime_compose_desktop",
+        ":runtime_runtime_desktop",
+        ":skiko_awt",
+        ":atomicfu_jvm",
+        ":collection_jvm",
+        ":core_common",
+        ":annotation_jvm",
+        ":kotlin_stdlib_jdk8",
+        ":kotlin_stdlib_jdk7",
+        ":kotlinx_coroutines_core_jvm",
+        ":kotlinx_serialization_core_jvm",
+        ":kotlin_stdlib",
+        ":annotations",
+        ":jbr_api",
+        ":jspecify",
+    ],
+    visibility = ["PUBLIC"],
+)
+# The Compose compiler plugin is versioned with the Kotlin compiler: 2.2.0 is
+# the kotlinc the prelude's kotlincd_toolchain ships.
+remote_file(
+    name = "kotlin-compose-compiler-plugin-embeddable_jar",
+    out = "kotlin-compose-compiler-plugin-embeddable-2.2.0.jar",
+    sha1 = "416815567baaba38c3018b4f6f259d30b5edf12c",
+    url = "mvn:org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable:jar:2.2.0",
+    visibility = ["PUBLIC"],
+)

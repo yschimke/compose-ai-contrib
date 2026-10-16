@@ -4,11 +4,13 @@ on:
   pull_request:
     paths:
       - "buck2/**"
+      - "buck2-desktop/**"
       - ".github/workflows/buck2.yml"
   push:
     branches: [main]
     paths:
       - "buck2/**"
+      - "buck2-desktop/**"
       - ".github/workflows/buck2.yml"
   workflow_dispatch:
 
@@ -49,3 +51,90 @@ jobs:
           bash _discover.sh /tmp/buck2.json '//samples/x:app' main $srcs
           ( cd ../bazel && bash _discover.sh /tmp/bazel.json '//samples/x:app' main $(find app/res -name '*.xml' | LC_ALL=C sort) )
           diff /tmp/buck2.json /tmp/bazel.json
+
+  # End-to-end: `compose-preview render` detects the Buck2 project, builds the
+  # Compose Desktop kotlin_library through the CLI's BXL script and renders its
+  # preview on the desktop daemon (compose-ai-tools docs/BUCK.md).
+  buck2-desktop-render:
+    runs-on: ubuntu-latest
+    # A cold run compiles the prelude's Kotlin/Java compiler daemons from source.
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: yschimke/compose-ai-tools
+          # main at compose-ai-tools#6050 (the Buck2 driver). No CLI release carries it
+          # yet; move to a release once one does.
+          ref: c4968e43373d9e281b6fef43f9f8b4fd6b112b63
+          path: compose-ai-tools
+          persist-credentials: false
+      # 17 builds the CLI (listed last, so it is JAVA_HOME); 21 is the JDK the
+      # prelude's toolchains compile with (.buckconfig.local below).
+      - uses: actions/setup-java@v4.9.1
+        with:
+          distribution: temurin
+          java-version: |
+            21
+            17
+
+      - name: Install Buck2
+        env:
+          BUCK2_RELEASE: "2026-10-15"
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd
+          curl -fsSL -o /tmp/buck2.zst \
+            "https://github.com/facebook/buck2/releases/download/$BUCK2_RELEASE/buck2-x86_64-unknown-linux-gnu.zst"
+          zstd -d /tmp/buck2.zst -o /tmp/buck2
+          chmod +x /tmp/buck2
+          sudo mv /tmp/buck2 /usr/local/bin/buck2
+          buck2 --version
+
+      - name: Point Buck2 at JDK 21
+        working-directory: buck2-desktop
+        run: printf '[java]\n  java_home = %s\n' "$JAVA_HOME_21_X64" > .buckconfig.local
+
+      - name: Build the Compose library
+        working-directory: buck2-desktop
+        run: buck2 build //app:app --show-output
+
+      - name: Build the compose-preview CLI
+        working-directory: compose-ai-tools
+        run: ./gradlew :cli:installDist --stacktrace
+
+      - name: List and render the preview through the CLI
+        working-directory: buck2-desktop/app
+        env:
+          CLI: ${{ github.workspace }}/compose-ai-tools/cli/build/install/compose-preview/bin/compose-preview
+        run: |
+          set -euo pipefail
+          "$CLI" list --json --timeout 1800 > "$RUNNER_TEMP/list.json"
+          python3 - "$RUNNER_TEMP/list.json" <<'PYTHON'
+          import json, sys
+          text = open(sys.argv[1]).read()
+          assert "com.example.buckdesktop.GreetingKt.GreetingPreview" in text, text
+          PYTHON
+          mkdir -p "$GITHUB_WORKSPACE/build/buck2-render"
+          "$CLI" render --filter Greeting --timeout 1800 --verbose \
+            --output "$GITHUB_WORKSPACE/build/buck2-render/greeting.png"
+
+      - name: Verify the render
+        run: |
+          python3 - build/buck2-render/greeting.png <<'PYTHON'
+          import struct, sys
+          data = open(sys.argv[1], "rb").read()
+          assert data[:8] == b"\x89PNG\r\n\x1a\n", "not a PNG"
+          width, height = struct.unpack(">II", data[16:24])
+          assert width > 100 and height > 20, (width, height)
+          print(f"greeting.png {width}x{height}")
+          PYTHON
+
+      - name: Upload the render
+        if: always()
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: buck2-desktop-render
+          path: build/buck2-render/
+          if-no-files-found: warn
