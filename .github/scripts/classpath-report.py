@@ -11,9 +11,12 @@ Reads the build-artifacts.json the CLI writes for a Bazel or Buck2 target (under
   (every class they define is already defined by an earlier jar, so the JVM never loads them).
 
 Usage: classpath-report.py <build-artifacts.json> [--root <dir>] [--annotate]
+                           [--require-final-r PACKAGE...]
 
 --root resolves relative jar paths (the Bazel execution root, or the Buck2 project root; default
 the current directory). --annotate also prints the summary as GitHub ::notice:: lines.
+--require-final-r fails the run unless the final-ID R jar has R classes for every package named:
+a library's own R jar carries IDs that name nothing in the linked resource APK.
 """
 import argparse
 import collections
@@ -43,6 +46,13 @@ def main():
     parser.add_argument("artifacts")
     parser.add_argument("--root", default=".")
     parser.add_argument("--annotate", action="store_true")
+    parser.add_argument(
+        "--require-final-r",
+        nargs="*",
+        default=[],
+        metavar="PACKAGE",
+        help="fail unless the final-ID R jar has R classes for each package",
+    )
     args = parser.parse_args()
 
     document = json.load(open(args.artifacts))
@@ -141,6 +151,13 @@ def main():
     for label, group in (("fully shadowed", shadowed), ("empty", empty)):
         for path in group[:15]:
             print(f"  {label}: {path}")
+    missing_final = [q for q in args.require_final_r if q.replace(".", "/") not in final_pkgs]
+    if missing_final:
+        line = "final R jar lacks R classes for: " + ", ".join(missing_final)
+        print(line)
+        if args.annotate:
+            print(f"::error title=classpath::{line}")
+        return 1
     return 0
 
 
