@@ -25,7 +25,7 @@
     "com.google.errorprone:error_prone_annotations": -1035138750,
     "com.google.guava:guava": 1943808618,
     "com.google.j2objc:j2objc-annotations": 2003271689,
-    "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable": 15526871,
+    "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable": -1791927592,
     "repositories": 1670674627
   },
   "__RESOLVED_ARTIFACTS_HASH": {
@@ -124,7 +124,7 @@
     "com.google.guava:listenablefuture": 1079558157,
     "com.google.j2objc:j2objc-annotations": 248818742,
     "org.checkerframework:checker-qual": -1533199059,
-    "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable": 257751711,
+    "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable": 273684121,
     "org.jetbrains.kotlin:kotlin-stdlib": 661411577,
     "org.jetbrains.kotlinx:atomicfu": -1793969002,
     "org.jetbrains.kotlinx:atomicfu-jvm": -286327610,
@@ -709,9 +709,9 @@
     },
     "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable": {
       "shasums": {
-        "jar": "e6fc101fd0b8592911de57f96a75b09e0b6158eaccbc71ddd6ca82e05e0386a2"
+        "jar": "634f5c17bed5854548208f2901071f2ead5993ffad25b34fea1668ee9e314b53"
       },
-      "version": "2.4.20"
+      "version": "2.4.21"
     },
     "org.jetbrains.kotlin:kotlin-stdlib": {
       "shasums": {
