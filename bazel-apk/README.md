@@ -18,11 +18,11 @@ that blocked the standalone `androidx.compose.compiler:compiler` jar on K2.
 
 Getting here on Bazel 9 took a specific toolchain alignment (see the
 `MODULE.bazel` comments and [#14](https://github.com/yschimke/compose-ai-contrib/issues/14)):
-`.bazelversion` pinned to 9.0.0, `rules_kotlin` 2.1.10 (loads `JavaPluginInfo`
-explicitly), an explicit `rules_java` dep, a pinned `maven_install.json` with the
-AndroidX strict-version conflicts forced, the Compose compiler plugin matched to
-the bundled Kotlin (2.1.21), and the Java toolchain pinned to 17 in `.bazelrc` so
-`rules_android`'s own `record`-using tools compile.
+`.bazelversion` pinned to 9.0.0, `rules_kotlin` 2.4.20, an explicit `rules_java`
+dep, a pinned `maven_install.json` with the AndroidX strict-version conflicts
+forced, the Compose compiler plugin matched to the bundled Kotlin (2.4.20), and
+the Java toolchain pinned to 17 in `.bazelrc` so `rules_android`'s own
+`record`-using tools compile.
 
 ## Build
 
@@ -34,6 +34,15 @@ From this directory:
 ```
 bazel build //:bazel_sample_apk
 ```
+
+## Previews
+
+`compose-preview render --filter Greeting` from this directory renders the
+library's preview on the Android (Robolectric) daemon, as the `bazel-android-render`
+job does. Nothing is configured for compose-preview here: the CLI finds
+`//:bazel_sample_lib`, sees an `android_library`, and builds it with
+`rules_compose_preview`'s Android aspect because `MODULE.bazel` declares that
+module. Compose must be at least the render daemon's version (1.12.1).
 
 ## Layout
 

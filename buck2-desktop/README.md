@@ -27,6 +27,11 @@ buck2-desktop/
 
 ## Setup
 
+This is the project's own Buck2 setup, as any Buck2 project on the system demo
+toolchains needs: per-machine paths go in a git-ignored `.buckconfig.local`, which
+the CI writes from the runner. compose-preview itself needs no setup; nothing under
+`.compose-preview/` is committed.
+
 - **buck2**: a dated release (the CI pins one in `.github/workflows/buck2.yml`).
 - **JDK 21**, named in `.buckconfig.local` (git-ignored). The prelude compiles its
   own Kotlin and Java compiler daemons from source, which needs 21:

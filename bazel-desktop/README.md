@@ -101,9 +101,10 @@ compose-preview show --filter RuntimeGreeting --json
 compose-preview render --filter RuntimeGreeting --output greeting.png
 ```
 
-The shared `.compose-preview/bazel.json` selects `//:aspect_app` for everyone.
-The CLI detects the Bazel workspace and installs its aspect on first use; generated
-aspects and render outputs stay ignored. No Gradle preview plugin is applied.
+Nothing is configured for compose-preview: the fixture commits no `.compose-preview/`
+file. The CLI detects the Bazel workspace, selects the root package's JVM libraries
+(`//:all`, filtered to JVM rules) as one module, and installs its aspect on first use;
+generated aspects and render outputs stay ignored. No Gradle preview plugin is applied.
 Bazel/Bazelisk is selected from PATH, with an explicit build-command override
 available for local wrappers.
 
