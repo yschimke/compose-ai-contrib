@@ -210,6 +210,16 @@ jobs:
           print(f"greeting.png {width}x{height}")
           PYTHON
 
+      # What the runtime classpath is made of (compose-ai-tools#5945): R-only, empty and
+      # shadowed jars, and the overlap between them. Reported as annotations.
+      - name: Report the runtime classpath
+        if: always()
+        run: |
+          find buck2-android -path '*/compose-previews/build-artifacts.json' -print0 \
+            | while IFS= read -r -d '' doc; do
+                python3 .github/scripts/classpath-report.py "$doc" --root "buck2-android" --annotate
+              done
+
       - name: Upload the render
         if: always()
         uses: actions/upload-artifact@v4.6.2
