@@ -130,7 +130,7 @@ jobs:
           repository: yschimke/compose-ai-tools
           # compose-ai-tools#6063 (Android aspect chosen with no bazel.json). Move to the
           # install action at the release that carries it.
-          ref: daf0f9d2116ab22661ac3bc24eccbf18a6fe4d3b
+          ref: 41c483f66197d101ef007021a0da550110630f20
           path: compose-ai-tools
           persist-credentials: false
       # 17 builds the CLI (listed last, so it is JAVA_HOME); 21 runs it, since
@@ -192,7 +192,7 @@ jobs:
           repository: yschimke/compose-ai-tools
           # compose-ai-tools#6063 (Android aspect chosen with no bazel.json). Move to the
           # install action at the release that carries it.
-          ref: daf0f9d2116ab22661ac3bc24eccbf18a6fe4d3b
+          ref: 41c483f66197d101ef007021a0da550110630f20
           path: compose-ai-tools
           persist-credentials: false
       # 17 builds the CLI (listed last, so it is JAVA_HOME); 21 runs it, since
