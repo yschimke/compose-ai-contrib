@@ -126,9 +126,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4.4.0
       # Picks the Bazel Android aspect itself (compose-ai-tools#6063, #6065).
-      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.1
+      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.3
         with:
-          version: 2.68.1
+          version: 2.68.3
           plugin-readiness-timeout: 0
       # Robolectric's newest android-all images need a JDK 21 host.
       - uses: actions/setup-java@v4.9.1
@@ -165,7 +165,9 @@ jobs:
         run: |
           find bazel-apk -path '*/compose-previews/build-artifacts.json' -print0 \
             | while IFS= read -r -d '' doc; do
-                python3 .github/scripts/classpath-report.py "$doc" --root "$(cd bazel-apk && bazel info execution_root)" --annotate
+                # Library resources resolve through the final-ID R jar (compose-ai-tools#6073).
+                python3 .github/scripts/classpath-report.py "$doc" --root "$(cd bazel-apk && bazel info execution_root)" --annotate \
+                  --require-final-r androidx.compose.ui androidx.compose.material3 androidx.core || exit 1
               done
 
       - name: Upload the Android render
@@ -186,9 +188,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4.4.0
       # Picks the Bazel Android aspect itself (compose-ai-tools#6063, #6065).
-      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.1
+      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.3
         with:
-          version: 2.68.1
+          version: 2.68.3
           plugin-readiness-timeout: 0
       # Robolectric's newest android-all images need a JDK 21 host.
       - uses: actions/setup-java@v4.9.1
