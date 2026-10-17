@@ -15,3 +15,5 @@ Thumbs.db
 local.properties
 
 work/
+**/.compose-preview/*
+!**/.compose-preview/bazel.json

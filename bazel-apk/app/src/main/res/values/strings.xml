@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Read by the Greeting preview, so a render proves the linked resource table reached
+         Robolectric with final R IDs (see `.compose-preview/bazel.json`). -->
+    <string name="greeting">Hello from a Bazel resource</string>
+    <!-- A colour nothing in Material uses; the render-proof job asserts the PNG contains it. -->
+    <color name="proof_background">#FF12B4A8</color>
+</resources>

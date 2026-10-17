@@ -1,10 +1,11 @@
 # Driving Compose previews from Bazel
 
-The maintained path is Kotlin 2.1.21 + its matching Compose compiler plugin,
-`rules_kotlin` 2.1.10, `rules_jvm_external` 6.10, `rules_android` 0.7.2, and Bazel
-9.0.0. All three fixtures pin Bazel via `.bazelversion`. The Kotlin compiler
-and `org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable` must move
-in lockstep; the old standalone AndroidX compiler is not the K2 recipe.
+The Desktop fixture uses Kotlin/compiler 2.4.20, rules_kotlin 2.4.20,
+rules_jvm_external 7.2, rules_android 0.8.0 and Bazel 9.2.0. The Android fixture
+retains its independently tested Kotlin/compiler 2.1.21 and Bazel 9.0.0 pins.
+All fixtures pin Bazel via `.bazelversion`. The Kotlin compiler and Compose
+compiler plugin must move together; the old standalone AndroidX compiler is
+not the K2 recipe.
 
 ## Fixtures and checks
 
@@ -60,8 +61,7 @@ old graph. Pin files carry both artifact checksums and repository URLs.
 
 Desktop deliberately uses explicit `-desktop` Maven variants: POM-only
 resolution of unsuffixed multiplatform coordinates can choose metadata or the
-wrong platform. The compatibility fixture is pinned to CMP 1.7.3. A separate dependency
-upgrade targets Kotlin/compiler 2.4.20 and CMP 1.11.1 (Material3 1.9.0),
+wrong platform. The Desktop fixture uses Kotlin/compiler 2.4.20 and CMP 1.11.1 (Material3 1.9.0),
 with a regenerated Maven pin. The published compose-preview
 renderer currently uses the CMP 1.11.1/Skiko ABI. CMP 1.12 changes Skiko APIs, so
 moving this fixture beyond that requires upgrading and verifying the renderer
@@ -99,3 +99,18 @@ and runfiles paths are not action execution-root paths.
 
 See [portable bundles](portable-bundles.md) and the upstream
 [non-Gradle contract](https://github.com/yschimke/compose-ai-tools/blob/main/docs/NON_GRADLE_INTEGRATION.md).
+
+
+## CLI aspect integration
+
+`bazel-desktop//:aspect_app` exercises the `compose-preview bazel` adapter's
+runtime extraction and automatic discovery. It has two application previews
+(including generated Kotlin), a dependency preview that must be excluded, and a
+runtime-only Java class/resource required for rendering. Its binary-retained
+`androidx.compose.ui.tooling.preview.Preview` supports bytecode discovery; the
+legacy Desktop `@Preview` has source-only retention.
+
+See [the fixture instructions](../bazel-desktop/README.md#automatic-cli-discovery-via-an-aspect)
+and [the CLI contract/configuration](https://github.com/yschimke/compose-ai-tools/blob/main/docs/BAZEL.md).
+This is JVM/Desktop support. Blaze needs internal validation, and Android
+resource rendering and native iOS/Wasm remain separate capabilities.

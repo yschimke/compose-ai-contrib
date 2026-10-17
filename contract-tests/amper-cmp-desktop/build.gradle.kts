@@ -19,7 +19,7 @@ dependencies {
   implementation(libs.composeai.render.session.api)
 
   // Portable-bundle producer: after rendering, `PreviewProducer` packs a
-  // schema-v4 `bundle.png` (coordinates from Amper's m2 cache + sha256, or
+  // schema-v4 `bundle.png` (resolved JVM classpath, coordinates from Amper's m2 cache + sha256, or
   // embedded) the upstream `:bundle-viewer` can open. See
   // `docs/portable-bundles.md`.
   implementation(project(":bundle-producer"))

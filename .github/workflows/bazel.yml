@@ -13,6 +13,7 @@ on:
       - "settings.gradle.kts"
       - "gradlew*"
       - ".github/scripts/check-bazel-bundle.py"
+      - ".github/scripts/check-android-render.py"
       - ".github/workflows/bazel.yml"
   push:
     branches: [main]
@@ -27,6 +28,7 @@ on:
       - "settings.gradle.kts"
       - "gradlew*"
       - ".github/scripts/check-bazel-bundle.py"
+      - ".github/scripts/check-android-render.py"
       - ".github/workflows/bazel.yml"
   workflow_dispatch:
 
@@ -35,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.4.0
-      - uses: bazel-contrib/setup-bazel@0.19.0
+      - uses: bazel-contrib/setup-bazel@0.19.1
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -56,8 +58,8 @@ jobs:
       - uses: actions/setup-java@v4.9.1
         with:
           distribution: temurin
-          java-version: 17.0.20+8
-      - uses: bazel-contrib/setup-bazel@0.19.0
+          java-version: 17.0.20+101
+      - uses: bazel-contrib/setup-bazel@0.19.1
         with:
           bazelisk-cache: true
           disk-cache: true
@@ -92,19 +94,73 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.4.0
-      - uses: bazel-contrib/setup-bazel@0.19.0
+      - uses: bazel-contrib/setup-bazel@0.19.1
         with:
           bazelisk-cache: true
           disk-cache: true
           repository-cache: true
 
-      - uses: android-actions/setup-android@v4
+      - uses: android-actions/setup-android@v4.0.4
       - name: Install the pinned Android SDK
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
 
       - name: Build Compose APK
         working-directory: bazel-apk
-        run: bazel build //:bazel_sample_apk
+        run: |
+          set -o pipefail
+          bazel build //:bazel_sample_apk 2>&1 | tee "$RUNNER_TEMP/build.log" \
+            || { ../.github/scripts/annotate-errors.sh "$RUNNER_TEMP/build.log"; exit 1; }
+
+  # End-to-end Android proof: `compose-preview render` builds the rules_android
+  # Compose library through compose-preview-bazel's Android aspect (selected by
+  # `bazel-apk/.compose-preview/bazel.json`), then renders the Greeting preview on
+  # the Robolectric daemon against the aspect's linked resources and final R IDs.
+  bazel-android-render:
+    runs-on: ubuntu-latest
+    # A cold cache builds rules_android's tools (protobuf included) from source,
+    # well past the CLI's 300 s default build timeout; hence `--timeout` below.
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4.4.0
+      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.67.0
+        with:
+          version: 2.67.0
+          plugin-readiness-timeout: 0
+      # Robolectric's newest android-all images need a JDK 21 host.
+      - uses: actions/setup-java@v4.9.1
+        with:
+          distribution: temurin
+          java-version: 21.0.12+8.0.LTS
+      - uses: android-actions/setup-android@v4.0.4
+      - name: Install the pinned Android SDK
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - uses: bazel-contrib/setup-bazel@0.19.1
+        with:
+          bazelisk-cache: true
+          disk-cache: true
+          repository-cache: true
+
+      - name: Render the Bazel Android preview through the CLI
+        working-directory: bazel-apk
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME_21_X64 }}
+        run: |
+          set -o pipefail
+          compose-preview render --project "$PWD" --filter Greeting --timeout 2400 \
+            --output "$GITHUB_WORKSPACE/build/android-render/greeting.png" --verbose \
+            2>&1 | tee "$RUNNER_TEMP/render.log" \
+            || { ../.github/scripts/annotate-errors.sh "$RUNNER_TEMP/render.log"; exit 1; }
+
+      - name: Verify the render used the linked resources
+        run: python3 .github/scripts/check-android-render.py build/android-render/greeting.png
+
+      - name: Upload the Android render
+        if: always()
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: bazel-android-render
+          path: build/android-render/
+          if-no-files-found: warn
 
   upstream-compose-example:
     runs-on: ubuntu-latest
@@ -114,20 +170,29 @@ jobs:
           repository: bazel-contrib/rules_kotlin
           # v2.4.20: immutable reference to the maintained real Compose APK.
           ref: 02f96a1144527e46724f17381a11cd2cd8b36980
-      - uses: bazel-contrib/setup-bazel@0.19.0
+      - uses: bazel-contrib/setup-bazel@0.19.1
         with:
           bazelisk-cache: true
           disk-cache: true
           repository-cache: true
       - name: Build the upstream Jetpack Compose APK
         working-directory: examples/jetpack_compose
-        run: bazel test //app:force_build_apks_test
+        run: |
+          bazel test //app:force_build_apks_test
+          # A cached build_test does not materialize every dependency artifact,
+          # and Android transitions can put the APK outside bazel-bin's config.
+          bazel build //app:compose_example_app
+          bazel cquery //app:compose_example_app --output=files > apk-outputs.txt
       - name: Verify a dexed APK was produced
         working-directory: examples/jetpack_compose
         run: |
           python3 - <<'PYTHON'
           import zipfile
-          with zipfile.ZipFile("bazel-bin/app/compose_example_app.apk") as apk:
+          from pathlib import Path
+          outputs = [Path(line) for line in Path("apk-outputs.txt").read_text().splitlines()]
+          apks = [path for path in outputs if path.name == "compose_example_app.apk"]
+          assert len(apks) == 1, f"Expected one configured APK, got {apks}"
+          with zipfile.ZipFile(apks[0]) as apk:
               assert "AndroidManifest.xml" in apk.namelist()
               assert any(n.startswith("classes") and n.endswith(".dex") for n in apk.namelist())
           PYTHON

@@ -1,6 +1,15 @@
-load("@rules_kotlin//kotlin:core.bzl", "kt_compiler_plugin")
+load("@rules_compose_preview//:defs.bzl", "compose_preview")
+load("@rules_compose_preview//:tool.bzl", "compose_preview_cli", "compose_preview_producer")
+load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_kotlin//kotlin:core.bzl", "define_kt_toolchain", "kt_compiler_plugin")
 load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 load(":compose_preview.bzl", "bundle_preview", "runtime_classpath")
+
+# CMP dependencies contain JVM 11 bytecode. Match the declared Java 17 toolchain.
+define_kt_toolchain(
+    name = "kotlin_toolchain",
+    jvm_target = "17",
+)
 
 # Compose compiler plugin (the Kotlin-bundled one, post-K2 plugin model).
 kt_compiler_plugin(
@@ -17,9 +26,9 @@ kt_jvm_library(
     srcs = glob(["app/src/main/kotlin/**/*.kt"]),
     plugins = [":compose_compiler_plugin"],
     deps = [
-        "@maven//:org_jetbrains_compose_runtime_runtime_desktop",
         "@maven//:org_jetbrains_compose_foundation_foundation_desktop",
         "@maven//:org_jetbrains_compose_material3_material3_desktop",
+        "@maven//:org_jetbrains_compose_runtime_runtime_desktop",
         "@maven//:org_jetbrains_compose_ui_ui_desktop",
         "@maven//:org_jetbrains_compose_ui_ui_tooling_preview_desktop",
     ],
@@ -40,15 +49,98 @@ exports_files(["bundle-producer-all.jar"])
 # `resolution = "coordinates"`). CI builds this and uploads it as an artifact.
 bundle_preview(
     name = "preview_bundle",
+    maven_install = "maven_install.json",
     module = ":app",
     module_path = "//:app",
     previews = [
         "GreetingKt.Greeting=com.example.bazeldesktop.GreetingKt#Greeting@app/src/main/kotlin/com/example/bazeldesktop/Greeting.kt",
     ],
-    maven_install = "maven_install.json",
 )
 
 runtime_classpath(
     name = "runtime_classpath",
     module = ":app",
+)
+
+# Generated module bytecode must be discovered alongside the source-backed preview.
+genrule(
+    name = "generated_preview",
+    outs = ["GeneratedGreeting.kt"],
+    cmd = "cat > $@ <<'KOTLIN'\npackage com.example.bazeldesktop\nimport androidx.compose.runtime.Composable\nimport androidx.compose.ui.tooling.preview.Preview\n@Composable @Preview(widthDp = 320, heightDp = 180, showBackground = true, backgroundColor = 0xFFFFFFFF) fun GeneratedGreeting() { RuntimeGreeting() }\nKOTLIN",
+)
+
+java_library(
+    name = "runtime_message",
+    srcs = ["app/src/runtime/java/com/example/bazeldesktop/RuntimeMessage.java"],
+    resource_strip_prefix = "app/src/runtime/resources",
+    resources = ["app/src/runtime/resources/runtime-message.txt"],
+)
+
+kt_jvm_library(
+    name = "dependency_ui",
+    srcs = glob(["app/src/dependency/kotlin/**/*.kt"]),
+    plugins = [":compose_compiler_plugin"],
+    deps = [
+        "@maven//:org_jetbrains_compose_foundation_foundation_desktop",
+        "@maven//:org_jetbrains_compose_runtime_runtime_desktop",
+        "@maven//:org_jetbrains_compose_ui_ui_tooling_preview_desktop",
+    ],
+)
+
+# Separate from the portable-bundle fixture: reflection is deliberately opaque to
+# bundle minimization, but the aspect must carry the whole configured runtime.
+kt_jvm_library(
+    name = "aspect_app",
+    srcs = glob(["app/src/aspect/kotlin/**/*.kt"]) + [":generated_preview"],
+    plugins = [":compose_compiler_plugin"],
+    runtime_deps = [
+        ":dependency_ui",
+        ":runtime_message",
+    ],
+    deps = [
+        "@maven//:org_jetbrains_compose_foundation_foundation_desktop",
+        "@maven//:org_jetbrains_compose_material3_material3_desktop",
+        "@maven//:org_jetbrains_compose_runtime_runtime_desktop",
+        "@maven//:org_jetbrains_compose_ui_ui_desktop",
+        "@maven//:org_jetbrains_compose_ui_ui_tooling_preview_desktop",
+    ],
+)
+
+# Stage the CLI distribution into .compose-preview/cli before using native targets.
+# Consumers can instead use a checksum-pinned CLI repository (see rules README).
+compose_preview_cli(
+    name = "preview_cli",
+    files = glob(
+        [".compose-preview/cli/**"],
+        allow_empty = True,
+    ),
+    launcher = ".compose-preview/cli/bin/compose-preview",
+)
+
+compose_preview(
+    name = "ui-preview",
+    srcs = glob(["app/src/aspect/kotlin/**/*.kt"]) + [":generated_preview"],
+    cli = ":preview_cli",
+    maven_install = ":maven_install.json",
+    module = ":aspect_app",
+    outputs = ["bundle"],
+    producer = ":source_bundle_producer",
+)
+
+# Independent compose-ai-tools producer distribution; no CLI or daemon runtime on this tool.
+compose_preview_producer(
+    name = "source_bundle_producer",
+    jars = glob(
+        [".compose-preview/producer/lib/*.jar"],
+        allow_empty = True,
+    ),
+)
+
+# Source-only monorepo example: CLI and rendering are optional.
+compose_preview(
+    name = "ui-source-bundle",
+    srcs = glob(["app/src/aspect/kotlin/**/*.kt"]) + [":generated_preview"],
+    maven_install = ":maven_install.json",
+    module = ":aspect_app",
+    producer = ":source_bundle_producer",
 )
