@@ -44,11 +44,11 @@ bazel_dep(name = "rules_android", version = "0.8.0")
 
 # The public preview rules: `compose-preview` builds the Android library with their
 # Android aspect because this module declares them; nothing else selects it. Pinned to
-# compose-preview-bazel v0.1.0-rc.14 (R classes compiled for Java 11).
-bazel_dep(name = "rules_compose_preview", version = "0.1.0-rc.14")
+# compose-preview-bazel v0.1.0-rc.15 (every AAR's package in the final-ID R jar).
+bazel_dep(name = "rules_compose_preview", version = "0.1.0-rc.15")
 git_override(
     module_name = "rules_compose_preview",
-    commit = "9db2d35bc3857ad5df22820e204632abe7c9d582",
+    commit = "e1aa6851453f6ed3caea25a5e66f31267d6efe33",
     remote = "https://github.com/yschimke/compose-preview-bazel.git",
 )
 
