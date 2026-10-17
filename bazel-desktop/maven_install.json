@@ -11,7 +11,7 @@
     "org.jetbrains.compose.runtime:runtime-desktop": -1122914550,
     "org.jetbrains.compose.ui:ui-desktop": 247910490,
     "org.jetbrains.compose.ui:ui-tooling-preview-desktop": -1889163038,
-    "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable": -1953240706,
+    "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable": 534272127,
     "repositories": 1670674627
   },
   "__RESOLVED_ARTIFACTS_HASH": {
@@ -57,7 +57,7 @@
     "org.jetbrains.compose.ui:ui-tooling-preview-desktop": -526269935,
     "org.jetbrains.compose.ui:ui-unit-desktop": -100264400,
     "org.jetbrains.compose.ui:ui-util-desktop": 2097176409,
-    "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable": 257751711,
+    "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable": 273684121,
     "org.jetbrains.kotlin:kotlin-stdlib": 1728226225,
     "org.jetbrains.kotlinx:atomicfu-jvm": 1089124503,
     "org.jetbrains.kotlinx:kotlinx-coroutines-core": 1006075883,
@@ -324,9 +324,9 @@
     },
     "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable": {
       "shasums": {
-        "jar": "e6fc101fd0b8592911de57f96a75b09e0b6158eaccbc71ddd6ca82e05e0386a2"
+        "jar": "634f5c17bed5854548208f2901071f2ead5993ffad25b34fea1668ee9e314b53"
       },
-      "version": "2.4.20"
+      "version": "2.4.21"
     },
     "org.jetbrains.kotlin:kotlin-stdlib": {
       "shasums": {
