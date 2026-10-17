@@ -40,7 +40,7 @@ bazel_dep(name = "rules_java", version = "9.3.0")
 # rules_android 0.7.2 is itself tested against Bazel 9.0.0rc3, so `.bazelversion`
 # here is pinned to 9.0.0. See issue #14. (`.bazelversion` is per-directory, so
 # the resources-only `bazel/` sample keeps using bazelisk's default.)
-bazel_dep(name = "rules_android", version = "0.7.2")
+bazel_dep(name = "rules_android", version = "0.8.0")
 
 # The public preview rules: `compose-preview` builds the Android library with their
 # Android aspect because this module declares them; nothing else selects it. Pinned to
