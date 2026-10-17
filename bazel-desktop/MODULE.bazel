@@ -20,7 +20,7 @@ git_override(
     remote = "https://github.com/yschimke/compose-preview-bazel.git",
 )
 
-bazel_dep(name = "bazel_skylib", version = "1.8.2")
+bazel_dep(name = "bazel_skylib", version = "1.9.2")
 bazel_dep(name = "rules_jvm_external", version = "7.2")
 
 # Kotlin and the Compose compiler plugin are versioned together.
