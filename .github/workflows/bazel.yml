@@ -125,22 +125,16 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4.4.0
-      - uses: actions/checkout@v4.4.0
+      # Picks the Bazel Android aspect itself (compose-ai-tools#6063, #6065).
+      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.1
         with:
-          repository: yschimke/compose-ai-tools
-          # compose-ai-tools#6063 (Android aspect chosen with no bazel.json). Move to the
-          # install action at the release that carries it.
-          ref: 41c483f66197d101ef007021a0da550110630f20
-          path: compose-ai-tools
-          persist-credentials: false
-      # 17 builds the CLI (listed last, so it is JAVA_HOME); 21 runs it, since
+          version: 2.68.1
+          plugin-readiness-timeout: 0
       # Robolectric's newest android-all images need a JDK 21 host.
       - uses: actions/setup-java@v4.9.1
         with:
           distribution: temurin
-          java-version: |
-            21.0.12+101.0.LTS
-            17
+          java-version: 21.0.12+101.0.LTS
       - uses: android-actions/setup-android@v4.0.4
       - name: Install the pinned Android SDK
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
@@ -149,12 +143,6 @@ jobs:
           bazelisk-cache: true
           disk-cache: true
           repository-cache: true
-
-      - name: Build the compose-preview CLI
-        working-directory: compose-ai-tools
-        run: |
-          ./gradlew :cli:installDist --stacktrace
-          echo "$PWD/cli/build/install/compose-preview/bin" >> "$GITHUB_PATH"
 
       - name: Render the Bazel Android preview through the CLI
         working-directory: bazel-apk
@@ -187,33 +175,21 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4.4.0
-      - uses: actions/checkout@v4.4.0
+      # Picks the Bazel Android aspect itself (compose-ai-tools#6063, #6065).
+      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.1
         with:
-          repository: yschimke/compose-ai-tools
-          # compose-ai-tools#6063 (Android aspect chosen with no bazel.json). Move to the
-          # install action at the release that carries it.
-          ref: 41c483f66197d101ef007021a0da550110630f20
-          path: compose-ai-tools
-          persist-credentials: false
-      # 17 builds the CLI (listed last, so it is JAVA_HOME); 21 runs it, since
+          version: 2.68.1
+          plugin-readiness-timeout: 0
       # Robolectric's newest android-all images need a JDK 21 host.
       - uses: actions/setup-java@v4.9.1
         with:
           distribution: temurin
-          java-version: |
-            21
-            17
+          java-version: 21
       - uses: bazel-contrib/setup-bazel@0.19.1
         with:
           bazelisk-cache: true
           disk-cache: true
           repository-cache: true
-
-      - name: Build the compose-preview CLI
-        working-directory: compose-ai-tools
-        run: |
-          ./gradlew :cli:installDist --stacktrace
-          echo "$PWD/cli/build/install/compose-preview/bin" >> "$GITHUB_PATH"
 
       - name: List and render the Bazel Desktop previews through the CLI
         working-directory: bazel-desktop
