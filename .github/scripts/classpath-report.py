@@ -88,6 +88,11 @@ def main():
         if new == 0:
             shadowed.append(path)
 
+    short = lambda p: (
+        "/".join(p.split("/")[-3:])
+        if os.path.basename(p) in ("classes.jar", "classes_and_libs_merged.jar")
+        else os.path.basename(p)
+    )
     names_by_basename = collections.Counter(os.path.basename(p) for p in jars)
     lines = [
         f"{document.get('target')}: {len(jars)} runtime jars ({total_bytes:,} bytes of joined paths), "
@@ -106,12 +111,29 @@ def main():
         print(line)
         if args.annotate:
             print(f"::notice title=classpath::{line}")
-    short = lambda p: os.path.basename(p) if os.path.basename(p) not in ("classes.jar",) else "/".join(p.split("/")[-3:])
     for (later, earlier), count in overlaps.most_common(10):
         line = f"overlap: {count:,} classes of {short(later)} already in {short(earlier)}"
         print("  " + line)
         if args.annotate:
             print(f"::notice title=classpath::{line}")
+    final_r = {n for n in final_classes if R_CLASS.search(n)}
+    final_pkgs = {n.rsplit("/", 1)[0] for n in final_r if "/" in n}
+    for path in [p for p in r_only if p not in r_redundant][:8]:
+        names = set(classes(resolve(path)))
+        pkgs = sorted({n.rsplit("/", 1)[0] for n in names if "/" in n})
+        missing_classes = sorted(n for n in names - final_classes)[:3]
+        line = (
+            f"R-only not covered: {short(path)} packages={pkgs} "
+            f"in-final={[q in final_pkgs for q in pkgs]} missing e.g. {missing_classes}"
+        )
+        print("  " + line)
+        if args.annotate:
+            print(f"::notice title=classpath::{line}")
+    if args.annotate:
+        print(f"::notice title=classpath::final R jar: {len(final_r)} R classes in {len(final_pkgs)} packages")
+        for label, group in (("empty", empty), ("shadowed", shadowed)):
+            sample = ", ".join(short(p) for p in group[:12])
+            print(f"::notice title=classpath::{label} sample: {sample}")
     for label, group in (("fully shadowed", shadowed), ("empty", empty)):
         for path in group[:15]:
             print(f"  {label}: {path}")
