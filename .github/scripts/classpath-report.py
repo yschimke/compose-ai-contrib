@@ -111,29 +111,33 @@ def main():
         print(line)
         if args.annotate:
             print(f"::notice title=classpath::{line}")
-    for (later, earlier), count in overlaps.most_common(10):
+    for (later, earlier), count in overlaps.most_common(3):
         line = f"overlap: {count:,} classes of {short(later)} already in {short(earlier)}"
         print("  " + line)
         if args.annotate:
             print(f"::notice title=classpath::{line}")
     final_r = {n for n in final_classes if R_CLASS.search(n)}
     final_pkgs = {n.rsplit("/", 1)[0] for n in final_r if "/" in n}
-    for path in [p for p in r_only if p not in r_redundant][:8]:
-        names = set(classes(resolve(path)))
-        pkgs = sorted({n.rsplit("/", 1)[0] for n in names if "/" in n})
-        missing_classes = sorted(n for n in names - final_classes)[:3]
-        line = (
-            f"R-only not covered: {short(path)} packages={pkgs} "
-            f"in-final={[q in final_pkgs for q in pkgs]} missing e.g. {missing_classes}"
-        )
+    uncovered = sorted(
+        {
+            n.rsplit("/", 1)[0]
+            for p in r_only
+            if p not in r_redundant
+            for n in classes(resolve(p))
+            if "/" in n
+        }
+    )
+    # GitHub keeps ten annotations per step, so the detail goes first, one line each.
+    detail = [
+        f"final R jar: {len(final_r)} R classes in {len(final_pkgs)} packages; "
+        f"R packages only in per-library jars ({len(uncovered)}): "
+        + ", ".join(q.replace("/", ".") for q in uncovered[:60]),
+        "empty sample: " + ", ".join(short(p) for p in empty[:25]),
+    ]
+    for line in detail:
         print("  " + line)
         if args.annotate:
             print(f"::notice title=classpath::{line}")
-    if args.annotate:
-        print(f"::notice title=classpath::final R jar: {len(final_r)} R classes in {len(final_pkgs)} packages")
-        for label, group in (("empty", empty), ("shadowed", shadowed)):
-            sample = ", ".join(short(p) for p in group[:12])
-            print(f"::notice title=classpath::{label} sample: {sample}")
     for label, group in (("fully shadowed", shadowed), ("empty", empty)):
         for path in group[:15]:
             print(f"  {label}: {path}")
