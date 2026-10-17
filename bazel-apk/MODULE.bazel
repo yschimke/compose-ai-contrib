@@ -30,7 +30,7 @@ register_toolchains("//:kotlin_toolchain")
 # Direct dep so `compose_preview.bzl` can `load` JavaInfo from it (Bazel 9 no
 # longer exposes JavaInfo as an implicit .bzl global). 9.3.0 matches what
 # rules_android already pulls transitively, so no version skew.
-bazel_dep(name = "rules_java", version = "9.3.0")
+bazel_dep(name = "rules_java", version = "9.9.0")
 
 # rules_android 0.7.2 pulls rules_java 9.3.0, whose `java_common_internal.bzl`
 # calls `ctx.fragments.java.use_header_compilation_direct_deps()` — a builtin
