@@ -38,7 +38,7 @@ jobs:
   bazel-resources:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.4.0
+      - uses: actions/checkout@v7.0.1
       - uses: bazel-contrib/setup-bazel@0.19.1
         with:
           bazelisk-cache: true
@@ -56,8 +56,8 @@ jobs:
   bazel-desktop-bundle:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.4.0
-      - uses: actions/setup-java@v4.9.1
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-java@v6.0.1
         with:
           distribution: temurin
           java-version: 17.0.20+101
@@ -86,7 +86,7 @@ jobs:
           ./gradlew :contract-tests:bazel-cmp-desktop:test -PbazelExecutionRoot="$execution_root" --stacktrace
 
       - name: Upload Bazel desktop bundle
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: bazel-desktop-bundle
           path: bazel-desktop/bazel-bin/preview_bundle.png
@@ -95,7 +95,7 @@ jobs:
   bazel-build-apk:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.4.0
+      - uses: actions/checkout@v7.0.1
       - uses: bazel-contrib/setup-bazel@0.19.1
         with:
           bazelisk-cache: true
@@ -124,14 +124,14 @@ jobs:
     # well past the CLI's 300 s default build timeout; hence `--timeout` below.
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4.4.0
+      - uses: actions/checkout@v7.0.1
       # Picks the Bazel Android aspect itself (compose-ai-tools#6063, #6065).
       - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.1
         with:
           version: 2.68.1
           plugin-readiness-timeout: 0
       # Robolectric's newest android-all images need a JDK 21 host.
-      - uses: actions/setup-java@v4.9.1
+      - uses: actions/setup-java@v6.0.1
         with:
           distribution: temurin
           java-version: 21.0.12+101.0.LTS
@@ -160,7 +160,7 @@ jobs:
 
       - name: Upload the Android render
         if: always()
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: bazel-android-render
           path: build/android-render/
@@ -174,14 +174,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4.4.0
+      - uses: actions/checkout@v7.0.1
       # Picks the Bazel Android aspect itself (compose-ai-tools#6063, #6065).
       - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.1
         with:
           version: 2.68.1
           plugin-readiness-timeout: 0
       # Robolectric's newest android-all images need a JDK 21 host.
-      - uses: actions/setup-java@v4.9.1
+      - uses: actions/setup-java@v6.0.1
         with:
           distribution: temurin
           java-version: 21
@@ -223,7 +223,7 @@ jobs:
 
       - name: Upload the Desktop render
         if: always()
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: bazel-desktop-render
           path: build/desktop-render/
@@ -232,7 +232,7 @@ jobs:
   upstream-compose-example:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.4.0
+      - uses: actions/checkout@v7.0.1
         with:
           repository: bazel-contrib/rules_kotlin
           # v2.4.20: immutable reference to the maintained real Compose APK.
