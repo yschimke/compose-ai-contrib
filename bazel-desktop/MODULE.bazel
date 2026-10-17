@@ -39,16 +39,16 @@ maven.install(
     name = "maven",
     artifacts = [
         # Kotlin compose compiler plugin — must match the Kotlin compiler
-        # rules_kotlin 2.4.20 bundles (2.4.20); it's versioned in lockstep with
+        # rules_kotlin 2.4.21 bundles (2.4.21); it's versioned in lockstep with
         # Kotlin and refuses to load against a different compiler version.
-        "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable:2.4.20",
+        "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable:2.4.21",
         # Compose Multiplatform desktop runtime (the same set the Amper desktop
         # fixture pulls via `$compose.desktop.currentOs` + `$compose.material3`).
-        "org.jetbrains.compose.runtime:runtime-desktop:1.11.1",
-        "org.jetbrains.compose.foundation:foundation-desktop:1.11.1",
+        "org.jetbrains.compose.runtime:runtime-desktop:1.12.2",
+        "org.jetbrains.compose.foundation:foundation-desktop:1.12.2",
         "org.jetbrains.compose.material3:material3-desktop:1.9.0",
-        "org.jetbrains.compose.ui:ui-desktop:1.11.1",
-        "org.jetbrains.compose.ui:ui-tooling-preview-desktop:1.11.1",
+        "org.jetbrains.compose.ui:ui-desktop:1.12.2",
+        "org.jetbrains.compose.ui:ui-tooling-preview-desktop:1.12.2",
     ],
     fail_if_repin_required = True,
     known_contributing_modules = ["protobuf"],
