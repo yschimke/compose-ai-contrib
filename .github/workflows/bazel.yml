@@ -125,22 +125,16 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4.4.0
-      - uses: actions/checkout@v4.4.0
+      # Picks the Bazel Android aspect itself (compose-ai-tools#6063, #6065).
+      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.4
         with:
-          repository: yschimke/compose-ai-tools
-          # compose-ai-tools#6063 (Android aspect chosen with no bazel.json). Move to the
-          # install action at the release that carries it.
-          ref: 41c483f66197d101ef007021a0da550110630f20
-          path: compose-ai-tools
-          persist-credentials: false
-      # 17 builds the CLI (listed last, so it is JAVA_HOME); 21 runs it, since
+          version: 2.68.4
+          plugin-readiness-timeout: 0
       # Robolectric's newest android-all images need a JDK 21 host.
       - uses: actions/setup-java@v4.9.1
         with:
           distribution: temurin
-          java-version: |
-            21.0.12+101.0.LTS
-            17
+          java-version: 21.0.12+101.0.LTS
       - uses: android-actions/setup-android@v4.0.4
       - name: Install the pinned Android SDK
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
@@ -149,12 +143,6 @@ jobs:
           bazelisk-cache: true
           disk-cache: true
           repository-cache: true
-
-      - name: Build the compose-preview CLI
-        working-directory: compose-ai-tools
-        run: |
-          ./gradlew :cli:installDist --stacktrace
-          echo "$PWD/cli/build/install/compose-preview/bin" >> "$GITHUB_PATH"
 
       - name: Render the Bazel Android preview through the CLI
         working-directory: bazel-apk
@@ -166,9 +154,24 @@ jobs:
             --output "$GITHUB_WORKSPACE/build/android-render/greeting.png" --verbose \
             2>&1 | tee "$RUNNER_TEMP/render.log" \
             || { ../.github/scripts/annotate-errors.sh "$RUNNER_TEMP/render.log"; exit 1; }
+          # How many runtime jars the CLI put on the render classpath (compose-ai-tools#6077).
+          grep -o '\[bazel\] .*runtime jars on the classpath.*' "$RUNNER_TEMP/render.log" | head -1 \
+            | sed 's/^/::notice title=classpath::CLI: /' || true
 
       - name: Verify the render used the linked resources
         run: python3 .github/scripts/check-android-render.py build/android-render/greeting.png
+
+      # What the runtime classpath is made of (compose-ai-tools#5945): R-only, empty and
+      # shadowed jars, and the overlap between them. Reported as annotations.
+      - name: Report the runtime classpath
+        if: always()
+        run: |
+          find bazel-apk -path '*/compose-previews/build-artifacts.json' -print0 \
+            | while IFS= read -r -d '' doc; do
+                # Library resources resolve through the final-ID R jar (compose-ai-tools#6073).
+                python3 .github/scripts/classpath-report.py "$doc" --root "$(cd bazel-apk && bazel info execution_root)" --annotate \
+                  --require-final-r androidx.compose.ui androidx.compose.material3 androidx.core || exit 1
+              done
 
       - name: Upload the Android render
         if: always()
@@ -187,33 +190,21 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4.4.0
-      - uses: actions/checkout@v4.4.0
+      # Picks the Bazel Android aspect itself (compose-ai-tools#6063, #6065).
+      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.4
         with:
-          repository: yschimke/compose-ai-tools
-          # compose-ai-tools#6063 (Android aspect chosen with no bazel.json). Move to the
-          # install action at the release that carries it.
-          ref: 41c483f66197d101ef007021a0da550110630f20
-          path: compose-ai-tools
-          persist-credentials: false
-      # 17 builds the CLI (listed last, so it is JAVA_HOME); 21 runs it, since
+          version: 2.68.4
+          plugin-readiness-timeout: 0
       # Robolectric's newest android-all images need a JDK 21 host.
       - uses: actions/setup-java@v4.9.1
         with:
           distribution: temurin
-          java-version: |
-            21
-            17
+          java-version: 21
       - uses: bazel-contrib/setup-bazel@0.19.1
         with:
           bazelisk-cache: true
           disk-cache: true
           repository-cache: true
-
-      - name: Build the compose-preview CLI
-        working-directory: compose-ai-tools
-        run: |
-          ./gradlew :cli:installDist --stacktrace
-          echo "$PWD/cli/build/install/compose-preview/bin" >> "$GITHUB_PATH"
 
       - name: List and render the Bazel Desktop previews through the CLI
         working-directory: bazel-desktop
@@ -227,6 +218,9 @@ jobs:
               --output "$GITHUB_WORKSPACE/build/desktop-render/runtime-greeting.png" --verbose
           } 2>&1 | tee "$RUNNER_TEMP/render.log" \
             || { ../.github/scripts/annotate-errors.sh "$RUNNER_TEMP/render.log"; exit 1; }
+          # How many runtime jars the CLI put on the render classpath (compose-ai-tools#6077).
+          grep -o '\[bazel\] .*runtime jars on the classpath.*' "$RUNNER_TEMP/render.log" | head -1 \
+            | sed 's/^/::notice title=classpath::CLI: /' || true
           python3 - "$RUNNER_TEMP/list.json" <<'PYTHON'
           import sys
           text = open(sys.argv[1]).read()
