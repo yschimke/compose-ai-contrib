@@ -25,6 +25,8 @@ bazel_dep(name = "rules_jvm_external", version = "6.10")
 # metadata; 2.4.20 is the bazel-desktop sample's version too.
 bazel_dep(name = "rules_kotlin", version = "2.4.20")
 
+register_toolchains("//:kotlin_toolchain")
+
 # Direct dep so `compose_preview.bzl` can `load` JavaInfo from it (Bazel 9 no
 # longer exposes JavaInfo as an implicit .bzl global). 9.3.0 matches what
 # rules_android already pulls transitively, so no version skew.

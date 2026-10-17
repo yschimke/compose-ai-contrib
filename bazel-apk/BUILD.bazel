@@ -1,7 +1,13 @@
 load("@rules_kotlin//kotlin:android.bzl", "kt_android_library")
-load("@rules_kotlin//kotlin:core.bzl", "kt_compiler_plugin")
+load("@rules_kotlin//kotlin:core.bzl", "define_kt_toolchain", "kt_compiler_plugin")
 load("@rules_android//rules:rules.bzl", "android_binary")
 load(":compose_preview.bzl", "bundle_preview")
+
+# Compose dependencies contain JVM 11 bytecode. Match the Java 17 toolchain.
+define_kt_toolchain(
+    name = "kotlin_toolchain",
+    jvm_target = "17",
+)
 
 kt_compiler_plugin(
     name = "compose_compiler_plugin",
