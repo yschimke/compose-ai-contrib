@@ -126,9 +126,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4.4.0
       # Picks the Bazel Android aspect itself (compose-ai-tools#6063, #6065).
-      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.3
+      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.4
         with:
-          version: 2.68.3
+          version: 2.68.4
           plugin-readiness-timeout: 0
       # Robolectric's newest android-all images need a JDK 21 host.
       - uses: actions/setup-java@v4.9.1
@@ -154,6 +154,9 @@ jobs:
             --output "$GITHUB_WORKSPACE/build/android-render/greeting.png" --verbose \
             2>&1 | tee "$RUNNER_TEMP/render.log" \
             || { ../.github/scripts/annotate-errors.sh "$RUNNER_TEMP/render.log"; exit 1; }
+          # How many runtime jars the CLI put on the render classpath (compose-ai-tools#6077).
+          grep -o '\[bazel\] .*runtime jars on the classpath.*' "$RUNNER_TEMP/render.log" | head -1 \
+            | sed 's/^/::notice title=classpath::CLI: /' || true
 
       - name: Verify the render used the linked resources
         run: python3 .github/scripts/check-android-render.py build/android-render/greeting.png
@@ -188,9 +191,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4.4.0
       # Picks the Bazel Android aspect itself (compose-ai-tools#6063, #6065).
-      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.3
+      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.4
         with:
-          version: 2.68.3
+          version: 2.68.4
           plugin-readiness-timeout: 0
       # Robolectric's newest android-all images need a JDK 21 host.
       - uses: actions/setup-java@v4.9.1
@@ -215,6 +218,9 @@ jobs:
               --output "$GITHUB_WORKSPACE/build/desktop-render/runtime-greeting.png" --verbose
           } 2>&1 | tee "$RUNNER_TEMP/render.log" \
             || { ../.github/scripts/annotate-errors.sh "$RUNNER_TEMP/render.log"; exit 1; }
+          # How many runtime jars the CLI put on the render classpath (compose-ai-tools#6077).
+          grep -o '\[bazel\] .*runtime jars on the classpath.*' "$RUNNER_TEMP/render.log" | head -1 \
+            | sed 's/^/::notice title=classpath::CLI: /' || true
           python3 - "$RUNNER_TEMP/list.json" <<'PYTHON'
           import sys
           text = open(sys.argv[1]).read()
