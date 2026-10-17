@@ -17,7 +17,7 @@ module(
     version = "0.0.0",
 )
 
-bazel_dep(name = "bazel_skylib", version = "1.8.2")
+bazel_dep(name = "bazel_skylib", version = "1.9.2")
 bazel_dep(name = "rules_jvm_external", version = "6.10")
 
 # rules_kotlin bundles the Kotlin compiler, so the Compose compiler plugin below
