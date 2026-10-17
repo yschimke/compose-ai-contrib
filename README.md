@@ -21,7 +21,7 @@ off.
 | [`amper-compose-example/`](amper-compose-example/) | Kotlin Toolchain 0.13 | JetBrains Compose Desktop example discovered and rendered through the published APIs |
 | [`bazel/`](bazel/) | Bazel (bzlmod) | Resources discovery rule producing `resources.json` |
 | [`bazel-desktop/`](bazel-desktop/) | Bazel (bzlmod) | Compose **Desktop** `kt_jvm_library` packed into a portable preview bundle (`bundle_preview`); bundle published in CI, live CMP render contract |
-| [`bazel-apk/`](bazel-apk/) | Bazel (bzlmod) | Compose APK via `rules_kotlin` + `rules_android` on Bazel 9 |
+| [`bazel-apk/`](bazel-apk/) | Bazel (bzlmod) | Compose APK via `rules_kotlin` + `rules_android` on Bazel 9; its library's preview rendered by `compose-preview` through `rules_compose_preview`'s Android aspect |
 | [`buck2/`](buck2/) | Buck2 (bundled prelude) | Resources discovery rule producing `resources.json` — byte-identical to the Bazel sample |
 | [`buck2-desktop/`](buck2-desktop/) | Buck2 (bundled prelude) | Compose **Desktop** `kotlin_library`, rendered by `compose-preview` through its BXL script with no BUCK changes |
 | [`buck2-android/`](buck2-android/) | Buck2 (bundled prelude) | Jetpack Compose **Android** `android_library` with an `android_resource`, rendered by `compose-preview` on the Android daemon through its BXL script |
@@ -79,7 +79,9 @@ the tools, sessions, daemon BOM, contracts BOM, and driver pins. They publish in
   builds the Amper Android fixture.
 - [`.github/workflows/bazel.yml`](.github/workflows/bazel.yml) builds the
   Bazel resources-discovery target, the Compose Desktop preview bundle
-  (uploaded as the `bazel-desktop-bundle` artifact), and the Compose APK target.
+  (uploaded as the `bazel-desktop-bundle` artifact), and the Compose APK target,
+  and renders the APK's library preview through the `compose-preview` CLI
+  (uploaded as `bazel-android-render`).
 - [`.github/workflows/buck2.yml`](.github/workflows/buck2.yml) builds
   the Buck2 resources-discovery target and verifies byte-for-byte
   parity with the Bazel sample's output, then builds `buck2-desktop/` and
@@ -102,8 +104,8 @@ Each build system that can produce renders or resource manifests has a matching
 | [`bazel-apply.yml`](.github/workflows/bazel-apply.yml) | `app_resources.json` from Bazel resources-discovery | `compose-preview/bazel/{main,pr}` |
 | [`buck2-apply.yml`](.github/workflows/buck2-apply.yml) | `app_resources.json` from Buck2 resources-discovery | `compose-preview/buck2/{main,pr}` |
 
-`amper-android` is excluded — Android preview rendering requires the Gradle
-plugin + Robolectric, neither of which is available in a pure Amper module.
+`amper-android` is excluded: the `compose-preview` CLI renders Android previews
+from Gradle, Bazel and Buck2 builds, but not yet from an Amper module.
 
 ## Versioning
 
