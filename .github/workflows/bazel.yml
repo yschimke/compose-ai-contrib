@@ -125,10 +125,10 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4.4.0
-      # The first release that picks the Bazel Android aspect itself (compose-ai-tools#6063).
-      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.0
+      # Picks the Bazel Android aspect itself (compose-ai-tools#6063, #6065).
+      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.1
         with:
-          version: 2.68.0
+          version: 2.68.1
           plugin-readiness-timeout: 0
       # Robolectric's newest android-all images need a JDK 21 host.
       - uses: actions/setup-java@v4.9.1
@@ -175,10 +175,10 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4.4.0
-      # The first release that picks the Bazel Android aspect itself (compose-ai-tools#6063).
-      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.0
+      # Picks the Bazel Android aspect itself (compose-ai-tools#6063, #6065).
+      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.68.1
         with:
-          version: 2.68.0
+          version: 2.68.1
           plugin-readiness-timeout: 0
       # Robolectric's newest android-all images need a JDK 21 host.
       - uses: actions/setup-java@v4.9.1
