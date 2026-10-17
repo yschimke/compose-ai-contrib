@@ -14,6 +14,7 @@ on:
       - "gradlew*"
       - ".github/scripts/check-bazel-bundle.py"
       - ".github/scripts/check-android-render.py"
+      - ".github/scripts/annotate-errors.sh"
       - ".github/workflows/bazel.yml"
   push:
     branches: [main]
@@ -29,6 +30,7 @@ on:
       - "gradlew*"
       - ".github/scripts/check-bazel-bundle.py"
       - ".github/scripts/check-android-render.py"
+      - ".github/scripts/annotate-errors.sh"
       - ".github/workflows/bazel.yml"
   workflow_dispatch:
 
@@ -111,10 +113,11 @@ jobs:
           bazel build //:bazel_sample_apk 2>&1 | tee "$RUNNER_TEMP/build.log" \
             || { ../.github/scripts/annotate-errors.sh "$RUNNER_TEMP/build.log"; exit 1; }
 
-  # End-to-end Android proof: `compose-preview render` builds the rules_android
-  # Compose library through compose-preview-bazel's Android aspect (selected by
-  # `bazel-apk/.compose-preview/bazel.json`), then renders the Greeting preview on
-  # the Robolectric daemon against the aspect's linked resources and final R IDs.
+  # End-to-end Android proof, with no compose-preview setup in the fixture:
+  # `compose-preview render` finds the rules_android Compose library, builds it
+  # through compose-preview-bazel's Android aspect (chosen because MODULE.bazel
+  # declares rules_compose_preview), then renders the Greeting preview on the
+  # Robolectric daemon against the aspect's linked resources and final R IDs.
   bazel-android-render:
     runs-on: ubuntu-latest
     # A cold cache builds rules_android's tools (protobuf included) from source,
@@ -122,15 +125,22 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4.4.0
-      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.67.0
+      - uses: actions/checkout@v4.4.0
         with:
-          version: 2.67.0
-          plugin-readiness-timeout: 0
+          repository: yschimke/compose-ai-tools
+          # compose-ai-tools#6063 (Android aspect chosen with no bazel.json). Move to the
+          # install action at the release that carries it.
+          ref: daf0f9d2116ab22661ac3bc24eccbf18a6fe4d3b
+          path: compose-ai-tools
+          persist-credentials: false
+      # 17 builds the CLI (listed last, so it is JAVA_HOME); 21 runs it, since
       # Robolectric's newest android-all images need a JDK 21 host.
       - uses: actions/setup-java@v4.9.1
         with:
           distribution: temurin
-          java-version: 21
+          java-version: |
+            21
+            17
       - uses: android-actions/setup-android@v4.0.4
       - name: Install the pinned Android SDK
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
@@ -139,6 +149,12 @@ jobs:
           bazelisk-cache: true
           disk-cache: true
           repository-cache: true
+
+      - name: Build the compose-preview CLI
+        working-directory: compose-ai-tools
+        run: |
+          ./gradlew :cli:installDist --stacktrace
+          echo "$PWD/cli/build/install/compose-preview/bin" >> "$GITHUB_PATH"
 
       - name: Render the Bazel Android preview through the CLI
         working-directory: bazel-apk
@@ -160,6 +176,81 @@ jobs:
         with:
           name: bazel-android-render
           path: build/android-render/
+          if-no-files-found: warn
+
+  # The same for Compose Desktop, with no compose-preview setup in the fixture:
+  # `compose-preview list` selects the package's JVM libraries as one module (the
+  # CLI installs its JVM aspect under the git-ignored .compose-preview/), and one
+  # preview renders on the desktop daemon.
+  bazel-desktop-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4.4.0
+      - uses: actions/checkout@v4.4.0
+        with:
+          repository: yschimke/compose-ai-tools
+          # compose-ai-tools#6063 (Android aspect chosen with no bazel.json). Move to the
+          # install action at the release that carries it.
+          ref: daf0f9d2116ab22661ac3bc24eccbf18a6fe4d3b
+          path: compose-ai-tools
+          persist-credentials: false
+      # 17 builds the CLI (listed last, so it is JAVA_HOME); 21 runs it, since
+      # Robolectric's newest android-all images need a JDK 21 host.
+      - uses: actions/setup-java@v4.9.1
+        with:
+          distribution: temurin
+          java-version: |
+            21
+            17
+      - uses: bazel-contrib/setup-bazel@0.19.1
+        with:
+          bazelisk-cache: true
+          disk-cache: true
+          repository-cache: true
+
+      - name: Build the compose-preview CLI
+        working-directory: compose-ai-tools
+        run: |
+          ./gradlew :cli:installDist --stacktrace
+          echo "$PWD/cli/build/install/compose-preview/bin" >> "$GITHUB_PATH"
+
+      - name: List and render the Bazel Desktop previews through the CLI
+        working-directory: bazel-desktop
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME_21_X64 }}
+        run: |
+          set -o pipefail
+          {
+            compose-preview list --project "$PWD" --json --timeout 1800 > "$RUNNER_TEMP/list.json"
+            compose-preview render --project "$PWD" --filter RuntimeGreeting --timeout 1800 \
+              --output "$GITHUB_WORKSPACE/build/desktop-render/runtime-greeting.png" --verbose
+          } 2>&1 | tee "$RUNNER_TEMP/render.log" \
+            || { ../.github/scripts/annotate-errors.sh "$RUNNER_TEMP/render.log"; exit 1; }
+          python3 - "$RUNNER_TEMP/list.json" <<'PYTHON'
+          import sys
+          text = open(sys.argv[1]).read()
+          for name in ("GreetingKt.Greeting", "DependencyPreview", "RuntimeGreeting"):
+              assert name in text, (name, text)
+          PYTHON
+
+      - name: Verify the render
+        run: |
+          python3 - build/desktop-render/runtime-greeting.png <<'PYTHON'
+          import struct, sys
+          data = open(sys.argv[1], "rb").read()
+          assert data[:8] == b"\x89PNG\r\n\x1a\n", "not a PNG"
+          width, height = struct.unpack(">II", data[16:24])
+          assert width > 100 and height > 20, (width, height)
+          print(f"runtime-greeting.png {width}x{height}")
+          PYTHON
+
+      - name: Upload the Desktop render
+        if: always()
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: bazel-desktop-render
+          path: build/desktop-render/
           if-no-files-found: warn
 
   upstream-compose-example:

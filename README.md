@@ -27,7 +27,9 @@ off.
 | [`buck2-android/`](buck2-android/) | Buck2 (bundled prelude) | Jetpack Compose **Android** `android_library` with an `android_resource`, rendered by `compose-preview` on the Android daemon through its BXL script |
 
 Each directory is self-contained — see its README for build
-instructions.
+instructions. None commits any compose-preview setup (nothing under `.compose-preview/`,
+checked by [`zero-setup.yml`](.github/workflows/zero-setup.yml)): like a Gradle project, where the
+CLI injects its plugin, a Bazel or Buck2 project needs only its own build configuration.
 
 ## Standalone binaries
 
@@ -80,8 +82,8 @@ the tools, sessions, daemon BOM, contracts BOM, and driver pins. They publish in
 - [`.github/workflows/bazel.yml`](.github/workflows/bazel.yml) builds the
   Bazel resources-discovery target, the Compose Desktop preview bundle
   (uploaded as the `bazel-desktop-bundle` artifact), and the Compose APK target,
-  and renders the APK's library preview through the `compose-preview` CLI
-  (uploaded as `bazel-android-render`).
+  and renders both the Desktop and the APK library previews through the
+  `compose-preview` CLI (uploaded as `bazel-desktop-render` and `bazel-android-render`).
 - [`.github/workflows/buck2.yml`](.github/workflows/buck2.yml) builds
   the Buck2 resources-discovery target and verifies byte-for-byte
   parity with the Bazel sample's output, then builds `buck2-desktop/` and

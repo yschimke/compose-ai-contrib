@@ -1,0 +1,23 @@
+name: zero setup
+
+# The fixtures demonstrate compose-preview with no setup of its own, as a Gradle
+# project gets through the auto-injected plugin: nothing under .compose-preview/
+# is committed. A build system's own configuration (a Buck2 toolchain, a Bazel
+# module) is the project's, and is not checked here.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  no-compose-preview-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.4.0
+      - name: No fixture commits compose-preview configuration
+        run: |
+          committed="$(git ls-files | grep -E '(^|/)\.compose-preview/' || true)"
+          if [ -n "$committed" ]; then
+            printf '::error::compose-preview configuration is committed: %s\n' $committed
+            exit 1
+          fi

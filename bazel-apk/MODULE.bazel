@@ -42,8 +42,8 @@ bazel_dep(name = "rules_java", version = "9.3.0")
 # the resources-only `bazel/` sample keeps using bazelisk's default.)
 bazel_dep(name = "rules_android", version = "0.7.2")
 
-# The public preview rules, for the Android aspect the render-proof job runs
-# through `compose-preview` (`.compose-preview/bazel.json`). Pinned to
+# The public preview rules: `compose-preview` builds the Android library with their
+# Android aspect because this module declares them; nothing else selects it. Pinned to
 # compose-preview-bazel v0.1.0-rc.14 (R classes compiled for Java 11).
 bazel_dep(name = "rules_compose_preview", version = "0.1.0-rc.14")
 git_override(
