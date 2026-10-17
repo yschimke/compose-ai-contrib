@@ -50,15 +50,11 @@ def main():
     jars = document.get("runtimeJars", [])
     android = document.get("android") or {}
     r_final = android.get("rJar")
-    final_packages = set()
-    if r_final:
-        for name in classes(resolve(r_final)) or []:
-            if R_CLASS.search(name):
-                final_packages.add(name.rsplit("/", 1)[0] if "/" in name else "")
+    final_classes = set(classes(resolve(r_final)) or []) if r_final else set()
 
     seen = {}
     overlaps = collections.Counter()
-    duplicate_names = 0
+    duplicate_names = set()
     shadowed = []
     r_only = []
     r_redundant = []
@@ -79,13 +75,12 @@ def main():
             tiny.append(path)
         if all(R_CLASS.search(n) for n in names):
             r_only.append(path)
-            packages = {n.rsplit("/", 1)[0] if "/" in n else "" for n in names}
-            if final_packages and packages <= final_packages:
+            if final_classes and set(names) <= final_classes:
                 r_redundant.append(path)
         new = 0
         for name in names:
             if name in seen:
-                duplicate_names += 1
+                duplicate_names.add(name)
                 overlaps[(path, seen[name])] += 1
             else:
                 seen[name] = path
@@ -100,7 +95,7 @@ def main():
         f"R-class-only jars: {len(r_only)}"
         + (f", of which {len(r_redundant)} are covered by the final-ID R jar" if r_final else ""),
         f"jars with no classes: {len(empty)}; with 1-3 classes: {len(tiny)}",
-        f"class names defined by more than one jar: {duplicate_names:,}; "
+        f"class names defined by more than one jar: {len(duplicate_names):,}; "
         f"jars fully shadowed by earlier ones: {len(shadowed)}",
         "most common jar file names: "
         + ", ".join(f"{n} x{c}" for n, c in names_by_basename.most_common(5)),
