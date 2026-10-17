@@ -158,6 +158,16 @@ jobs:
       - name: Verify the render used the linked resources
         run: python3 .github/scripts/check-android-render.py build/android-render/greeting.png
 
+      # What the runtime classpath is made of (compose-ai-tools#5945): R-only, empty and
+      # shadowed jars, and the overlap between them. Reported as annotations.
+      - name: Report the runtime classpath
+        if: always()
+        run: |
+          find bazel-apk -path '*/compose-previews/build-artifacts.json' -print0 \
+            | while IFS= read -r -d '' doc; do
+                python3 .github/scripts/classpath-report.py "$doc" --root "$(cd bazel-apk && bazel info execution_root)" --annotate
+              done
+
       - name: Upload the Android render
         if: always()
         uses: actions/upload-artifact@v4.6.2
