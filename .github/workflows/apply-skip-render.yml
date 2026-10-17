@@ -58,7 +58,7 @@ jobs:
       - name: Apply (skip-render, no CLI)
         # Pinned to the v0.16.15 release tag (skip-render shipped in a
         # tagged release; no longer riding the #1476 merge commit).
-        uses: yschimke/compose-ai-tools/.github/actions/apply@v0.19.61
+        uses: yschimke/compose-ai-tools/.github/actions/apply@v2.33.0
         with:
           cli-version: 'none'
           skip-render: 'true'
