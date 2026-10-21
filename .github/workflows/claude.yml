@@ -47,7 +47,7 @@ jobs:
       # Lets Claude read CI results on the PR it is working on.
       actions: read
     steps:
-      - uses: actions/checkout@v4.4.0
+      - uses: actions/checkout@v7.0.1
         with:
           # Full history so Claude can diff against main.
           fetch-depth: 0
@@ -57,13 +57,13 @@ jobs:
       # / compose-preview-scripting Gradle modules — the heavier Amper and
       # Bazel fixtures have their own CI and aren't wired in here.
       - name: Set up JDK 21
-        uses: actions/setup-java@v4.9.1
+        uses: actions/setup-java@v6.0.1
         with:
           distribution: temurin
           java-version: 21.0.12+101.0.LTS
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4.4.4
+        uses: gradle/actions/setup-gradle@v6.4.0
         with:
           cache-read-only: true
 
