@@ -6,7 +6,7 @@ composeaiDaemon = "3.18.5"
 composeaiContracts = "3.35.0"
 composeaiDriver = "2.61.2"
 compose = "1.11.1"
-kotlin = "2.4.20"
+kotlin = "2.4.21"
 junit = "4.13.2"
 truth = "1.4.5"
 # ClassGraph drives the bundle producer's reachability closure walk — the same
