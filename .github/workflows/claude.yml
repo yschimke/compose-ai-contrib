@@ -60,14 +60,14 @@ jobs:
         uses: actions/setup-java@v4.9.1
         with:
           distribution: temurin
-          java-version: 21.0.12+101.0.LTS
+          java-version: 21.0.13+9.0.LTS
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4.4.4
         with:
           cache-read-only: true
 
-      - uses: anthropics/claude-code-action@v1.0.252
+      - uses: anthropics/claude-code-action@v1.0.259
         with:
           # Bills the Claude subscription's included usage (shared with
           # interactive Claude Code sessions) rather than per-token API spend.
