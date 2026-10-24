@@ -16,7 +16,7 @@ classgraph = "4.8.199"
 # Wire-format JSON for the bundle manifest (`bundle.json`). Must encode the
 # `ClasspathEntry` sealed hierarchy with the `kind` discriminator exactly as the
 # upstream `:bundle-viewer` reader expects.
-kotlinxSerialization = "1.11.0"
+kotlinxSerialization = "1.12.0"
 
 [libraries]
 composeai-daemon-bom = { module = "ee.schimke.composeai:compose-preview-daemon-bom", version.ref = "composeaiDaemon" }
