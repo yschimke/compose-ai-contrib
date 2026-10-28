@@ -70,7 +70,7 @@ jobs:
           plugin-readiness-timeout: 0
       # 17 runs the CLI (listed last, so it is JAVA_HOME); 21 is the JDK the
       # prelude's toolchains compile with (.buckconfig.local below).
-      - uses: actions/setup-java@v4.9.1
+      - uses: actions/setup-java@v6.1.0
         with:
           distribution: temurin
           java-version: |
@@ -128,7 +128,7 @@ jobs:
 
       - name: Upload the render
         if: always()
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: buck2-desktop-render
           path: build/buck2-render/
@@ -147,7 +147,7 @@ jobs:
         with:
           version: 2.67.0
           plugin-readiness-timeout: 0
-      - uses: actions/setup-java@v4.9.1
+      - uses: actions/setup-java@v6.1.0
         with:
           distribution: temurin
           java-version: |
@@ -222,7 +222,7 @@ jobs:
 
       - name: Upload the render
         if: always()
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: buck2-android-render
           path: build/buck2-android-render/
