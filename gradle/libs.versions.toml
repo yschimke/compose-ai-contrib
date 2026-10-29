@@ -1,10 +1,14 @@
 [versions]
 # Tools, sessions, daemons and contracts now publish independently.
-composeai = "2.74.0"
-composeaiSession = "2.72.0"
-composeaiDaemon = "3.25.1"
+composeai = "2.74.1"
+composeaiSession = "2.74.1"
+# render-session-api publishes only when it changes, so it trails the rest of the session line
+# (compose-ai-tools-bom 2.74.1 pins it at 2.72.0 beside render-cli 2.74.1). A shared ref made
+# Renovate propose a render-session-api version that was never published.
+composeaiSessionApi = "2.72.0"
+composeaiDaemon = "3.26.0"
 composeaiContracts = "3.39.0"
-composeaiDriver = "2.72.0"
+composeaiDriver = "2.74.1"
 compose = "1.11.1"
 kotlin = "2.4.21"
 junit = "4.13.2"
@@ -24,7 +28,7 @@ composeai-contracts-bom = { module = "ee.schimke.composeai:compose-preview-contr
 composeai-preview-discovery = { module = "ee.schimke.composeai:preview-discovery", version.ref = "composeai" }
 composeai-daemon-launch-builder = { module = "ee.schimke.composeai:daemon-launch-builder", version.ref = "composeai" }
 composeai-render-cli = { module = "ee.schimke.composeai:render-cli", version.ref = "composeaiSession" }
-composeai-render-session-api = { module = "ee.schimke.composeai:render-session-api", version.ref = "composeaiSession" }
+composeai-render-session-api = { module = "ee.schimke.composeai:render-session-api", version.ref = "composeaiSessionApi" }
 composeai-render-session-subprocess = { module = "ee.schimke.composeai:render-session-subprocess", version.ref = "composeaiSession" }
 composeai-daemon-desktop = { module = "ee.schimke.composeai:daemon-desktop" }
 composeai-daemon-core = { module = "ee.schimke.composeai:daemon-core" }
