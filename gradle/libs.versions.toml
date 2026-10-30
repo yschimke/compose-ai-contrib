@@ -6,7 +6,7 @@ composeaiSession = "2.74.1"
 # (compose-ai-tools-bom 2.74.1 pins it at 2.72.0 beside render-cli 2.74.1). A shared ref made
 # Renovate propose a render-session-api version that was never published.
 composeaiSessionApi = "2.72.0"
-composeaiDaemon = "3.26.0"
+composeaiDaemon = "3.27.0"
 composeaiContracts = "3.39.0"
 composeaiDriver = "2.74.1"
 compose = "1.11.1"
