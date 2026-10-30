@@ -126,7 +126,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4.4.0
       # Picks the Bazel Android aspect itself (compose-ai-tools#6063, #6065).
-      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.74.1
+      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.75.0
         with:
           version: 2.68.4
           plugin-readiness-timeout: 0
@@ -191,7 +191,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4.4.0
       # Picks the Bazel Android aspect itself (compose-ai-tools#6063, #6065).
-      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.74.1
+      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.75.0
         with:
           version: 2.68.4
           plugin-readiness-timeout: 0
