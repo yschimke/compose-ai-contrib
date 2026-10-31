@@ -1,6 +1,6 @@
 [versions]
 # Tools, sessions, daemons and contracts now publish independently.
-composeai = "2.75.0"
+composeai = "2.79.0"
 composeaiSession = "2.75.0"
 # render-session-api publishes only when it changes, so it trails the rest of the session line
 # (compose-ai-tools-bom 2.74.1 pins it at 2.72.0 beside render-cli 2.74.1). A shared ref made
