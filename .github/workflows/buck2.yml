@@ -64,7 +64,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # The first release with Buck2 Desktop and Android support (compose-ai-tools#6061).
-      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.77.0
+      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.78.0
         with:
           version: 2.67.0
           plugin-readiness-timeout: 0
@@ -143,7 +143,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # The first release with Buck2 Desktop and Android support (compose-ai-tools#6061).
-      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.77.0
+      - uses: yschimke/compose-ai-tools/.github/actions/install@v2.78.0
         with:
           version: 2.67.0
           plugin-readiness-timeout: 0
