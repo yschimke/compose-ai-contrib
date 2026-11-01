@@ -48,7 +48,7 @@ bazel_dep(name = "rules_android", version = "0.8.0")
 bazel_dep(name = "rules_compose_preview", version = "0.1.0-rc.15")
 git_override(
     module_name = "rules_compose_preview",
-    commit = "d7cfd1f7c12e3fddc3510a0d1dc64e6bbb98df0e",
+    commit = "d0b8e719a0a62d371074e54cc6347a1f48917da8",
     remote = "https://github.com/yschimke/compose-preview-bazel.git",
 )
 
