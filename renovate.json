@@ -3,6 +3,7 @@
   "extends": [
     "github>yschimke/renovate-config"
   ],
+  "platformAutomerge": true,
   "packageRules": [
     {
       "description": "Group tools/plugin, sessions, driver, daemon BOM and contracts BOM updates so CI checks compatibility. These release lines publish independently; do not force the same version across artifacts.",
