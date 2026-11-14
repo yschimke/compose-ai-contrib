@@ -6,5 +6,5 @@ Auto-generated from `main`. Browse inline or compare against PR branches.
 
 | Preview | Image |
 |---------|-------|
-| `Greeting` | <img src="https://raw.githubusercontent.com/yschimke/compose-ai-contrib/compose-preview/amper/main/renders/:amper-cmp-desktop/GreetingKt.Greeting.png" width="150" /> |
+| `Greeting` | <img src="https://raw.githubusercontent.com/yschimke/compose-ai-contrib/compose-preview/amper/main/renders/:amper-cmp-desktop/Greeting-f5650a07.png" width="150" /> |
 
