@@ -71,11 +71,11 @@ maven.install(
     aar_import_bzl_label = "@rules_android//rules:rules.bzl",
     artifacts = [
         "androidx.activity:activity-compose:1.13.0",
-        "androidx.compose.foundation:foundation:1.12.1",
-        "androidx.compose.material3:material3:1.4.0",
-        "androidx.compose.runtime:runtime:1.12.1",
-        "androidx.compose.ui:ui:1.12.1",
-        "androidx.compose.ui:ui-tooling-preview:1.12.1",
+        "androidx.compose.foundation:foundation:1.13.0",
+        "androidx.compose.material3:material3:1.5.0",
+        "androidx.compose.runtime:runtime:1.13.0",
+        "androidx.compose.ui:ui:1.13.0",
+        "androidx.compose.ui:ui-tooling-preview:1.13.0",
         "androidx.core:core-ktx:1.19.1",
         # Must match the Kotlin compiler rules_kotlin bundles (2.4.21) —
         # the Compose compiler plugin is versioned in lockstep with Kotlin and
