@@ -16,7 +16,7 @@ bazel_dep(name = "rules_compose_preview", version = "0.1.0-rc.15")
 # Independent, immutable rule module; preview CLI remains separately staged/pinned.
 git_override(
     module_name = "rules_compose_preview",
-    commit = "19bfd4b01a4ae82c1c54d566a6f1618b89b31c3e",
+    commit = "ddd007d53b9abec92d991926ba154761dcc96f1c",
     remote = "https://github.com/yschimke/compose-preview-bazel.git",
 )
 
