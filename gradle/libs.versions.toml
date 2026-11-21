@@ -7,7 +7,7 @@ composeaiSession = "2.100.0"
 # Renovate propose a render-session-api version that was never published.
 composeaiSessionApi = "2.98.0"
 composeaiDaemon = "3.28.1"
-composeaiContracts = "3.44.0"
+composeaiContracts = "3.45.0"
 composeaiDriver = "2.98.0"
 compose = "1.12.2"
 kotlin = "2.4.21"
